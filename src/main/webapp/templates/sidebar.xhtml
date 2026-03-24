@@ -1,0 +1,16 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="jakarta.faces.html"
+                xmlns:ui="jakarta.faces.facelets">
+
+    <div class="sidebar-content">
+        <h3>Navigation</h3>
+        <ul class="sidebar-menu">
+            <li><h:link outcome="/app/dashboard.xhtml" value="Dashboard"/></li>
+            <li><h:link outcome="/app/catalog/tools.xhtml" value="Catalogue"/></li>
+            <li><h:link outcome="/app/client/reservations.xhtml" value="Réservations"/></li>
+            <li><h:link outcome="/app/agent/returns.xhtml" value="Retours"/></li>
+            <li><h:link outcome="/app/admin/users.xhtml" value="Utilisateurs"/></li>
+        </ul>
+    </div>
+
+</ui:composition>

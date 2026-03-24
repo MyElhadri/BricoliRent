@@ -1,0 +1,25 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="jakarta.faces.html"
+                xmlns:ui="jakarta.faces.facelets">
+
+    <div class="header-content">
+        <div class="header-logo">
+            <h:link outcome="/app/dashboard.xhtml">
+                <span class="logo-text">🔧 BricoliRent</span>
+            </h:link>
+        </div>
+        <nav class="header-nav">
+            <h:link outcome="/app/catalog/tools.xhtml" value="Catalogue"/>
+            <h:link outcome="/app/dashboard.xhtml" value="Dashboard"/>
+        </nav>
+        <div class="header-user">
+            <h:form>
+                <h:outputText value="#{loginBean.loggedUser.firstName}"
+                              rendered="#{loginBean.loggedIn}"/>
+                <h:commandLink value="Déconnexion" action="#{loginBean.logout()}"
+                               rendered="#{loginBean.loggedIn}"/>
+            </h:form>
+        </div>
+    </div>
+
+</ui:composition>
