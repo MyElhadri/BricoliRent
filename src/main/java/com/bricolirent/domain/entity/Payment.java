@@ -1,5 +1,8 @@
 package com.bricolirent.domain.entity;
 
+import com.bricolirent.domain.enums.PaymentMethod;
+import com.bricolirent.domain.enums.PaymentStatus;
+import com.bricolirent.domain.enums.PaymentType;
 import jakarta.persistence.*;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.OnDelete;
@@ -27,17 +30,17 @@ public class Payment {
     private Agent recordedByAgent;
 
     @Column(name = "type", columnDefinition = "payment_type not null")
-    private Object type;
+    private PaymentType type;
 
     @Column(name = "method", columnDefinition = "payment_method not null")
-    private Object method;
+    private PaymentMethod method;
 
     @Column(name = "amount", nullable = false, precision = 10, scale = 2)
     private BigDecimal amount;
 
     @ColumnDefault("'PENDING'")
     @Column(name = "status", columnDefinition = "payment_status not null")
-    private Object status;
+    private PaymentStatus status;
 
     @ColumnDefault("CURRENT_TIMESTAMP")
     @Column(name = "payment_date", nullable = false)
@@ -73,19 +76,19 @@ public class Payment {
         this.recordedByAgent = recordedByAgent;
     }
 
-    public Object getType() {
+    public PaymentType getType() {
         return type;
     }
 
-    public void setType(Object type) {
+    public void setType(PaymentType type) {
         this.type = type;
     }
 
-    public Object getMethod() {
+    public PaymentMethod getMethod() {
         return method;
     }
 
-    public void setMethod(Object method) {
+    public void setMethod(PaymentMethod method) {
         this.method = method;
     }
 
@@ -97,11 +100,11 @@ public class Payment {
         this.amount = amount;
     }
 
-    public Object getStatus() {
+    public PaymentStatus getStatus() {
         return status;
     }
 
-    public void setStatus(Object status) {
+    public void setStatus(PaymentStatus status) {
         this.status = status;
     }
 

@@ -1,5 +1,6 @@
 package com.bricolirent.domain.entity;
 
+import com.bricolirent.domain.enums.ReservationStatus;
 import jakarta.persistence.*;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.OnDelete;
@@ -52,7 +53,7 @@ public class Reservation {
 
     @ColumnDefault("'PENDING'")
     @Column(name = "status", columnDefinition = "reservation_status not null")
-    private Object status;
+    private ReservationStatus status;
 
     @ColumnDefault("0")
     @Column(name = "estimated_rental_amount", nullable = false, precision = 10, scale = 2)
@@ -150,11 +151,11 @@ public class Reservation {
         this.reservationDate = reservationDate;
     }
 
-    public Object getStatus() {
+    public ReservationStatus getStatus() {
         return status;
     }
 
-    public void setStatus(Object status) {
+    public void setStatus(ReservationStatus status) {
         this.status = status;
     }
 

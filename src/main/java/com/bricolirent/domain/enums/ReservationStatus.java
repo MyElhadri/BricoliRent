@@ -3,9 +3,8 @@ package com.bricolirent.domain.enums;
 
 public enum ReservationStatus {
     PENDING,
-    CONFIRMED,
+    APPROVED,
+    REJECTED,
     CHECKED_OUT,
     RETURNED,
-    CANCELLED,
-    OVERDUE
 }
