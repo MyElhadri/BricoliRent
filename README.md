@@ -1,4 +1,4 @@
-# 🔧 BricoliRent
+[# 🔧 BricoliRent
 
 **Application de location d'outils** — Projet académique Jakarta EE
 
@@ -50,9 +50,9 @@ BricoliRent/
     │   │   │   └── impl/        ← Implémentations
     │   │   ├── web/
     │   │   │   ├── bean/        ← Managed Beans JSF (CDI)
-    │   │   │   └── converter/   ← Convertisseurs JSF
-    │   │   ├── security/        ← Sécurité (à venir)
-    │   │   ├── config/          ← Configuration (à venir)
+    │   │   │     
+    │   │   ├── security/        ← Sécurité 
+    │   │   ├── config/          ← Configuration
     │   │   └── util/            ← HibernateUtil
     │   ├── resources/
     │   │   └── hibernate.cfg.xml
@@ -127,3 +127,4 @@ BricoliRent/
 ## 📄 Licence
 
 Projet académique — Usage éducatif uniquement.
+]()

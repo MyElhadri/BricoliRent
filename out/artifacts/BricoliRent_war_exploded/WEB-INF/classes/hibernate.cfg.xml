@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC
+        "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+        "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+
+<hibernate-configuration>
+    <session-factory>
+        <!-- ==================== -->
+        <!--  PostgreSQL Connection -->
+        <!-- ==================== -->
+        <!-- JDBC PostgreSQL -->
+        <property name="connection.driver_class">org.postgresql.Driver</property>
+        <property name="connection.url">jdbc:postgresql://localhost:5432/bricolirent</property>
+        <property name="connection.username">postgres</property>
+        <property name="connection.password">120701</property>
+
+        <!-- ==================== -->
+        <!--  Hibernate Settings -->
+        <!-- ==================== -->
+        <property name="hibernate.dialect">org.hibernate.dialect.PostgreSQLDialect</property>
+        <property name="hibernate.show_sql">true</property>
+        <property name="hibernate.format_sql">true</property>
+        <property name="hibernate.hbm2ddl.auto">update</property>
+        <property name="hibernate.current_session_context_class">thread</property>
+
+        <!-- ==================== -->
+        <!--  Connection Pool -->
+        <!-- ==================== -->
+        <property name="hibernate.connection.pool_size">5</property>
+
+        <!-- ==================== -->
+        <!--  Mapped Entities -->
+        <!-- ==================== -->
+        <mapping class="com.bricolirent.domain.entity.User"/>
+        <mapping class="com.bricolirent.domain.entity.Client"/>
+        <mapping class="com.bricolirent.domain.entity.Agent"/>
+        <mapping class="com.bricolirent.domain.entity.Admin"/>
+        <mapping class="com.bricolirent.domain.entity.Category"/>
+        <mapping class="com.bricolirent.domain.entity.Tool"/>
+        <mapping class="com.bricolirent.domain.entity.Reservation"/>
+        <mapping class="com.bricolirent.domain.entity.ReturnRecord"/>
+        <mapping class="com.bricolirent.domain.entity.Payment"/>
+    </session-factory>
+</hibernate-configuration>

@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="war" name="BricoliRent:war">
+    <output-path>$PROJECT_DIR$/out/artifacts/BricoliRent_war</output-path>
+    <root id="archive" name="BricoliRent_war.war">
+      <element id="artifact" artifact-name="BricoliRent:war exploded" />
+    </root>
+  </artifact>
+</component>

@@ -1,57 +1,44 @@
 package com.bricolirent.domain.entity;
 
 import jakarta.persistence.*;
-import java.io.Serializable;
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
-/**
- * ReturnRecord entity — records the return of tools from a reservation.
- * Tracks actual return date, late days, and penalty amount.
- * V1: only late penalties (no damage tracking).
- */
+import java.math.BigDecimal;
+import java.time.Instant;
+
 @Entity
 @Table(name = "return_records")
-public class ReturnRecord implements Serializable {
-
+public class ReturnRecord {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false)
     private Long id;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "reservation_id", nullable = false, unique = true)
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @JoinColumn(name = "reservation_id", nullable = false)
     private Reservation reservation;
 
-    @Column(name = "return_date", nullable = false)
-    private LocalDate returnDate;
-
-    @Column(name = "late_days")
-    private int lateDays;
-
-    @Column(name = "penalty_amount", precision = 10, scale = 2)
-    private BigDecimal penaltyAmount = BigDecimal.ZERO;
-
-    private String notes;
-
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "agent_id", nullable = false)
-    private Agent agent;
+    @OnDelete(action = OnDeleteAction.SET_NULL)
+    @JoinColumn(name = "handled_by_agent_id")
+    private Agent handledByAgent;
 
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
+    @Column(name = "actual_return_date", nullable = false)
+    private Instant actualReturnDate;
 
-    // ==================== Constructors ====================
+    @ColumnDefault("0")
+    @Column(name = "late_days", nullable = false)
+    private Integer lateDays;
 
-    public ReturnRecord() {
-    }
+    @ColumnDefault("0")
+    @Column(name = "late_penalty", nullable = false, precision = 10, scale = 2)
+    private BigDecimal latePenalty;
 
-    @PrePersist
-    protected void onCreate() {
-        this.createdAt = LocalDateTime.now();
-    }
-
-    // ==================== Getters & Setters ====================
+    @Column(name = "notes", length = Integer.MAX_VALUE)
+    private String notes;
 
     public Long getId() {
         return id;
@@ -69,28 +56,36 @@ public class ReturnRecord implements Serializable {
         this.reservation = reservation;
     }
 
-    public LocalDate getReturnDate() {
-        return returnDate;
+    public Agent getHandledByAgent() {
+        return handledByAgent;
     }
 
-    public void setReturnDate(LocalDate returnDate) {
-        this.returnDate = returnDate;
+    public void setHandledByAgent(Agent handledByAgent) {
+        this.handledByAgent = handledByAgent;
     }
 
-    public int getLateDays() {
+    public Instant getActualReturnDate() {
+        return actualReturnDate;
+    }
+
+    public void setActualReturnDate(Instant actualReturnDate) {
+        this.actualReturnDate = actualReturnDate;
+    }
+
+    public Integer getLateDays() {
         return lateDays;
     }
 
-    public void setLateDays(int lateDays) {
+    public void setLateDays(Integer lateDays) {
         this.lateDays = lateDays;
     }
 
-    public BigDecimal getPenaltyAmount() {
-        return penaltyAmount;
+    public BigDecimal getLatePenalty() {
+        return latePenalty;
     }
 
-    public void setPenaltyAmount(BigDecimal penaltyAmount) {
-        this.penaltyAmount = penaltyAmount;
+    public void setLatePenalty(BigDecimal latePenalty) {
+        this.latePenalty = latePenalty;
     }
 
     public String getNotes() {
@@ -101,19 +96,4 @@ public class ReturnRecord implements Serializable {
         this.notes = notes;
     }
 
-    public Agent getAgent() {
-        return agent;
-    }
-
-    public void setAgent(Agent agent) {
-        this.agent = agent;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
 }

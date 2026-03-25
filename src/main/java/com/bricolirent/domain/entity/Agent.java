@@ -1,41 +1,47 @@
 package com.bricolirent.domain.entity;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
-/**
- * Agent entity — a user who manages check-outs and returns.
- * Tracks which agent processed each operation.
- */
 @Entity
-@DiscriminatorValue("AGENT")
-public class Agent extends User {
+@Table(name = "agents")
+public class Agent {
+    @Id
+    @Column(name = "user_id", nullable = false)
+    private Long id;
 
-    @Column(name = "employee_id", unique = true)
-    private String employeeId;
+    @MapsId
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User users;
 
-    @Column(name = "department")
-    private String department;
+    @Column(name = "employee_code", nullable = false, length = 100)
+    private String employeeCode;
 
-    // ==================== Constructors ====================
-
-    public Agent() {
+    public Long getId() {
+        return id;
     }
 
-    // ==================== Getters & Setters ====================
-
-    public String getEmployeeId() {
-        return employeeId;
+    public void setId(Long id) {
+        this.id = id;
     }
 
-    public void setEmployeeId(String employeeId) {
-        this.employeeId = employeeId;
+    public User getUsers() {
+        return users;
     }
 
-    public String getDepartment() {
-        return department;
+    public void setUsers(User users) {
+        this.users = users;
     }
 
-    public void setDepartment(String department) {
-        this.department = department;
+    public String getEmployeeCode() {
+        return employeeCode;
     }
+
+    public void setEmployeeCode(String employeeCode) {
+        this.employeeCode = employeeCode;
+    }
+
 }

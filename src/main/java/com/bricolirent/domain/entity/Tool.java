@@ -1,52 +1,46 @@
 package com.bricolirent.domain.entity;
 
 import jakarta.persistence.*;
-import java.io.Serializable;
+import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import java.math.BigDecimal;
 
-/**
- * Tool entity — represents a rentable tool/equipment.
- */
 @Entity
 @Table(name = "tools")
-public class Tool implements Serializable {
-
+public class Tool {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false)
     private Long id;
 
-    @Column(nullable = false)
-    private String name;
-
-    private String description;
-
-    @Column(nullable = false)
-    private String brand;
-
-    @Column(name = "daily_price", nullable = false, precision = 10, scale = 2)
-    private BigDecimal dailyPrice;
-
-    @Column(name = "available_quantity", nullable = false)
-    private int availableQuantity;
-
-    @Column(name = "total_quantity", nullable = false)
-    private int totalQuantity;
-
-    @Column(name = "image_url")
-    private String imageUrl;
-
-    private boolean available = true;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id")
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @OnDelete(action = OnDeleteAction.RESTRICT)
+    @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
-    // ==================== Constructors ====================
+    @Column(name = "name", nullable = false, length = 150)
+    private String name;
 
-    public Tool() {
-    }
+    @Column(name = "description", length = Integer.MAX_VALUE)
+    private String description;
 
-    // ==================== Getters & Setters ====================
+    @Column(name = "price_per_day", nullable = false, precision = 10, scale = 2)
+    private BigDecimal pricePerDay;
+
+    @Column(name = "deposit_amount", nullable = false, precision = 10, scale = 2)
+    private BigDecimal depositAmount;
+
+    @Column(name = "total_quantity", nullable = false)
+    private Integer totalQuantity;
+
+    @Column(name = "available_quantity", nullable = false)
+    private Integer availableQuantity;
+
+    @ColumnDefault("true")
+    @Column(name = "active", nullable = false)
+    private Boolean active;
 
     public Long getId() {
         return id;
@@ -54,6 +48,14 @@ public class Tool implements Serializable {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Category getCategory() {
+        return category;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
     }
 
     public String getName() {
@@ -72,59 +74,44 @@ public class Tool implements Serializable {
         this.description = description;
     }
 
-    public String getBrand() {
-        return brand;
+    public BigDecimal getPricePerDay() {
+        return pricePerDay;
     }
 
-    public void setBrand(String brand) {
-        this.brand = brand;
+    public void setPricePerDay(BigDecimal pricePerDay) {
+        this.pricePerDay = pricePerDay;
     }
 
-    public BigDecimal getDailyPrice() {
-        return dailyPrice;
+    public BigDecimal getDepositAmount() {
+        return depositAmount;
     }
 
-    public void setDailyPrice(BigDecimal dailyPrice) {
-        this.dailyPrice = dailyPrice;
+    public void setDepositAmount(BigDecimal depositAmount) {
+        this.depositAmount = depositAmount;
     }
 
-    public int getAvailableQuantity() {
-        return availableQuantity;
-    }
-
-    public void setAvailableQuantity(int availableQuantity) {
-        this.availableQuantity = availableQuantity;
-    }
-
-    public int getTotalQuantity() {
+    public Integer getTotalQuantity() {
         return totalQuantity;
     }
 
-    public void setTotalQuantity(int totalQuantity) {
+    public void setTotalQuantity(Integer totalQuantity) {
         this.totalQuantity = totalQuantity;
     }
 
-    public String getImageUrl() {
-        return imageUrl;
+    public Integer getAvailableQuantity() {
+        return availableQuantity;
     }
 
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
+    public void setAvailableQuantity(Integer availableQuantity) {
+        this.availableQuantity = availableQuantity;
     }
 
-    public boolean isAvailable() {
-        return available;
+    public Boolean getActive() {
+        return active;
     }
 
-    public void setAvailable(boolean available) {
-        this.available = available;
+    public void setActive(Boolean active) {
+        this.active = active;
     }
 
-    public Category getCategory() {
-        return category;
-    }
-
-    public void setCategory(Category category) {
-        this.category = category;
-    }
 }

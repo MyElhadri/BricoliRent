@@ -1,29 +1,36 @@
 package com.bricolirent.domain.entity;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
-/**
- * Admin entity — a user with full system administration privileges.
- */
 @Entity
-@DiscriminatorValue("ADMIN")
-public class Admin extends User {
+@Table(name = "admins")
+public class Admin {
+    @Id
+    @Column(name = "user_id", nullable = false)
+    private Long id;
 
-    @Column(name = "admin_level")
-    private String adminLevel;
+    @MapsId
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User users;
 
-    // ==================== Constructors ====================
-
-    public Admin() {
+    public Long getId() {
+        return id;
     }
 
-    // ==================== Getters & Setters ====================
-
-    public String getAdminLevel() {
-        return adminLevel;
+    public void setId(Long id) {
+        this.id = id;
     }
 
-    public void setAdminLevel(String adminLevel) {
-        this.adminLevel = adminLevel;
+    public User getUsers() {
+        return users;
     }
+
+    public void setUsers(User users) {
+        this.users = users;
+    }
+
 }

@@ -1,35 +1,20 @@
 package com.bricolirent.domain.entity;
 
 import jakarta.persistence.*;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 
-/**
- * Category entity — groups tools by type (e.g., Drilling, Gardening).
- */
 @Entity
 @Table(name = "categories")
-public class Category implements Serializable {
-
+public class Category {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false)
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    @Column(name = "name", nullable = false, length = 100)
     private String name;
 
+    @Column(name = "description", length = Integer.MAX_VALUE)
     private String description;
-
-    @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
-    private List<Tool> tools = new ArrayList<>();
-
-    // ==================== Constructors ====================
-
-    public Category() {
-    }
-
-    // ==================== Getters & Setters ====================
 
     public Long getId() {
         return id;
@@ -55,11 +40,4 @@ public class Category implements Serializable {
         this.description = description;
     }
 
-    public List<Tool> getTools() {
-        return tools;
-    }
-
-    public void setTools(List<Tool> tools) {
-        this.tools = tools;
-    }
 }

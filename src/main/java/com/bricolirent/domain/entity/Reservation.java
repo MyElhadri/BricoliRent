@@ -1,34 +1,44 @@
 package com.bricolirent.domain.entity;
 
-import com.bricolirent.domain.enums.ReservationStatus;
 import jakarta.persistence.*;
-import java.io.Serializable;
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
-/**
- * Reservation entity — a client reserves a tool for a specific period.
- * V1: one tool at a time, with quantity and date range.
- */
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.time.LocalDate;
+
 @Entity
 @Table(name = "reservations")
-public class Reservation implements Serializable {
-
+public class Reservation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @OnDelete(action = OnDeleteAction.RESTRICT)
     @JoinColumn(name = "client_id", nullable = false)
     private Client client;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @OnDelete(action = OnDeleteAction.RESTRICT)
     @JoinColumn(name = "tool_id", nullable = false)
     private Tool tool;
 
-    @Column(nullable = false)
-    private int quantity;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @OnDelete(action = OnDeleteAction.SET_NULL)
+    @JoinColumn(name = "handled_by_agent_id")
+    private Agent handledByAgent;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @OnDelete(action = OnDeleteAction.SET_NULL)
+    @JoinColumn(name = "checkout_agent_id")
+    private Agent checkoutAgent;
+
+    @Column(name = "quantity", nullable = false)
+    private Integer quantity;
 
     @Column(name = "start_date", nullable = false)
     private LocalDate startDate;
@@ -36,31 +46,37 @@ public class Reservation implements Serializable {
     @Column(name = "end_date", nullable = false)
     private LocalDate endDate;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private ReservationStatus status = ReservationStatus.PENDING;
+    @ColumnDefault("CURRENT_TIMESTAMP")
+    @Column(name = "reservation_date", nullable = false)
+    private Instant reservationDate;
 
-    @Column(name = "total_price", precision = 10, scale = 2)
-    private BigDecimal totalPrice;
+    @ColumnDefault("'PENDING'")
+    @Column(name = "status", columnDefinition = "reservation_status not null")
+    private Object status;
 
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
+    @ColumnDefault("0")
+    @Column(name = "estimated_rental_amount", nullable = false, precision = 10, scale = 2)
+    private BigDecimal estimatedRentalAmount;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "checkout_agent_id")
-    private Agent checkoutAgent;
+    @ColumnDefault("0")
+    @Column(name = "estimated_deposit_amount", nullable = false, precision = 10, scale = 2)
+    private BigDecimal estimatedDepositAmount;
 
-    // ==================== Constructors ====================
+    @ColumnDefault("false")
+    @Column(name = "approved_automatically", nullable = false)
+    private Boolean approvedAutomatically;
 
-    public Reservation() {
-    }
+    @Column(name = "approval_reason", length = Integer.MAX_VALUE)
+    private String approvalReason;
 
-    @PrePersist
-    protected void onCreate() {
-        this.createdAt = LocalDateTime.now();
-    }
+    @Column(name = "approved_at")
+    private Instant approvedAt;
 
-    // ==================== Getters & Setters ====================
+    @Column(name = "checked_out_at")
+    private Instant checkedOutAt;
+
+    @Column(name = "receipt_number", length = 100)
+    private String receiptNumber;
 
     public Long getId() {
         return id;
@@ -86,11 +102,27 @@ public class Reservation implements Serializable {
         this.tool = tool;
     }
 
-    public int getQuantity() {
+    public Agent getHandledByAgent() {
+        return handledByAgent;
+    }
+
+    public void setHandledByAgent(Agent handledByAgent) {
+        this.handledByAgent = handledByAgent;
+    }
+
+    public Agent getCheckoutAgent() {
+        return checkoutAgent;
+    }
+
+    public void setCheckoutAgent(Agent checkoutAgent) {
+        this.checkoutAgent = checkoutAgent;
+    }
+
+    public Integer getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(int quantity) {
+    public void setQuantity(Integer quantity) {
         this.quantity = quantity;
     }
 
@@ -110,35 +142,76 @@ public class Reservation implements Serializable {
         this.endDate = endDate;
     }
 
-    public ReservationStatus getStatus() {
+    public Instant getReservationDate() {
+        return reservationDate;
+    }
+
+    public void setReservationDate(Instant reservationDate) {
+        this.reservationDate = reservationDate;
+    }
+
+    public Object getStatus() {
         return status;
     }
 
-    public void setStatus(ReservationStatus status) {
+    public void setStatus(Object status) {
         this.status = status;
     }
 
-    public BigDecimal getTotalPrice() {
-        return totalPrice;
+    public BigDecimal getEstimatedRentalAmount() {
+        return estimatedRentalAmount;
     }
 
-    public void setTotalPrice(BigDecimal totalPrice) {
-        this.totalPrice = totalPrice;
+    public void setEstimatedRentalAmount(BigDecimal estimatedRentalAmount) {
+        this.estimatedRentalAmount = estimatedRentalAmount;
     }
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
+    public BigDecimal getEstimatedDepositAmount() {
+        return estimatedDepositAmount;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
+    public void setEstimatedDepositAmount(BigDecimal estimatedDepositAmount) {
+        this.estimatedDepositAmount = estimatedDepositAmount;
     }
 
-    public Agent getCheckoutAgent() {
-        return checkoutAgent;
+    public Boolean getApprovedAutomatically() {
+        return approvedAutomatically;
     }
 
-    public void setCheckoutAgent(Agent checkoutAgent) {
-        this.checkoutAgent = checkoutAgent;
+    public void setApprovedAutomatically(Boolean approvedAutomatically) {
+        this.approvedAutomatically = approvedAutomatically;
     }
+
+    public String getApprovalReason() {
+        return approvalReason;
+    }
+
+    public void setApprovalReason(String approvalReason) {
+        this.approvalReason = approvalReason;
+    }
+
+    public Instant getApprovedAt() {
+        return approvedAt;
+    }
+
+    public void setApprovedAt(Instant approvedAt) {
+        this.approvedAt = approvedAt;
+    }
+
+    public Instant getCheckedOutAt() {
+        return checkedOutAt;
+    }
+
+    public void setCheckedOutAt(Instant checkedOutAt) {
+        this.checkedOutAt = checkedOutAt;
+    }
+
+    public String getReceiptNumber() {
+        return receiptNumber;
+    }
+
+    public void setReceiptNumber(String receiptNumber) {
+        this.receiptNumber = receiptNumber;
+    }
+
 }

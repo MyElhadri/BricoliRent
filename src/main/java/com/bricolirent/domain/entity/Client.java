@@ -1,65 +1,49 @@
 package com.bricolirent.domain.entity;
 
 import jakarta.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
+import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
-/**
- * Client entity — a user who can rent tools.
- * Has a score/points system for reservation validation.
- */
 @Entity
-@DiscriminatorValue("CLIENT")
-public class Client extends User {
+@Table(name = "clients")
+public class Client {
+    @Id
+    @Column(name = "user_id", nullable = false)
+    private Long id;
 
-    @Column(name = "score")
-    private int score = 100;
+    @MapsId
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User users;
 
-    @Column(name = "address")
-    private String address;
+    @ColumnDefault("0")
+    @Column(name = "score", nullable = false)
+    private Integer score;
 
-    @Column(name = "cin", unique = true)
-    private String cin;
-
-    @OneToMany(mappedBy = "client", fetch = FetchType.LAZY)
-    private List<Reservation> reservations = new ArrayList<>();
-
-    // ==================== Constructors ====================
-
-    public Client() {
+    public Long getId() {
+        return id;
     }
 
-    // ==================== Getters & Setters ====================
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-    public int getScore() {
+    public User getUsers() {
+        return users;
+    }
+
+    public void setUsers(User users) {
+        this.users = users;
+    }
+
+    public Integer getScore() {
         return score;
     }
 
-    public void setScore(int score) {
+    public void setScore(Integer score) {
         this.score = score;
     }
 
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
-    public String getCin() {
-        return cin;
-    }
-
-    public void setCin(String cin) {
-        this.cin = cin;
-    }
-
-    public List<Reservation> getReservations() {
-        return reservations;
-    }
-
-    public void setReservations(List<Reservation> reservations) {
-        this.reservations = reservations;
-    }
 }
