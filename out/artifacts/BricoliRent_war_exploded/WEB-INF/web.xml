@@ -7,9 +7,8 @@
 
     <display-name>BricoliRent</display-name>
 
-    <!-- ==================== -->
-    <!--  JSF Servlet (Faces) -->
-    <!-- ==================== -->
+
+    <!-- Pour deployer les servlets de JSF  -->
     <servlet>
         <servlet-name>Faces Servlet</servlet-name>
         <servlet-class>jakarta.faces.webapp.FacesServlet</servlet-class>
@@ -20,23 +19,20 @@
         <url-pattern>*.xhtml</url-pattern>
     </servlet-mapping>
 
-    <!-- ==================== -->
-    <!--  Welcome File -->
-    <!-- ==================== -->
+
+    <!-- Entré Initial -->
     <welcome-file-list>
         <welcome-file>index.xhtml</welcome-file>
     </welcome-file-list>
 
-    <!-- ==================== -->
-    <!--  Session Timeout (minutes) -->
-    <!-- ==================== -->
+
+    <!-- Time Out -->
     <session-config>
         <session-timeout>30</session-timeout>
     </session-config>
 
-    <!-- ==================== -->
-    <!--  JSF Project Stage -->
-    <!-- ==================== -->
+
+    <!-- JSF Stage Ndaaaa -->
     <context-param>
         <param-name>jakarta.faces.PROJECT_STAGE</param-name>
         <param-value>Development</param-value>
