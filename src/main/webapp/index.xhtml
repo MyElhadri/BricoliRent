@@ -1,22 +1,679 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="jakarta.faces.html"
-      xmlns:f="jakarta.faces.core">
+      xmlns:f="jakarta.faces.core"
+      xmlns:p="primefaces"
+      xmlns:ui="jakarta.faces.facelets">
 <h:head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>BricoliRent — Accueil</title>
-    <h:outputStylesheet name="css/style.css"/>
+    <title>BricoliRent — Louez mieux, construisez plus</title>
+    <h:outputStylesheet library="webjars" name="primeicons/6.0.1/primeicons.css"/>
+    <style>
+        :root {
+            --bg-1: #081018;
+            --bg-2: #0f172a;
+            --bg-3: #1e293b;
+            --text-main: #f8fafc;
+            --text-soft: #cbd5e1;
+            --text-muted: #94a3b8;
+            --accent-1: #f97316;
+            --accent-2: #fb7185;
+            --accent-3: #38bdf8;
+            --card: rgba(255,255,255,0.08);
+            --card-border: rgba(255,255,255,0.10);
+            --glass: rgba(255,255,255,0.05);
+            --shadow: 0 20px 60px rgba(0,0,0,0.35);
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            min-height: 100%;
+            font-family: "Inter", "Segoe UI", Arial, sans-serif;
+            background:
+                    radial-gradient(circle at 15% 20%, rgba(249,115,22,0.20), transparent 25%),
+                    radial-gradient(circle at 85% 15%, rgba(56,189,248,0.18), transparent 25%),
+                    radial-gradient(circle at 50% 85%, rgba(251,113,133,0.14), transparent 25%),
+                    linear-gradient(135deg, var(--bg-1), var(--bg-2) 45%, #111827 100%);
+            color: var(--text-main);
+            overflow-x: hidden;
+        }
+
+        .landing-page {
+            position: relative;
+            min-height: 100vh;
+        }
+
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(90px);
+            opacity: 0.55;
+            z-index: 0;
+            animation: floatBlob 12s ease-in-out infinite;
+        }
+
+        .blob-1 {
+            width: 320px;
+            height: 320px;
+            top: 40px;
+            left: -80px;
+            background: rgba(249,115,22,0.28);
+        }
+
+        .blob-2 {
+            width: 360px;
+            height: 360px;
+            right: -80px;
+            top: 120px;
+            background: rgba(56,189,248,0.22);
+            animation-delay: -4s;
+        }
+
+        .blob-3 {
+            width: 280px;
+            height: 280px;
+            left: 35%;
+            bottom: 30px;
+            background: rgba(251,113,133,0.18);
+            animation-delay: -7s;
+        }
+
+        @keyframes floatBlob {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-22px) scale(1.06); }
+        }
+
+        .topbar {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 5%;
+            height: 88px;
+            backdrop-filter: blur(10px);
+            background: rgba(10, 15, 25, 0.35);
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            overflow: visible;
+        }
+
+        .brand {
+    display: flex;
+    align-items: center;
+    height: 100%;
+    position: relative;
+}
+
+        .brand-logo {
+            width: 220px;
+            height: auto;
+            display: block;
+            object-fit: contain;
+            filter: drop-shadow(0 10px 24px rgba(0, 0, 0, 0.30));
+            transition: transform 0.25s ease;
+            position: relative;
+            top: 14px;
+        }
+
+        .brand-logo:hover {
+            transform: scale(1.03);
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .top-link {
+            color: var(--text-soft);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.7rem 1rem;
+            border-radius: 12px;
+            transition: 0.25s ease;
+        }
+
+        .top-link:hover {
+            color: white;
+            background: rgba(255,255,255,0.08);
+        }
+
+        .hero {
+            position: relative;
+            z-index: 2;
+            max-width: 1320px;
+            margin: 0 auto;
+            padding: 4.5rem 5% 3rem;
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 2.5rem;
+            align-items: center;
+        }
+
+        .hero-left {
+            animation: fadeUp 0.9s ease-out;
+        }
+
+        .badge-soft {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.55rem;
+            padding: 0.7rem 1.2rem;
+            border-radius: 999px;
+            background: rgba(249,115,22,0.12);
+            border: 1px solid rgba(249,115,22,0.26);
+            color: #fdba74;
+            font-weight: 700;
+            font-size: 0.92rem;
+            margin-bottom: 1.4rem;
+            box-shadow: 0 8px 24px rgba(249,115,22,0.12);
+        }
+
+        .hero-title {
+            font-size: clamp(2.8rem, 5vw, 5.4rem);
+            line-height: 1.02;
+            letter-spacing: -1.8px;
+            font-weight: 900;
+            margin: 0 0 1.25rem 0;
+        }
+
+        .hero-title .grad {
+            background: linear-gradient(90deg, #ffffff, #7dd3fc, #fda4af);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-subtitle {
+            font-size: 1.16rem;
+            line-height: 1.8;
+            color: var(--text-soft);
+            max-width: 720px;
+            margin-bottom: 2rem;
+        }
+
+        .hero-subtitle strong {
+            color: #ffffff;
+        }
+
+        .cta-zone {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1.4rem;
+        }
+
+        .cta-primary .ui-button,
+        .cta-secondary .ui-button {
+            border-radius: 16px !important;
+            padding: 1rem 1.6rem !important;
+            font-size: 1.02rem !important;
+            font-weight: 700 !important;
+            transition: transform 0.28s ease, box-shadow 0.28s ease, filter 0.28s ease !important;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-primary .ui-button {
+            border: none !important;
+            background: linear-gradient(135deg, var(--accent-1), var(--accent-2)) !important;
+            box-shadow: 0 14px 34px rgba(249,115,22,0.28);
+        }
+
+        .cta-primary .ui-button:hover {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(249,115,22,0.36);
+            filter: brightness(1.05);
+        }
+
+        .cta-secondary .ui-button {
+            background: rgba(255,255,255,0.05) !important;
+            color: #ffffff !important;
+            border: 1px solid rgba(255,255,255,0.14) !important;
+            backdrop-filter: blur(8px);
+        }
+
+        .cta-secondary .ui-button:hover {
+            transform: translateY(-4px);
+            background: rgba(255,255,255,0.10) !important;
+            box-shadow: 0 16px 32px rgba(0,0,0,0.28);
+        }
+
+        .micro-proof {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem 1.4rem;
+            color: var(--text-muted);
+            font-size: 0.96rem;
+        }
+
+        .micro-proof-item {
+            display: flex;
+            align-items: center;
+            gap: 0.55rem;
+        }
+
+        .micro-proof-item .pi {
+            color: #86efac;
+            font-size: 1rem;
+        }
+
+        .hero-right {
+            animation: fadeUp 1.05s ease-out;
+        }
+
+        .visual-card {
+            position: relative;
+            border-radius: 28px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.11), rgba(255,255,255,0.06));
+            border: 1px solid var(--card-border);
+            box-shadow: var(--shadow);
+            padding: 1.4rem;
+            backdrop-filter: blur(14px);
+        }
+
+        .visual-inner {
+            border-radius: 22px;
+            padding: 1.5rem;
+            background:
+                    linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03)),
+                    rgba(15,23,42,0.72);
+            border: 1px solid rgba(255,255,255,0.06);
+        }
+
+        .mini-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.2rem;
+        }
+
+        .mini-chip {
+            padding: 0.45rem 0.75rem;
+            border-radius: 999px;
+            background: rgba(56,189,248,0.12);
+            color: #7dd3fc;
+            font-size: 0.82rem;
+            font-weight: 700;
+        }
+
+        .tool-panel {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .tool-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            padding: 1rem;
+            border-radius: 18px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.06);
+            transition: transform 0.25s ease, background 0.25s ease;
+        }
+
+        .tool-row:hover {
+            transform: translateX(4px);
+            background: rgba(255,255,255,0.08);
+        }
+
+        .tool-left {
+            display: flex;
+            align-items: center;
+            gap: 0.9rem;
+        }
+
+        .tool-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, rgba(249,115,22,0.24), rgba(251,113,133,0.24));
+            color: #fdba74;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .tool-icon .pi {
+            font-size: 1.35rem;
+            color: #ffffff;
+        }
+
+        .tool-title {
+            font-weight: 700;
+            margin-bottom: 0.18rem;
+        }
+
+        .tool-meta {
+            color: var(--text-muted);
+            font-size: 0.92rem;
+        }
+
+        .tool-status {
+            padding: 0.45rem 0.75rem;
+            border-radius: 999px;
+            font-size: 0.82rem;
+            font-weight: 700;
+        }
+
+        .status-ok {
+            background: rgba(34,197,94,0.14);
+            color: #86efac;
+        }
+
+        .status-fast {
+            background: rgba(56,189,248,0.14);
+            color: #7dd3fc;
+        }
+
+        .human-section {
+            position: relative;
+            z-index: 2;
+            max-width: 1320px;
+            margin: 0 auto;
+            padding: 0 5% 4rem;
+        }
+
+        .human-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.25rem;
+            margin-top: 1.4rem;
+        }
+
+        .human-card {
+            border-radius: 24px;
+            padding: 1.4rem;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.08);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.16);
+            transition: transform 0.28s ease, border-color 0.28s ease;
+        }
+
+        .human-card:hover {
+            transform: translateY(-6px);
+            border-color: rgba(249,115,22,0.24);
+        }
+
+        .human-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            font-size: 1.25rem;
+            background: linear-gradient(135deg, rgba(249,115,22,0.18), rgba(56,189,248,0.16));
+            color: #ffffff;
+        }
+
+        .human-icon .pi {
+            font-size: 1.4rem;
+            color: #ffffff;
+        }
+
+        .human-title {
+            font-size: 1.18rem;
+            font-weight: 800;
+            margin-bottom: 0.7rem;
+        }
+
+        .human-text {
+            color: var(--text-soft);
+            line-height: 1.75;
+            font-size: 0.98rem;
+        }
+
+        .footer-note {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            padding: 0 5% 2rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .badge-soft .pi,
+        .mini-top .pi {
+            font-size: 1rem;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(28px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 1100px) {
+            .hero {
+                grid-template-columns: 1fr;
+            }
+
+            .hero-right {
+                max-width: 760px;
+            }
+
+            .human-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .topbar {
+                padding: 1rem 1rem;
+            }
+
+            .hero {
+                padding: 3rem 1rem 2rem;
+            }
+
+            .human-section {
+                padding: 0 1rem 3rem;
+            }
+
+            .brand-logo {
+                width: 88px;
+            }
+
+            .cta-zone {
+                flex-direction: column;
+            }
+
+            .cta-primary, .cta-secondary {
+                width: 100%;
+            }
+
+            .cta-primary .ui-button,
+            .cta-secondary .ui-button {
+                width: 100%;
+            }
+
+            .micro-proof {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
 </h:head>
+
 <h:body>
-    <div class="landing-container">
-        <div class="landing-content">
-            <h1> BricoliRent</h1>
-            <p>Votre plateforme de location d'outils professionnels</p>
-            <div class="landing-actions">
-                <h:link outcome="login.xhtml" styleClass="btn btn-primary" >Se connecter</h:link>
+    <div class="landing-page">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+
+        <header class="topbar">
+            <div class="brand">
+                <h:graphicImage library="images"
+                                name="logo-bricolirent.png"
+                                alt="Logo BricoliRent"
+                                styleClass="brand-logo"/>
             </div>
+
+            <div class="topbar-right">
+                <h:link outcome="/login.xhtml" styleClass="top-link">
+                    Déjà membre ?
+                </h:link>
+            </div>
+        </header>
+
+        <section class="hero">
+            <div class="hero-left">
+                <div class="badge-soft">
+                    <span class="pi pi-shield"></span>
+                    Une location d’outils fiable et rapide
+                </div>
+
+                <h1 class="hero-title">
+                    Les bons outils,<br/>
+                    au bon moment,<br/>
+                    <span class="grad">pour chaque tache.</span>
+                </h1>
+
+                <p class="hero-subtitle">
+                    BricoliRent aide les particuliers, artisans et équipes terrain à
+                    <strong>réserver des outils professionnels en toute confiance</strong>.
+                    Notre objectif n’est pas seulement de louer du matériel :
+                    c’est de rendre chaque chantier plus simple, plus sûr et plus moderne.
+                </p>
+
+                <div class="cta-zone">
+                    <div class="cta-primary">
+                        <p:button value="S'inscrire"
+                                  icon="pi pi-user-plus"
+                                  outcome="/register.xhtml"/>
+                    </div>
+
+                    <div class="cta-secondary">
+                        <p:button value="Se connecter"
+                                  icon="pi pi-sign-in"
+                                  outcome="/login.xhtml"/>
+                    </div>
+                </div>
+
+                <div class="micro-proof">
+                    <div class="micro-proof-item">
+                        <span class="pi pi-check-circle"></span>
+                        Réservation simple
+                    </div>
+                    <div class="micro-proof-item">
+                        <span class="pi pi-check-circle"></span>
+                        Paiement sur place
+                    </div>
+                    <div class="micro-proof-item">
+                        <span class="pi pi-check-circle"></span>
+                        Suivi transparent
+                    </div>
+                </div>
+            </div>
+
+            <div class="hero-right">
+                <div class="visual-card">
+                    <div class="visual-inner">
+                        <div class="mini-top">
+                            <div class="mini-chip">Disponibilité en temps réel</div>
+                            <span class="pi pi-bolt" style="color:#fbbf24;font-size:1.2rem;"></span>
+                        </div>
+
+                        <div class="tool-panel">
+                            <div class="tool-row">
+                                <div class="tool-left">
+                                    <div class="tool-icon">
+                                        <span class="pi pi-cog"></span>
+                                    </div>
+                                    <div>
+                                        <div class="tool-title">Perceuse professionnelle</div>
+                                        <div class="tool-meta">Réservation rapide • Retrait simplifié</div>
+                                    </div>
+                                </div>
+                                <div class="tool-status status-ok">Disponible</div>
+                            </div>
+
+                            <div class="tool-row">
+                                <div class="tool-left">
+                                    <div class="tool-icon">
+                                        <span class="pi pi-wrench"></span>
+                                    </div>
+                                    <div>
+                                        <div class="tool-title">Kit de maintenance</div>
+                                        <div class="tool-meta">Pour chantiers et interventions</div>
+                                    </div>
+                                </div>
+                                <div class="tool-status status-fast">Express</div>
+                            </div>
+
+                            <div class="tool-row">
+                                <div class="tool-left">
+                                    <div class="tool-icon">
+                                        <span class="pi pi-box"></span>
+                                    </div>
+                                    <div>
+                                        <div class="tool-title">Matériel prêt au départ</div>
+                                        <div class="tool-meta">Traçabilité et sécurité incluses</div>
+                                    </div>
+                                </div>
+                                <div class="tool-status status-ok">Fiable</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="human-section">
+            <div class="human-grid">
+                <div class="human-card">
+                    <div class="human-icon">
+                        <span class="pi pi-clock"></span>
+                    </div>
+                    <div class="human-title">Gagner du temps</div>
+                    <div class="human-text">
+                        Trouvez rapidement l’outil adapté sans perdre du temps dans des
+                        recherches dispersées. L’expérience est pensée pour être claire,
+                        directe et efficace.
+                    </div>
+                </div>
+
+                <div class="human-card">
+                    <div class="human-icon">
+                        <span class="pi pi-lock"></span>
+                    </div>
+                    <div class="human-title">Réserver en confiance</div>
+                    <div class="human-text">
+                        BricoliRent met l’accent sur la sécurité, la transparence des
+                        opérations et une gestion fiable des réservations, paiements et retours.
+                    </div>
+                </div>
+
+                <div class="human-card">
+                    <div class="human-icon">
+                        <span class="pi pi-users"></span>
+                    </div>
+                    <div class="human-title">Rester proche des utilisateurs</div>
+                    <div class="human-text">
+                        Derrière la plateforme, il y a une logique humaine :
+                        accompagner les clients, simplifier le quotidien des agents
+                        et offrir une expérience professionnelle mais chaleureuse.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="footer-note">
+            BricoliRent — une plateforme pensée pour la performance, la confiance et la modernité.
         </div>
     </div>
 </h:body>

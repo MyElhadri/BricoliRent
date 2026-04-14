@@ -5,7 +5,7 @@
     <div class="header-content">
         <div class="header-logo">
             <h:link outcome="/app/dashboard.xhtml">
-                <span class="logo-text">🔧 BricoliRent</span>
+                <span class="logo-text"> BricoliRent</span>
             </h:link>
         </div>
         <nav class="header-nav">
@@ -14,7 +14,7 @@
         </nav>
         <div class="header-user">
             <h:form>
-                <h:outputText value="#{loginBean.loggedUser.firstName}"
+                <h:outputText value="#{loginBean.currentUser.fullName}"
                               rendered="#{loginBean.loggedIn}"/>
                 <h:commandLink value="Déconnexion" action="#{loginBean.logout()}"
                                rendered="#{loginBean.loggedIn}"/>

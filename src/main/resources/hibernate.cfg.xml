@@ -10,9 +10,9 @@
         <!-- ==================== -->
         <!-- JDBC PostgreSQL -->
         <property name="connection.driver_class">org.postgresql.Driver</property>
-        <property name="connection.url">jdbc:postgresql://localhost:5432/bricolirent</property>
+        <property name="connection.url">jdbc:postgresql://localhost:5432/Bricolirent</property>
         <property name="connection.username">postgres</property>
-        <property name="connection.password">120701</property>
+        <property name="connection.password">mba130404</property>
 
         <!-- ==================== -->
         <!--  Hibernate Settings -->
@@ -40,5 +40,6 @@
         <mapping class="com.bricolirent.domain.entity.Reservation"/>
         <mapping class="com.bricolirent.domain.entity.ReturnRecord"/>
         <mapping class="com.bricolirent.domain.entity.Payment"/>
+        <mapping class="com.bricolirent.domain.entity.PasswordResetToken"/>
     </session-factory>
 </hibernate-configuration>

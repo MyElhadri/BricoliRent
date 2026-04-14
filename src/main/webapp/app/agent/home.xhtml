@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:ui="jakarta.faces.facelets">
+
+<ui:composition template="/templates/layout.xhtml">
+
+    <ui:define name="title">BricoliRent — Espace Agent</ui:define>
+
+    <ui:define name="content">
+        <div style="padding: 2rem;">
+
+            <h2>👋 Bienvenue, <strong>#{loginBean.currentUser.fullName}</strong></h2>
+            <p style="color: rgba(255,255,255,0.6);">
+                Vous êtes connecté en tant que <strong>Agent</strong>.
+            </p>
+
+            <hr style="border-color: rgba(255,255,255,0.1); margin: 1.5rem 0;"/>
+
+            <p style="color: rgba(255,255,255,0.5); font-style: italic;">
+                Le dashboard agent sera disponible prochainement.
+                (Gestion check-out, retours, paiements...)
+            </p>
+
+            <!-- Déconnexion -->
+            <h:form>
+                <h:commandButton value="Se déconnecter"
+                                 action="#{loginBean.logout}"
+                                 style="margin-top:1rem; padding:0.6rem 1.4rem;
+                                        background:#e94560; border:none; border-radius:8px;
+                                        color:#fff; cursor:pointer; font-size:0.9rem;"/>
+            </h:form>
+
+        </div>
+    </ui:define>
+
+</ui:composition>
+</html>

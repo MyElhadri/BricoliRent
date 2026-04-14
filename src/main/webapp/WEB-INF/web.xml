@@ -38,3 +38,4 @@
         <param-value>Development</param-value>
     </context-param>
 </web-app>
+<!-- Dans web.xml, session-timeout définit la durée d’inactivité d’une session HTTP en minutes, tandis que jakarta.faces.PROJECT_STAGE indique à JSF si l’application est en mode développement ou production.-->

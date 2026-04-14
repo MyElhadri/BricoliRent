@@ -98,6 +98,7 @@ BricoliRent/
 
 5. **Accéder à l'application** :
    - http://localhost:8080/bricolirent/
+   - http://localhost:8080/BricoliRent_war_exploded/
 
 ---
 

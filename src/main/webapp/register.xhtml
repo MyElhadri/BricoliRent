@@ -7,7 +7,7 @@
 <h:head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>BricoliRent — Connexion</title>
+    <title>BricoliRent — Inscription Client</title>
     <h:outputStylesheet name="css/style.css"/>
 </h:head>
 
@@ -18,7 +18,7 @@
             <!-- Logo / Titre -->
             <div class="login-header">
                 <h1> BricoliRent</h1>
-                <p>Location d'outils professionnels</p>
+                <p>Créer un compte client</p>
             </div>
 
             <!-- Messages globaux -->
@@ -26,13 +26,25 @@
                 <h:messages globalOnly="true" infoClass="alert alert-success" errorClass="alert alert-error" showDetail="true" showSummary="false"/>
             </div>
 
-            <!-- Formulaire de connexion -->
-            <h:form id="loginForm">
+            <!-- Formulaire d'inscription -->
+            <h:form id="registerForm">
+
+                <div class="form-group">
+                    <h:outputLabel for="fullName" value="Nom complet"/>
+                    <h:inputText id="fullName"
+                                 value="#{registerBean.fullName}"
+                                 required="true"
+                                 requiredMessage="Le nom complet est obligatoire."
+                                 styleClass="form-control">
+                        <f:validateRequired/>
+                    </h:inputText>
+                    <h:message for="fullName" style="color:#f87171;font-size:0.85rem;display:block;margin-top:5px;"/>
+                </div>
 
                 <div class="form-group">
                     <h:outputLabel for="email" value="Adresse email"/>
                     <h:inputText id="email"
-                                 value="#{loginBean.email}"
+                                 value="#{registerBean.email}"
                                  required="true"
                                  requiredMessage="L'email est obligatoire."
                                  validatorMessage="Format d'email invalide."
@@ -44,12 +56,9 @@
                 </div>
 
                 <div class="form-group">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                        <h:outputLabel for="password" value="Mot de passe" style="margin-bottom: 0;"/>
-                        <h:link outcome="/forgot-password.xhtml" style="font-size: 0.85rem; color: #2563eb; text-decoration: none; font-weight: 500; transition: color 0.2s;">Mot de passe oublié ?</h:link>
-                    </div>
+                    <h:outputLabel for="password" value="Mot de passe"/>
                     <h:inputSecret id="password"
-                                   value="#{loginBean.password}"
+                                   value="#{registerBean.password}"
                                    required="true"
                                    requiredMessage="Le mot de passe est obligatoire."
                                    redisplay="false"
@@ -59,20 +68,30 @@
                     <h:message for="password" style="color:#f87171;font-size:0.85rem;display:block;margin-top:5px;"/>
                 </div>
 
+                <div class="form-group">
+                    <h:outputLabel for="confirmPassword" value="Confirmer le mot de passe"/>
+                    <h:inputSecret id="confirmPassword"
+                                   value="#{registerBean.confirmPassword}"
+                                   required="true"
+                                   requiredMessage="La confirmation est obligatoire."
+                                   redisplay="false"
+                                   styleClass="form-control">
+                        <f:validateRequired/>
+                    </h:inputSecret>
+                    <h:message for="confirmPassword" style="color:#f87171;font-size:0.85rem;display:block;margin-top:5px;"/>
+                </div>
+
                 <div style="margin-top: 25px;">
-                    <h:commandButton value="Se connecter"
-                                     action="#{loginBean.login}"
+                    <h:commandButton value="S'inscrire"
+                                     action="#{registerBean.register}"
                                      styleClass="btn btn-primary btn-block"/>
                 </div>
 
             </h:form>
 
-            <div style="text-align: center; margin-top: 20px; display: flex; flex-direction: column; gap: 12px;">
-                <h:link outcome="/register.xhtml" style="color: #e94560; font-size: 0.95rem; font-weight: 500; text-decoration: none; transition: color 0.2s;">
-                    Vous n'avez pas de compte ? S'inscrire
-                </h:link>
-                <h:link outcome="/index.xhtml" style="color: #94a3b8; font-size: 0.85rem; text-decoration: none;">
-                    ← Retour à l'accueil
+            <div style="text-align: center; margin-top: 20px;">
+                <h:link outcome="/login.xhtml" style="color: #64748b; font-size: 0.9rem;">
+                    Vous avez déjà un compte ? Connectez-vous
                 </h:link>
             </div>
 
