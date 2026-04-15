@@ -4,13 +4,15 @@
 
     <div class="header-content">
         <div class="header-logo">
-            <h:link outcome="/app/dashboard.xhtml">
+            <a href="#{request.contextPath}/app/dashboard.xhtml" style="text-decoration:none;">
                 <span class="logo-text"> BricoliRent</span>
-            </h:link>
+            </a>
         </div>
         <nav class="header-nav">
-            <h:link outcome="/app/catalog/tools.xhtml" value="Catalogue"/>
-            <h:link outcome="/app/dashboard.xhtml" value="Dashboard"/>
+            <h:panelGroup rendered="#{loginBean.currentRole == 'CLIENT' or loginBean.currentRole == 'ADMIN'}">
+                <a href="#{request.contextPath}/app/catalog/tools.xhtml">Catalogue</a>
+            </h:panelGroup>
+            <a href="#{request.contextPath}/app/dashboard.xhtml">Dashboard</a>
         </nav>
         <div class="header-user">
             <h:form>

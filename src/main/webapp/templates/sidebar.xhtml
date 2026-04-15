@@ -5,11 +5,24 @@
     <div class="sidebar-content">
         <h3>Navigation</h3>
         <ul class="sidebar-menu">
-            <li><h:link outcome="/app/dashboard.xhtml" value="Dashboard"/></li>
-            <li><h:link outcome="/app/catalog/tools.xhtml" value="Catalogue"/></li>
-            <li><h:link outcome="/app/client/reservations.xhtml" value="Réservations"/></li>
-            <li><h:link outcome="/app/agent/returns.xhtml" value="Retours"/></li>
-            <li><h:link outcome="/app/admin/users.xhtml" value="Utilisateurs"/></li>
+            <li><a href="#{request.contextPath}/app/dashboard.xhtml">Dashboard</a></li>
+            
+            <h:panelGroup rendered="#{loginBean.currentRole == 'ADMIN'}">
+                <li><a href="#{request.contextPath}/app/admin/categories.xhtml">Catégories</a></li>
+                <li><a href="#{request.contextPath}/app/admin/users.xhtml">Utilisateurs</a></li>
+            </h:panelGroup>
+
+            <h:panelGroup rendered="#{loginBean.currentRole == 'CLIENT' or loginBean.currentRole == 'ADMIN'}">
+                <li><a href="#{request.contextPath}/app/catalog/tools.xhtml">Catalogue</a></li>
+            </h:panelGroup>
+            
+            <h:panelGroup rendered="#{loginBean.currentRole == 'CLIENT'}">
+                <li><a href="#{request.contextPath}/app/client/reservations.xhtml">Réservations</a></li>
+            </h:panelGroup>
+            
+            <h:panelGroup rendered="#{loginBean.currentRole == 'AGENT'}">
+                <li><a href="#{request.contextPath}/app/agent/returns.xhtml">Retours</a></li>
+            </h:panelGroup>
         </ul>
     </div>
 

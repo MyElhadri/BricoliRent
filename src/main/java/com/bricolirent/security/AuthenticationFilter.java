@@ -66,6 +66,25 @@ public class AuthenticationFilter implements Filter {
                 && (session.getAttribute(AuthServiceImpl.SESSION_USER_KEY) != null);
 
         if (loggedIn) {
+            String role = (String) session.getAttribute(AuthServiceImpl.SESSION_ROLE_KEY);
+            
+            // ROLE-BASED ACCESS CONTROL
+            if (requestURI.contains("/app/admin/") && !"ADMIN".equals(role)) {
+                LOGGER.warning("[AuthFilter] Accès refusé (Admin requis) : " + requestURI);
+                response.sendRedirect(request.getContextPath() + "/app/dashboard.xhtml");
+                return;
+            }
+            if (requestURI.contains("/app/agent/") && !"AGENT".equals(role)) {
+                LOGGER.warning("[AuthFilter] Accès refusé (Agent requis) : " + requestURI);
+                response.sendRedirect(request.getContextPath() + "/app/dashboard.xhtml");
+                return;
+            }
+            if (requestURI.contains("/app/client/") && !"CLIENT".equals(role)) {
+                LOGGER.warning("[AuthFilter] Accès refusé (Client requis) : " + requestURI);
+                response.sendRedirect(request.getContextPath() + "/app/dashboard.xhtml");
+                return;
+            }
+
             // Utilisateur connecté → continuer normalement
             chain.doFilter(req, res);
         } else {

@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "password_reset_tokens")
+@Table(name ="password_reset_tokens")
 public class PasswordResetToken {
 
     @Id
