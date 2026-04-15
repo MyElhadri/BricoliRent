@@ -1,0 +1,381 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core"
+      xmlns:ui="jakarta.faces.facelets"
+      xmlns:pt="jakarta.faces.passthrough">
+
+<ui:composition template="/templates/layout.xhtml">
+
+    <ui:define name="title">Catalogue des outils</ui:define>
+
+    <ui:define name="content">
+        <style>
+            .catalog-page {
+                padding: 2rem;
+                color: #1e293b;
+            }
+
+            .catalog-hero {
+                display: flex;
+                justify-content: space-between;
+                align-items: end;
+                gap: 1.5rem;
+                margin-bottom: 2rem;
+                flex-wrap: wrap;
+            }
+
+            .catalog-title {
+                margin: 0;
+                font-size: 2rem;
+                font-weight: 800;
+                color: #0f172a;
+            }
+
+            .catalog-subtitle {
+                margin: 0.5rem 0 0 0;
+                color: #475569;
+                max-width: 720px;
+                line-height: 1.7;
+            }
+
+            .catalog-badge {
+                display: inline-flex;
+                align-items: center;
+                gap: 0.5rem;
+                padding: 0.55rem 0.95rem;
+                border-radius: 999px;
+                background: rgba(233,69,96,0.12);
+                border: 1px solid rgba(233,69,96,0.25);
+                color: #ff9db0;
+                font-weight: 700;
+            }
+
+            .catalog-filters {
+                display: grid;
+                grid-template-columns: 1.4fr 1fr auto;
+                gap: 1rem;
+                align-items: end;
+                padding: 1.4rem;
+                margin-bottom: 2rem;
+                border-radius: 18px;
+                background: rgba(255,255,255,0.05);
+                border: 1px solid rgba(255,255,255,0.08);
+                box-shadow: 0 16px 40px rgba(0,0,0,0.14);
+            }
+
+            .filter-group label {
+                display: block;
+                margin-bottom: 0.45rem;
+                font-size: 0.92rem;
+                font-weight: 700;
+                color: #334155;
+            }
+
+            .filter-input,
+            .filter-select {
+                width: 100%;
+                border: 1px solid #cbd5e1;
+                background: #ffffff;
+                color: #0f172a;
+                border-radius: 12px;
+                padding: 0.85rem 0.95rem;
+                font-size: 0.95rem;
+                box-sizing: border-box;
+                transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            }
+
+            .filter-input::placeholder {
+                color: #94a3b8;
+            }
+
+            .filter-input:focus,
+            .filter-select:focus,
+            .filter-input:focus-visible,
+            .filter-select:focus-visible {
+                outline: none;
+                border-color: #2563eb;
+                box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18);
+            }
+
+            .catalog-button {
+                height: 48px;
+                border: none;
+                border-radius: 12px;
+                padding: 0 1.2rem;
+                font-weight: 700;
+                cursor: pointer;
+                transition: transform 0.2s ease, box-shadow 0.2s ease;
+            }
+
+            .catalog-button:hover {
+                transform: translateY(-1px);
+            }
+
+            .catalog-button-primary {
+                background: linear-gradient(135deg, #e94560, #ff7c92);
+                color: #ffffff;
+                box-shadow: 0 12px 25px rgba(233,69,96,0.22);
+            }
+
+            .catalog-button-secondary {
+                background: #ffffff;
+                color: #334155;
+                border: 1px solid #cbd5e1;
+            }
+
+            .catalog-results {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+                gap: 1.4rem;
+            }
+
+            .tool-card {
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1.4rem;
+                border-radius: 20px;
+                background: linear-gradient(180deg, #ffffff, #f8fafc);
+                border: 1px solid rgba(148,163,184,0.18);
+                box-shadow: 0 18px 44px rgba(15,23,42,0.10);
+            }
+
+            .tool-card-header {
+                display: flex;
+                justify-content: space-between;
+                gap: 1rem;
+                align-items: start;
+            }
+
+            .tool-category {
+                display: inline-block;
+                padding: 0.35rem 0.65rem;
+                border-radius: 999px;
+                background: rgba(56,189,248,0.12);
+                color: #0284c7;
+                font-size: 0.8rem;
+                font-weight: 700;
+                margin-bottom: 0.8rem;
+            }
+
+            .tool-name {
+                margin: 0;
+                font-size: 1.2rem;
+                font-weight: 800;
+                color: #0f172a;
+            }
+
+            .tool-description {
+                margin: 0.5rem 0 0 0;
+                color: #64748b;
+                line-height: 1.6;
+                min-height: 3.2rem;
+            }
+
+            .availability-pill {
+                padding: 0.5rem 0.8rem;
+                border-radius: 999px;
+                font-size: 0.82rem;
+                font-weight: 800;
+                white-space: nowrap;
+            }
+
+            .availability-pill.ok {
+                color: #16a34a;
+                background: rgba(34,197,94,0.14);
+            }
+
+            .availability-pill.ko {
+                color: #dc2626;
+                background: rgba(239,68,68,0.15);
+            }
+
+            .tool-stats {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 0.8rem;
+            }
+
+            .tool-stat {
+                padding: 0.9rem;
+                border-radius: 14px;
+                background: rgba(15,23,42,0.68);
+                border: 1px solid rgba(255,255,255,0.05);
+            }
+
+            .tool-stat-label {
+                display: block;
+                margin-bottom: 0.35rem;
+                font-size: 0.78rem;
+                text-transform: uppercase;
+                letter-spacing: 0.04em;
+                color: rgba(255,255,255,0.78);
+            }
+
+            .tool-stat-value {
+                font-size: 1rem;
+                font-weight: 800;
+                color: #ffffff;
+            }
+
+            .tool-card-footer {
+                display: flex;
+                justify-content: flex-end;
+                align-items: center;
+                margin-top: auto;
+            }
+
+            .tool-detail-disabled {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                padding: 0.75rem 1rem;
+                border-radius: 12px;
+                color: #ffffff;
+                font-weight: 700;
+                background: linear-gradient(135deg, #94a3b8, #64748b);
+                border: 1px solid rgba(100,116,139,0.25);
+            }
+
+            .empty-state {
+                padding: 2rem;
+                text-align: center;
+                border-radius: 18px;
+                background: #ffffff;
+                border: 1px dashed #cbd5e1;
+                color: #475569;
+            }
+
+            @media (max-width: 980px) {
+                .catalog-filters {
+                    grid-template-columns: 1fr;
+                }
+            }
+
+            @media (max-width: 640px) {
+                .catalog-page {
+                    padding: 1rem;
+                }
+
+                .tool-stats {
+                    grid-template-columns: 1fr;
+                }
+
+                .tool-card-footer {
+                    flex-direction: column;
+                    align-items: stretch;
+                }
+            }
+        </style>
+
+        <div class="catalog-page">
+            <div class="catalog-hero">
+                <div>
+                    <div class="catalog-badge">Catalogue de location</div>
+                    <h2 class="catalog-title">Trouvez l'outil adapte a votre besoin</h2>
+                    <p class="catalog-subtitle">
+                        Recherchez rapidement un outil, filtrez par categorie et consultez en un coup d'oeil
+                        le tarif journalier, la caution et la disponibilite actuelle.
+                    </p>
+                </div>
+            </div>
+
+            <h:form id="catalogFilterForm">
+                <div class="catalog-filters">
+                    <div class="filter-group">
+                        <label for="keyword">Recherche par nom</label>
+                        <h:inputText id="keyword"
+                                     value="#{toolCatalogBean.keyword}"
+                                     styleClass="filter-input"
+                                     pt:placeholder="Exemple : perceuse, taille-haie, marteau...">
+                            <f:ajax event="keyup" listener="#{toolCatalogBean.search}" render="catalogResults" />
+                        </h:inputText>
+                    </div>
+
+                    <div class="filter-group">
+                        <label for="category">Filtrer par categorie</label>
+                        <h:selectOneMenu id="category"
+                                         value="#{toolCatalogBean.selectedCategoryId}"
+                                         styleClass="filter-select">
+                            <f:selectItem itemLabel="Toutes les categories" itemValue="#{null}" />
+                            <f:selectItems value="#{toolCatalogBean.categories}"
+                                           var="cat"
+                                           itemLabel="#{cat.name}"
+                                           itemValue="#{cat.id}" />
+                            <f:ajax event="change" listener="#{toolCatalogBean.search}" render="catalogResults" />
+                        </h:selectOneMenu>
+                    </div>
+
+                    <h:commandButton value="Reinitialiser"
+                                     action="#{toolCatalogBean.resetFilters}"
+                                     immediate="true"
+                                     styleClass="catalog-button catalog-button-secondary">
+                        <f:ajax render="@form catalogResults" />
+                    </h:commandButton>
+                </div>
+                <h:panelGroup id="catalogResults" layout="block">
+                    <h:panelGroup rendered="#{empty toolCatalogBean.tools}">
+                        <div class="empty-state">
+                            Aucun outil ne correspond a votre recherche pour le moment.
+                        </div>
+                    </h:panelGroup>
+
+                    <h:panelGroup rendered="#{not empty toolCatalogBean.tools}">
+                        <div class="catalog-results">
+                            <ui:repeat value="#{toolCatalogBean.tools}" var="tool">
+                                <div class="tool-card">
+                                    <div class="tool-card-header">
+                                        <div>
+                                            <span class="tool-category">#{tool.category.name}</span>
+                                            <h3 class="tool-name">#{tool.name}</h3>
+                                            <p class="tool-description">
+                                                #{empty tool.description ? 'Description bientot disponible pour cet outil.' : tool.description}
+                                            </p>
+                                        </div>
+
+                                        <span class="availability-pill #{toolCatalogBean.disponible(tool) ? 'ok' : 'ko'}">
+                                            #{toolCatalogBean.disponible(tool) ? 'Disponible' : 'Indisponible'}
+                                        </span>
+                                    </div>
+
+                                    <div class="tool-stats">
+                                        <div class="tool-stat">
+                                            <span class="tool-stat-label">Prix / jour</span>
+                                            <span class="tool-stat-value">
+                                                <h:outputText value="#{tool.pricePerDay}">
+                                                    <f:convertNumber minFractionDigits="2" maxFractionDigits="2" />
+                                                </h:outputText> EUR
+                                            </span>
+                                        </div>
+
+                                        <div class="tool-stat">
+                                            <span class="tool-stat-label">Caution</span>
+                                            <span class="tool-stat-value">
+                                                <h:outputText value="#{tool.depositAmount}">
+                                                    <f:convertNumber minFractionDigits="2" maxFractionDigits="2" />
+                                                </h:outputText> EUR
+                                            </span>
+                                        </div>
+
+                                        <div class="tool-stat">
+                                            <span class="tool-stat-label">Disponible</span>
+                                            <span class="tool-stat-value">#{tool.availableQuantity}</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="tool-card-footer">
+                                        <span class="tool-detail-disabled">Fiche detail bientot disponible</span>
+                                    </div>
+                                </div>
+                            </ui:repeat>
+                        </div>
+                    </h:panelGroup>
+                </h:panelGroup>
+            </h:form>
+        </div>
+    </ui:define>
+
+</ui:composition>
+</html>

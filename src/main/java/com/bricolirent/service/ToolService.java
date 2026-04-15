@@ -8,6 +8,8 @@ public interface ToolService {
 
     Tool getToolById(Long id);
 
+    List<Tool> getCatalogTools(String keyword, Long categoryId);
+
     void saveTool(Tool tool);
 
     void updateTool(Tool tool);
