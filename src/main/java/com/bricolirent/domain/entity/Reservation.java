@@ -3,6 +3,8 @@ package com.bricolirent.domain.entity;
 import com.bricolirent.domain.enums.ReservationStatus;
 import jakarta.persistence.*;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -51,8 +53,10 @@ public class Reservation {
     @Column(name = "reservation_date", nullable = false)
     private Instant reservationDate;
 
+    @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @ColumnDefault("'PENDING'")
-    @Column(name = "status", columnDefinition = "reservation_status not null")
+    @Column(name = "status", columnDefinition = "reservation_status")
     private ReservationStatus status;
 
     @ColumnDefault("0")

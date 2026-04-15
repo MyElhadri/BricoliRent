@@ -19,10 +19,12 @@
             </h:panelGroup>
             
             <h:panelGroup rendered="#{loginBean.currentRole == 'CLIENT'}">
-                <li><a href="#{request.contextPath}/app/client/reservations.xhtml">Réservations</a></li>
+                <li><a href="#{request.contextPath}/app/client/new-request.xhtml">Nouvelle demande</a></li>
+                <li><a href="#{request.contextPath}/app/client/my-requests.xhtml">Mes demandes</a></li>
             </h:panelGroup>
             
             <h:panelGroup rendered="#{loginBean.currentRole == 'AGENT'}">
+                <li><a href="#{request.contextPath}/app/agent/pending-requests.xhtml">Demandes en attente</a></li>
                 <li><a href="#{request.contextPath}/app/agent/returns.xhtml">Retours</a></li>
             </h:panelGroup>
         </ul>

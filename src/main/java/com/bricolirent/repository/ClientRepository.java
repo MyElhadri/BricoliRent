@@ -4,6 +4,7 @@ import com.bricolirent.domain.entity.Client;
 import com.bricolirent.domain.entity.User;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -16,6 +17,31 @@ public class ClientRepository extends GenericRepository<Client, Long> {
 
     public ClientRepository() {
         super(Client.class);
+    }
+
+    public Optional<Client> findByIdWithUser(Long clientId) {
+        Transaction transaction = null;
+        try {
+            Session session = getCurrentSession();
+            transaction = session.beginTransaction();
+            Client client = session.createQuery(
+                            "SELECT c FROM Client c JOIN FETCH c.users WHERE c.id = :clientId",
+                            Client.class)
+                    .setParameter("clientId", clientId)
+                    .uniqueResult();
+            transaction.commit();
+            return Optional.ofNullable(client);
+        } catch (Exception e) {
+            if (transaction != null && transaction.isActive()) {
+                try {
+                    transaction.rollback();
+                } catch (Exception rbEx) {
+                    LOGGER.log(Level.SEVERE, "Echec du rollback", rbEx);
+                }
+            }
+            LOGGER.log(Level.SEVERE, "Erreur lors du chargement du client avec utilisateur (ID=" + clientId + ")", e);
+            throw e;
+        }
     }
     
     /**

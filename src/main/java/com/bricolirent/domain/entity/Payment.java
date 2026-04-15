@@ -5,6 +5,8 @@ import com.bricolirent.domain.enums.PaymentStatus;
 import com.bricolirent.domain.enums.PaymentType;
 import jakarta.persistence.*;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -29,15 +31,21 @@ public class Payment {
     @JoinColumn(name = "recorded_by_agent_id")
     private Agent recordedByAgent;
 
+    @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "type", columnDefinition = "payment_type not null")
     private PaymentType type;
 
+    @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "method", columnDefinition = "payment_method not null")
     private PaymentMethod method;
 
     @Column(name = "amount", nullable = false, precision = 10, scale = 2)
     private BigDecimal amount;
 
+    @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @ColumnDefault("'PENDING'")
     @Column(name = "status", columnDefinition = "payment_status not null")
     private PaymentStatus status;

@@ -124,12 +124,7 @@ public class LoginBean implements Serializable {
         LOGGER.info("[LoginBean] Connexion réussie — " + user.getEmail() + " | rôle=" + role);
 
         // 6. Redirection selon le rôle
-        return switch (role) {
-            case "ADMIN"  -> "/app/admin/home.xhtml?faces-redirect=true";
-            case "AGENT"  -> "/app/agent/home.xhtml?faces-redirect=true";
-            case "CLIENT" -> "/app/client/home.xhtml?faces-redirect=true";
-            default       -> null;
-        };
+        return "/app/dashboard.xhtml?faces-redirect=true";
     }
 
     /**

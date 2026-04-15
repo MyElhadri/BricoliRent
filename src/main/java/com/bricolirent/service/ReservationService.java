@@ -2,38 +2,97 @@ package com.bricolirent.service;
 
 import com.bricolirent.domain.entity.Reservation;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 
-/**
- * Contrat métier pour la gestion des réservations.
- *
- * <p>Implémenté par {@link com.bricolirent.service.impl.ReservationServiceImpl}.</p>
- *
- * <p><strong>Bloc 1 — périmètre :</strong> création d'une demande de réservation.</p>
- */
 public interface ReservationService {
 
-    /**
-     * Crée une nouvelle demande de réservation pour un client donné.
-     *
-     * <p>Règles métier appliquées par l'implémentation :</p>
-     * <ul>
-     *   <li>La date de début doit être aujourd'hui ou dans le futur.</li>
-     *   <li>La date de fin doit être strictement après la date de début.</li>
-     *   <li>La quantité demandée ne doit pas dépasser la quantité disponible de l'outil.</li>
-     *   <li>Montant location estimé = pricePerDay × quantity × nbJours.</li>
-     *   <li>Caution estimée = depositAmount × quantity.</li>
-     *   <li>Le statut initial est automatiquement positionné à {@code PENDING}.</li>
-     * </ul>
-     *
-     * @param clientId  Identifiant du client demandeur
-     * @param toolId    Identifiant de l'outil souhaité
-     * @param quantity  Quantité demandée (≥ 1)
-     * @param startDate Date de début de location
-     * @param endDate   Date de fin de location (strictement après startDate)
-     * @throws IllegalArgumentException si les paramètres sont invalides
-     * @throws IllegalStateException    si l'outil n'est pas disponible en quantité suffisante
-     */
-    void creerDemande(Long clientId, Long toolId, int quantity,
-                      LocalDate startDate, LocalDate endDate);
+    class ReservationCreationResult {
+        private final Long reservationId;
+        private final com.bricolirent.domain.enums.ReservationStatus status;
+        private final String message;
+        private final String reason;
+
+        public ReservationCreationResult(Long reservationId,
+                                         com.bricolirent.domain.enums.ReservationStatus status,
+                                         String message,
+                                         String reason) {
+            this.reservationId = reservationId;
+            this.status = status;
+            this.message = message;
+            this.reason = reason;
+        }
+
+        public Long getReservationId() {
+            return reservationId;
+        }
+
+        public com.bricolirent.domain.enums.ReservationStatus getStatus() {
+            return status;
+        }
+
+        public String getMessage() {
+            return message;
+        }
+
+        public String getReason() {
+            return reason;
+        }
+    }
+
+    class ReservationEstimate {
+        private final boolean available;
+        private final String message;
+        private final long rentalDays;
+        private final BigDecimal estimatedRentalAmount;
+        private final BigDecimal estimatedDepositAmount;
+
+        public ReservationEstimate(boolean available, String message, long rentalDays,
+                                   BigDecimal estimatedRentalAmount, BigDecimal estimatedDepositAmount) {
+            this.available = available;
+            this.message = message;
+            this.rentalDays = rentalDays;
+            this.estimatedRentalAmount = estimatedRentalAmount;
+            this.estimatedDepositAmount = estimatedDepositAmount;
+        }
+
+        public boolean isAvailable() {
+            return available;
+        }
+
+        public String getMessage() {
+            return message;
+        }
+
+        public long getRentalDays() {
+            return rentalDays;
+        }
+
+        public BigDecimal getEstimatedRentalAmount() {
+            return estimatedRentalAmount;
+        }
+
+        public BigDecimal getEstimatedDepositAmount() {
+            return estimatedDepositAmount;
+        }
+    }
+
+    ReservationEstimate estimerDemande(Long toolId, int quantity, LocalDate startDate, LocalDate endDate);
+
+    ReservationCreationResult creerDemande(Long clientId, Long toolId, int quantity, LocalDate startDate, LocalDate endDate);
+
+    List<Reservation> getReservationsByClient(Long clientId);
+
+    Reservation getReservationForClient(Long reservationId, Long clientId);
+
+    void annulerDemande(Long reservationId, Long clientId);
+
+    List<Reservation> getPendingReservations();
+
+    List<Reservation> getHandledReservationsByAgent(Long agentId);
+
+    void approuverDemande(Long reservationId, Long agentId);
+
+    void rejeterDemande(Long reservationId, Long agentId, String reason);
 }

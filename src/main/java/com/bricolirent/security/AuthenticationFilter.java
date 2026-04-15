@@ -67,6 +67,13 @@ public class AuthenticationFilter implements Filter {
 
         if (loggedIn) {
             String role = (String) session.getAttribute(AuthServiceImpl.SESSION_ROLE_KEY);
+
+            if (requestURI.endsWith("/app/admin/home.xhtml")
+                    || requestURI.endsWith("/app/agent/home.xhtml")
+                    || requestURI.endsWith("/app/client/home.xhtml")) {
+                response.sendRedirect(request.getContextPath() + "/app/dashboard.xhtml");
+                return;
+            }
             
             // ROLE-BASED ACCESS CONTROL
             if (requestURI.contains("/app/admin/") && !"ADMIN".equals(role)) {

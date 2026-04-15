@@ -1,0 +1,121 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core"
+      xmlns:ui="jakarta.faces.facelets">
+
+<ui:composition template="/templates/layout.xhtml">
+
+    <f:metadata>
+        <f:viewParam name="id" value="#{reservationBean.reservationId}" />
+        <f:viewAction action="#{reservationBean.chargerDetailReservation}" />
+    </f:metadata>
+
+    <ui:define name="title">Detail de la demande - BricoliRent</ui:define>
+
+    <ui:define name="content">
+        <style>
+            .request-view-page { padding: 2rem; color: #1e293b; }
+            .request-view-header { margin-bottom: 1.8rem; }
+            .request-view-title { margin: 0; font-size: 2rem; font-weight: 900; color: #0f172a; }
+            .request-view-subtitle { margin: 0.6rem 0 0 0; color: #64748b; line-height: 1.7; max-width: 760px; }
+            .request-view-card { background: linear-gradient(180deg, #ffffff, #f8fafc); border: 1px solid rgba(148,163,184,0.18); border-radius: 22px; box-shadow: 0 18px 44px rgba(15,23,42,0.10); padding: 1.5rem; }
+            .request-view-grid { display: grid; grid-template-columns: repeat(2, minmax(220px, 1fr)); gap: 1rem; }
+            .request-view-box { padding: 1rem; border-radius: 16px; background: #ffffff; border: 1px solid #e2e8f0; }
+            .request-view-label { display: block; font-size: 0.82rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.04em; }
+            .request-view-value { display: block; margin-top: 0.35rem; font-size: 1.15rem; font-weight: 800; color: #0f172a; }
+            .request-view-status { display: inline-flex; align-items: center; justify-content: center; min-width: 120px; padding: 0.45rem 0.7rem; border-radius: 999px; font-size: 0.8rem; font-weight: 800; }
+            .request-view-status.warning { color: #b45309; background: rgba(245,158,11,0.16); }
+            .request-view-status.info { color: #0284c7; background: rgba(14,165,233,0.12); }
+            .request-view-status.success { color: #16a34a; background: rgba(34,197,94,0.14); }
+            .request-view-status.danger { color: #dc2626; background: rgba(239,68,68,0.15); }
+            .request-view-status.neutral { color: #475569; background: rgba(148,163,184,0.15); }
+            .request-view-actions { display: flex; gap: 0.8rem; flex-wrap: wrap; margin-top: 1.5rem; }
+            .request-view-button { min-height: 46px; border-radius: 12px; padding: 0 1.1rem; font-weight: 800; cursor: pointer; border: none; }
+            .request-view-primary { background: linear-gradient(135deg, #e94560, #ff7c92); color: #ffffff; box-shadow: 0 12px 25px rgba(233,69,96,0.22); }
+            .request-view-secondary { background: #ffffff; color: #334155; border: 1px solid #cbd5e1; }
+            .request-view-empty { padding: 1.25rem; border-radius: 16px; background: #ffffff; border: 1px dashed #cbd5e1; color: #64748b; text-align: center; }
+            .request-view-messages { color: #e94560; font-weight: 700; list-style: none; padding: 0 0 1rem 0; }
+            @media (max-width: 900px) { .request-view-grid { grid-template-columns: 1fr; } }
+        </style>
+
+        <div class="request-view-page">
+            <div class="request-view-header">
+                <h2 class="request-view-title">Detail de la demande</h2>
+                <p class="request-view-subtitle">
+                    Consultez toutes les informations de votre reservation et annulez-la si aucun check-out n'a encore ete effectue.
+                </p>
+            </div>
+
+            <h:messages globalOnly="true" showDetail="true" showSummary="true" styleClass="request-view-messages" />
+
+            <h:panelGroup rendered="#{reservationBean.currentReservation == null}">
+                <div class="request-view-empty">
+                    La demande selectionnee est introuvable ou n'est pas accessible.
+                    <div style="margin-top: 1rem;">
+                        <h:link outcome="/app/client/my-requests.xhtml">Retour a mes demandes</h:link>
+                    </div>
+                </div>
+            </h:panelGroup>
+
+            <h:panelGroup rendered="#{reservationBean.currentReservation != null}">
+                <div class="request-view-card">
+                    <div class="request-view-grid">
+                        <div class="request-view-box">
+                            <span class="request-view-label">Outil</span>
+                            <span class="request-view-value">#{reservationBean.currentReservation.tool.name}</span>
+                        </div>
+                        <div class="request-view-box">
+                            <span class="request-view-label">Statut</span>
+                            <span class="request-view-status #{reservationBean.statusTone(reservationBean.currentReservation)}">#{reservationBean.displayStatus(reservationBean.currentReservation)}</span>
+                        </div>
+                        <div class="request-view-box">
+                            <span class="request-view-label">Periode</span>
+                            <span class="request-view-value">#{reservationBean.currentReservation.startDate} au #{reservationBean.currentReservation.endDate}</span>
+                        </div>
+                        <div class="request-view-box">
+                            <span class="request-view-label">Quantite</span>
+                            <span class="request-view-value">#{reservationBean.currentReservation.quantity}</span>
+                        </div>
+                        <div class="request-view-box">
+                            <span class="request-view-label">Montant estime</span>
+                            <span class="request-view-value">
+                                <h:outputText value="#{reservationBean.currentReservation.estimatedRentalAmount}">
+                                    <f:convertNumber pattern="#0.00" locale="fr_FR" />
+                                </h:outputText> EUR
+                            </span>
+                        </div>
+                        <div class="request-view-box">
+                            <span class="request-view-label">Caution estimee</span>
+                            <span class="request-view-value">
+                                <h:outputText value="#{reservationBean.currentReservation.estimatedDepositAmount}">
+                                    <f:convertNumber pattern="#0.00" locale="fr_FR" />
+                                </h:outputText> EUR
+                            </span>
+                        </div>
+                        <div class="request-view-box" style="grid-column: 1 / -1;">
+                            <span class="request-view-label">Motif / commentaire de validation</span>
+                            <span class="request-view-value" style="font-size: 1rem; font-weight: 700;">#{reservationBean.decisionMotif(reservationBean.currentReservation)}</span>
+                        </div>
+                    </div>
+
+                    <h:form id="requestViewActionsForm">
+                        <div class="request-view-actions">
+                            <h:link outcome="/app/client/my-requests.xhtml" styleClass="request-view-button request-view-secondary">
+                                Retour a mes demandes
+                            </h:link>
+                            <h:commandButton value="Annuler la demande"
+                                             action="#{reservationBean.annulerReservationCourante}"
+                                             rendered="#{reservationBean.canCancel(reservationBean.currentReservation)}"
+                                             onclick="return confirm('Voulez-vous vraiment annuler cette demande ?');"
+                                             styleClass="request-view-button request-view-primary" />
+                        </div>
+                    </h:form>
+                </div>
+            </h:panelGroup>
+        </div>
+    </ui:define>
+
+</ui:composition>
+</html>
