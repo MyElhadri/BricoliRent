@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core"
+      xmlns:ui="jakarta.faces.facelets">
+
+<ui:composition template="/templates/layout.xhtml">
+
+    <ui:define name="title">Nouvelle demande — BricoliRent</ui:define>
+
+    <ui:define name="content">
+
+        <div class="page-header">
+            <h1 class="page-title">Nouvelle demande de réservation</h1>
+            <p class="page-subtitle">
+                Sélectionnez un outil ci-dessous, précisez la quantité et la période souhaitée.
+                Le coût estimé est calculé automatiquement lors de l'enregistrement.
+            </p>
+        </div>
+
+        <!-- Messages JSF (succès / avertissement / erreur) -->
+        <h:messages globalOnly="true"
+                    styleClass="messages-container"
+                    infoClass="msg msg-info"
+                    warnClass="msg msg-warn"
+                    errorClass="msg msg-error"
+                    showDetail="true"/>
+
+        <div class="card">
+
+            <div class="card-header">
+                <span class="card-title">Formulaire de demande</span>
+            </div>
+
+            <h:form id="formNouvelleDemande" styleClass="form-reservation">
+
+                <!-- ---- Outil ---- -->
+                <div class="form-group">
+                    <h:outputLabel for="outil" value="Outil souhaité *" styleClass="form-label"/>
+
+                    <h:selectOneMenu id="outil"
+                                     value="#{reservationBean.outilSelectionneId}"
+                                     styleClass="form-control"
+                                     required="true"
+                                     requiredMessage="Veuillez sélectionner un outil.">
+                        <f:selectItem itemLabel="-- Choisir un outil --"
+                                      itemValue="#{null}"
+                                      noSelectionOption="true"/>
+                        <f:selectItems value="#{reservationBean.outilsDisponibles}"
+                                       var="outil"
+                                       itemValue="#{outil.id}"
+                                       itemLabel="#{outil.name} — #{outil.pricePerDay} MAD/jour  (disponible : #{outil.availableQuantity})"/>
+                    </h:selectOneMenu>
+
+                    <h:message for="outil" styleClass="field-error"/>
+                </div>
+
+                <!-- ---- Quantité ---- -->
+                <div class="form-group">
+                    <h:outputLabel for="quantite" value="Quantité *" styleClass="form-label"/>
+
+                    <h:inputText id="quantite"
+                                 value="#{reservationBean.quantite}"
+                                 styleClass="form-control"
+                                 required="true"
+                                 requiredMessage="La quantité est obligatoire."
+                                 converterMessage="La quantité doit être un nombre entier.">
+                        <f:validateLongRange minimum="1"
+                                             message="La quantité doit être d'au moins 1."/>
+                    </h:inputText>
+
+                    <h:message for="quantite" styleClass="field-error"/>
+                </div>
+
+                <!-- ---- Date de début ---- -->
+                <div class="form-group">
+                    <h:outputLabel for="dateDebut" value="Date de début *" styleClass="form-label"/>
+
+                    <h:inputText id="dateDebut"
+                                 value="#{reservationBean.dateDebut}"
+                                 styleClass="form-control"
+                                 required="true"
+                                 requiredMessage="La date de début est obligatoire."
+                                 type="date">
+                        <f:convertDateTime pattern="yyyy-MM-dd" type="localDate"/>
+                    </h:inputText>
+
+                    <h:message for="dateDebut" styleClass="field-error"/>
+                </div>
+
+                <!-- ---- Date de fin ---- -->
+                <div class="form-group">
+                    <h:outputLabel for="dateFin" value="Date de fin *" styleClass="form-label"/>
+
+                    <h:inputText id="dateFin"
+                                 value="#{reservationBean.dateFin}"
+                                 styleClass="form-control"
+                                 required="true"
+                                 requiredMessage="La date de fin est obligatoire."
+                                 type="date">
+                        <f:convertDateTime pattern="yyyy-MM-dd" type="localDate"/>
+                    </h:inputText>
+
+                    <h:message for="dateFin" styleClass="field-error"/>
+                </div>
+
+                <!-- ---- Note informative sur le calcul estimé ---- -->
+                <div class="form-info">
+                    <p class="info-text">
+                        Le montant de la location et la caution seront estimés
+                        automatiquement en fonction de l'outil et de la durée choisie.
+                        Ils vous seront communiqués après soumission.
+                    </p>
+                </div>
+
+                <!-- ---- Actions ---- -->
+                <div class="form-actions">
+                    <h:commandButton id="btnSoumettre"
+                                     value="Soumettre la demande"
+                                     action="#{reservationBean.soumettreDemande()}"
+                                     styleClass="btn btn-primary"/>
+                </div>
+
+            </h:form>
+        </div>
+
+    </ui:define>
+
+</ui:composition>
+</html>
