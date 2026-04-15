@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core"
+      xmlns:ui="jakarta.faces.facelets">
+
+<ui:composition template="/templates/layout.xhtml">
+
+    <ui:define name="title">Administration - Utilisateurs</ui:define>
+
+    <ui:define name="content">
+        <style>
+            .users-page { padding: 2rem; color: #1e293b; }
+            .users-header { margin-bottom: 1.8rem; }
+            .users-title { margin: 0; font-size: 2rem; font-weight: 900; color: #0f172a; }
+            .users-subtitle { margin: 0.6rem 0 0 0; color: #64748b; line-height: 1.7; max-width: 760px; }
+            .users-card { background: linear-gradient(180deg, #ffffff, #f8fafc); border: 1px solid rgba(148,163,184,0.18); border-radius: 22px; box-shadow: 0 18px 44px rgba(15,23,42,0.10); padding: 1.5rem; }
+            .section-title { margin: 0 0 1rem 0; font-size: 1.1rem; font-weight: 800; color: #0f172a; }
+            .users-table { width: 100%; border-collapse: collapse; }
+            .users-table th, .users-table td { padding: 0.9rem 0.7rem; text-align: left; border-bottom: 1px solid #e2e8f0; vertical-align: top; }
+            .users-table th { color: #475569; font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.04em; }
+            .user-name { font-weight: 800; color: #0f172a; }
+            .user-email { color: #64748b; font-size: 0.92rem; }
+            .type-pill, .status-pill { display: inline-flex; align-items: center; justify-content: center; min-width: 92px; padding: 0.45rem 0.7rem; border-radius: 999px; font-size: 0.8rem; font-weight: 800; }
+            .type-pill.admin { color: #7c3aed; background: rgba(124,58,237,0.12); }
+            .type-pill.agent { color: #0284c7; background: rgba(14,165,233,0.12); }
+            .type-pill.client { color: #b45309; background: rgba(245,158,11,0.16); }
+            .type-pill.inconnu { color: #475569; background: rgba(148,163,184,0.15); }
+            .status-pill.ok { color: #16a34a; background: rgba(34,197,94,0.14); }
+            .status-pill.ko { color: #dc2626; background: rgba(239,68,68,0.15); }
+            .toggle-link { color: #2563eb; font-weight: 800; text-decoration: none; }
+            .empty-users { padding: 1.25rem; border-radius: 16px; background: #ffffff; border: 1px dashed #cbd5e1; color: #64748b; text-align: center; }
+            @media (max-width: 860px) {
+                .users-table, .users-table tbody, .users-table tr, .users-table td { display: block; width: 100%; }
+                .users-table thead { display: none; }
+                .users-table tr { border-bottom: 1px solid #e2e8f0; padding: 0.75rem 0; }
+                .users-table td { border-bottom: none; padding: 0.45rem 0; }
+            }
+        </style>
+
+        <div class="users-page">
+            <div class="users-header">
+                <h2 class="users-title">Gestion des utilisateurs</h2>
+                <p class="users-subtitle">
+                    Consultez les comptes de la plateforme, visualisez leur type et activez ou desactivez
+                    leur acces selon les besoins d'administration.
+                </p>
+            </div>
+
+            <h:messages globalOnly="true" showDetail="true" showSummary="true"
+                        style="color:#e94560;font-weight:700;list-style:none;padding:0 0 1rem 0;" />
+
+            <div class="users-card">
+                <h3 class="section-title">Utilisateurs existants</h3>
+
+                <h:panelGroup rendered="#{empty adminUserBean.users}">
+                    <div class="empty-users">Aucun utilisateur n'est disponible pour le moment.</div>
+                </h:panelGroup>
+
+                <h:panelGroup rendered="#{not empty adminUserBean.users}">
+                    <h:form id="usersListForm">
+                        <h:dataTable value="#{adminUserBean.users}" var="entry" styleClass="users-table">
+                            <h:column>
+                                <f:facet name="header">Utilisateur</f:facet>
+                                <div class="user-name">#{entry.user.fullName}</div>
+                                <div class="user-email">#{entry.user.email}</div>
+                            </h:column>
+
+                            <h:column>
+                                <f:facet name="header">Type de compte</f:facet>
+                                <span class="type-pill #{entry.accountType.toLowerCase()}">
+                                    #{entry.accountType}
+                                </span>
+                            </h:column>
+
+                            <h:column>
+                                <f:facet name="header">Statut</f:facet>
+                                <span class="status-pill #{entry.user.active ? 'ok' : 'ko'}">
+                                    #{entry.user.active ? 'Actif' : 'Inactif'}
+                                </span>
+                            </h:column>
+
+                            <h:column>
+                                <f:facet name="header">Action</f:facet>
+                                <h:commandLink value="#{entry.user.active ? 'Desactiver' : 'Activer'}"
+                                               action="#{adminUserBean.toggleUserActive(entry.user.id)}"
+                                               styleClass="toggle-link" />
+                            </h:column>
+                        </h:dataTable>
+                    </h:form>
+                </h:panelGroup>
+            </div>
+        </div>
+    </ui:define>
+
+</ui:composition>
+</html>

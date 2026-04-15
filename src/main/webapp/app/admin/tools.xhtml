@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="jakarta.faces.html"
@@ -10,124 +10,169 @@
     <ui:define name="title">Administration - Outils</ui:define>
 
     <ui:define name="content">
-        <div style="padding: 2rem;">
-            <h2>Gestion des Outils (Administration)</h2>
-            
-            <h:messages globalOnly="true" showDetail="true" showSummary="true" style="color: #e94560; font-weight: bold; list-style: none; padding: 0;" />
+        <div class="admin-page">
+            <div class="admin-header">
+                <h2 class="admin-title">Gestion des outils</h2>
+                <p class="admin-subtitle">
+                    Administrez le catalogue interne avec une vue plus lisible sur les tarifs, le stock,
+                    le statut et les actions de gestion deja disponibles.
+                </p>
+            </div>
 
-            <div style="display: flex; gap: 2rem; margin-top: 1.5rem;">
-                
-                <!-- Formulaire -->
-                <div style="flex: 1; padding: 1.5rem; background: rgba(255,255,255,0.05); border-radius: 8px;">
-                    <h3>#{toolAdminBean.currentTool.id == null ? 'Nouvel Outil' : 'Modifier l\'outil'}</h3>
+            <h:messages globalOnly="true" showDetail="true" showSummary="true" styleClass="admin-messages" />
+
+            <div class="admin-layout">
+                <div class="admin-card">
+                    <h3 class="admin-section-title">#{toolAdminBean.currentTool.id == null ? 'Nouvel outil' : 'Modifier cet outil'}</h3>
+
                     <h:form id="toolForm">
-                        <h:panelGrid columns="1" style="width: 100%;">
-                            
-                            <h:outputLabel value="Nom de l'outil :" />
-                            <h:inputText value="#{toolAdminBean.currentTool.name}" 
-                                         required="true" requiredMessage="Le nom est requis"
-                                         style="width: 100%; padding: 0.5rem; margin-bottom: 1rem;" />
+                        <div class="admin-form-grid">
+                            <div class="admin-form-group">
+                                <h:outputLabel for="toolName" value="Nom de l'outil" />
+                                <h:inputText id="toolName"
+                                             value="#{toolAdminBean.currentTool.name}"
+                                             required="true"
+                                             requiredMessage="Le nom est requis"
+                                             styleClass="admin-form-input" />
+                            </div>
 
-                            <h:outputLabel value="Catégorie :" />
-                            <h:selectOneMenu value="#{toolAdminBean.selectedCategoryId}" 
-                                             required="true" requiredMessage="La catégorie est requise"
-                                             style="width: 100%; padding: 0.5rem; margin-bottom: 1rem;">
-                                <f:selectItem itemLabel="Sélectionnez une catégorie" itemValue="#{null}" />
-                                <f:selectItems value="#{toolAdminBean.categories}" var="cat" 
-                                               itemLabel="#{cat.name}" itemValue="#{cat.id}" />
-                            </h:selectOneMenu>
+                            <div class="admin-form-group">
+                                <h:outputLabel for="toolCategory" value="Categorie" />
+                                <h:selectOneMenu id="toolCategory"
+                                                 value="#{toolAdminBean.selectedCategoryId}"
+                                                 required="true"
+                                                 requiredMessage="La categorie est requise"
+                                                 styleClass="admin-form-select">
+                                    <f:selectItem itemLabel="Selectionnez une categorie" itemValue="#{null}" />
+                                    <f:selectItems value="#{toolAdminBean.categories}" var="cat"
+                                                   itemLabel="#{cat.name}" itemValue="#{cat.id}" />
+                                </h:selectOneMenu>
+                            </div>
 
-                            <h:outputLabel value="Prix par jour (€) :" />
-                            <h:inputText value="#{toolAdminBean.currentTool.pricePerDay}" 
-                                         required="true" requiredMessage="Le prix par jour est requis"
-                                         style="width: 100%; padding: 0.5rem; margin-bottom: 1rem;">
-                                <f:convertNumber pattern="#0.00" locale="fr_FR" />
-                            </h:inputText>
+                            <div class="admin-form-group">
+                                <h:outputLabel for="toolPrice" value="Prix par jour (EUR)" />
+                                <h:inputText id="toolPrice"
+                                             value="#{toolAdminBean.currentTool.pricePerDay}"
+                                             required="true"
+                                             requiredMessage="Le prix par jour est requis"
+                                             styleClass="admin-form-input">
+                                    <f:convertNumber pattern="#0.00" locale="fr_FR" />
+                                </h:inputText>
+                            </div>
 
-                            <h:outputLabel value="Caution (€) :" />
-                            <h:inputText value="#{toolAdminBean.currentTool.depositAmount}" 
-                                         required="true" requiredMessage="La caution est requise"
-                                         style="width: 100%; padding: 0.5rem; margin-bottom: 1rem;">
-                                <f:convertNumber pattern="#0.00" locale="fr_FR" />
-                            </h:inputText>
+                            <div class="admin-form-group">
+                                <h:outputLabel for="toolDeposit" value="Caution (EUR)" />
+                                <h:inputText id="toolDeposit"
+                                             value="#{toolAdminBean.currentTool.depositAmount}"
+                                             required="true"
+                                             requiredMessage="La caution est requise"
+                                             styleClass="admin-form-input">
+                                    <f:convertNumber pattern="#0.00" locale="fr_FR" />
+                                </h:inputText>
+                            </div>
 
-                            <h:outputLabel value="Quantité Totale :" />
-                            <h:inputText value="#{toolAdminBean.currentTool.totalQuantity}" 
-                                         required="true" requiredMessage="La quantité totale est requise"
-                                         style="width: 100%; padding: 0.5rem; margin-bottom: 1rem;" />
+                            <div class="admin-form-group">
+                                <h:outputLabel for="toolTotalQuantity" value="Quantite totale" />
+                                <h:inputText id="toolTotalQuantity"
+                                             value="#{toolAdminBean.currentTool.totalQuantity}"
+                                             required="true"
+                                             requiredMessage="La quantite totale est requise"
+                                             styleClass="admin-form-input" />
+                            </div>
 
-                            <h:outputLabel value="Quantité Disponible :" rendered="#{toolAdminBean.currentTool.id != null}"/>
-                            <h:inputText value="#{toolAdminBean.currentTool.availableQuantity}" 
-                                         rendered="#{toolAdminBean.currentTool.id != null}"
-                                         style="width: 100%; padding: 0.5rem; margin-bottom: 1rem;" />
+                            <h:panelGroup rendered="#{toolAdminBean.currentTool.id != null}" layout="block" styleClass="admin-form-group">
+                                <h:outputLabel for="toolAvailableQuantity" value="Quantite disponible" />
+                                <h:inputText id="toolAvailableQuantity"
+                                             value="#{toolAdminBean.currentTool.availableQuantity}"
+                                             styleClass="admin-form-input" />
+                            </h:panelGroup>
 
-                            <h:outputLabel value="Description :" />
-                            <h:inputTextarea value="#{toolAdminBean.currentTool.description}" 
-                                             rows="3" style="width: 100%; padding: 0.5rem; margin-bottom: 1rem;" />
-                                             
-                        </h:panelGrid>
-                        
-                        <div>
-                            <h:commandButton value="Enregistrer" action="#{toolAdminBean.save}" 
-                                             style="padding: 0.6rem 1.4rem; background: #e94560; color: white; border: none; border-radius: 4px; margin-right: 1rem; cursor: pointer;" />
-                            <h:commandButton value="Annuler" action="#{toolAdminBean.prepareNew}" immediate="true"
+                            <div class="admin-form-group">
+                                <h:outputLabel for="toolDescription" value="Description" />
+                                <h:inputTextarea id="toolDescription"
+                                                 value="#{toolAdminBean.currentTool.description}"
+                                                 rows="3"
+                                                 styleClass="admin-form-textarea" />
+                            </div>
+                        </div>
+
+                        <div class="admin-form-actions">
+                            <h:commandButton value="Enregistrer"
+                                             action="#{toolAdminBean.save}"
+                                             styleClass="admin-button admin-button-primary" />
+                            <h:commandButton value="Annuler"
+                                             action="#{toolAdminBean.prepareNew}"
+                                             immediate="true"
                                              rendered="#{toolAdminBean.currentTool.id != null}"
-                                             style="padding: 0.6rem 1.4rem; background: #555; color: white; border: none; border-radius: 4px; cursor: pointer;" />
+                                             styleClass="admin-button admin-button-secondary" />
                         </div>
                     </h:form>
                 </div>
 
-                <!-- Tableau -->
-                <div style="flex: 2;">
+                <div class="admin-card">
+                    <h3 class="admin-section-title">Outils existants</h3>
+
+                    <h:panelGroup rendered="#{empty toolAdminBean.tools}">
+                        <div class="admin-empty-state">Aucun outil n'est encore enregistre.</div>
+                    </h:panelGroup>
+
                     <h:form id="listForm">
-                        <h:dataTable value="#{toolAdminBean.tools}" var="t" 
-                                     style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem;">
-                            <h:column>
-                                <f:facet name="header"><div style="padding: 0.5rem; border-bottom: 2px solid #e94560;">ID</div></f:facet>
-                                <div style="padding: 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.1);">#{t.id}</div>
-                            </h:column>
-                            <h:column>
-                                <f:facet name="header"><div style="padding: 0.5rem; border-bottom: 2px solid #e94560;">Outil</div></f:facet>
-                                <div style="padding: 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.1);">
-                                    <strong>#{t.name}</strong><br/>
-                                    <span style="font-size: 0.8rem; color: #aaa;">#{t.category.name}</span>
-                                </div>
-                            </h:column>
-                            <h:column>
-                                <f:facet name="header"><div style="padding: 0.5rem; border-bottom: 2px solid #e94560;">Tarifs</div></f:facet>
-                                <div style="padding: 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.1);">
-                                    Jour: #{t.pricePerDay} €<br/>
-                                    Cau.: #{t.depositAmount} €
-                                </div>
-                            </h:column>
-                            <h:column>
-                                <f:facet name="header"><div style="padding: 0.5rem; border-bottom: 2px solid #e94560;">Stock</div></f:facet>
-                                <div style="padding: 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.1);">
-                                    #{t.availableQuantity} / #{t.totalQuantity}
-                                </div>
-                            </h:column>
-                            <h:column>
-                                <f:facet name="header"><div style="padding: 0.5rem; border-bottom: 2px solid #e94560;">Statut</div></f:facet>
-                                <div style="padding: 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.1);">
-                                    <h:outputText value="Actif" rendered="#{t.active}" style="color: #4CAF50; font-weight: bold;"/>
-                                    <h:outputText value="Inactif" rendered="#{not t.active}" style="color: #ff4c4c; font-weight: bold;"/>
-                                </div>
-                            </h:column>
-                            <h:column>
-                                <f:facet name="header"><div style="padding: 0.5rem; border-bottom: 2px solid #e94560;">Actions</div></f:facet>
-                                <div style="padding: 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.1);">
-                                    <h:commandLink value="📝 Modifier" action="#{toolAdminBean.edit(t)}" style="color: #00adb5; text-decoration: none; margin-right: 15px; display: inline-block; margin-bottom: 5px;" />
-                                    
-                                    <h:commandLink value="✅ Activer" action="#{toolAdminBean.toggleActive(t)}" 
-                                                   rendered="#{not t.active}" style="color: #4CAF50; text-decoration: none; display: inline-block;" />
-                                    <h:commandLink value="🛑 Désactiver" action="#{toolAdminBean.toggleActive(t)}" 
-                                                   rendered="#{t.active}" style="color: #ff4c4c; text-decoration: none; display: inline-block; margin-right: 15px;" />
-                                    <h:commandLink value="🗑️ Supprimer" action="#{toolAdminBean.delete(t)}"
-                                                   onclick="return confirm('Voulez-vous vraiment supprimer cet outil ?');"
-                                                   style="color: #ff9800; text-decoration: none; display: inline-block;" />
-                                </div>
-                            </h:column>
-                        </h:dataTable>
+                        <h:panelGroup rendered="#{not empty toolAdminBean.tools}">
+                            <h:dataTable value="#{toolAdminBean.tools}" var="t" styleClass="admin-table">
+                                <h:column>
+                                    <f:facet name="header">Outil</f:facet>
+                                    <span class="admin-inline-badge">#{t.category.name}</span>
+                                    <div class="admin-primary-text">#{t.name}</div>
+                                    <div class="admin-secondary-text">
+                                        #{empty t.description ? 'Aucune description renseignee.' : t.description}
+                                    </div>
+                                </h:column>
+
+                                <h:column>
+                                    <f:facet name="header">Tarifs</f:facet>
+                                    <div class="admin-primary-text">
+                                        <h:outputText value="#{t.pricePerDay}">
+                                            <f:convertNumber pattern="#0.00" locale="fr_FR" />
+                                        </h:outputText> EUR / jour
+                                    </div>
+                                    <div class="admin-secondary-text">
+                                        Caution :
+                                        <h:outputText value="#{t.depositAmount}">
+                                            <f:convertNumber pattern="#0.00" locale="fr_FR" />
+                                        </h:outputText> EUR
+                                    </div>
+                                </h:column>
+
+                                <h:column>
+                                    <f:facet name="header">Stock</f:facet>
+                                    <div class="admin-primary-text">#{t.availableQuantity} disponible(s)</div>
+                                    <div class="admin-secondary-text">sur #{t.totalQuantity} au total</div>
+                                </h:column>
+
+                                <h:column>
+                                    <f:facet name="header">Statut</f:facet>
+                                    <span class="admin-status-pill #{t.active ? 'ok' : 'ko'}">
+                                        #{t.active ? 'Actif' : 'Inactif'}
+                                    </span>
+                                </h:column>
+
+                                <h:column>
+                                    <f:facet name="header">Actions</f:facet>
+                                    <div class="admin-actions">
+                                        <h:commandLink value="Modifier"
+                                                       action="#{toolAdminBean.edit(t)}"
+                                                       styleClass="admin-link-edit" />
+                                        <h:commandLink value="#{t.active ? 'Desactiver' : 'Activer'}"
+                                                       action="#{toolAdminBean.toggleActive(t)}"
+                                                       styleClass="admin-link-toggle" />
+                                        <h:commandLink value="Supprimer"
+                                                       action="#{toolAdminBean.delete(t)}"
+                                                       onclick="return confirm('Voulez-vous vraiment supprimer cet outil ?');"
+                                                       styleClass="admin-link-delete" />
+                                    </div>
+                                </h:column>
+                            </h:dataTable>
+                        </h:panelGroup>
                     </h:form>
                 </div>
             </div>
@@ -135,3 +180,4 @@
     </ui:define>
 </ui:composition>
 </html>
+

@@ -11,8 +11,11 @@ import jakarta.enterprise.context.ApplicationScoped;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class AdminUserServiceImpl implements AdminUserService {
@@ -166,6 +169,74 @@ public class AdminUserServiceImpl implements AdminUserService {
         }
     }
 
+    @Override
+    public List<UserSummary> getAllUserSummaries() {
+        Transaction transaction = null;
+        try {
+            Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+            transaction = session.beginTransaction();
+
+            List<User> users = session.createQuery(
+                            "FROM User u ORDER BY u.fullName, u.email",
+                            User.class)
+                    .getResultList();
+
+            Set<Long> adminIds = new HashSet<>(session.createQuery(
+                            "SELECT a.id FROM Admin a",
+                            Long.class)
+                    .getResultList());
+
+            Set<Long> agentIds = new HashSet<>(session.createQuery(
+                            "SELECT a.id FROM Agent a",
+                            Long.class)
+                    .getResultList());
+
+            Set<Long> clientIds = new HashSet<>(session.createQuery(
+                            "SELECT c.id FROM Client c",
+                            Long.class)
+                    .getResultList());
+
+            List<UserSummary> summaries = users.stream()
+                    .map(user -> new UserSummary(user, resolveAccountType(user.getId(), adminIds, agentIds, clientIds)))
+                    .collect(Collectors.toList());
+
+            transaction.commit();
+            return summaries;
+        } catch (Exception e) {
+            rollbackQuietly(transaction);
+            throw new RuntimeException("Impossible de charger la liste des utilisateurs.", e);
+        }
+    }
+
+    @Override
+    public void toggleUserActive(Long userId) {
+        if (userId == null) {
+            throw new IllegalArgumentException("L'utilisateur selectionne est invalide.");
+        }
+
+        Transaction transaction = null;
+        try {
+            Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+            transaction = session.beginTransaction();
+
+            User user = session.get(User.class, userId);
+            if (user == null) {
+                throw new IllegalStateException("L'utilisateur selectionne est introuvable.");
+            }
+
+            user.setActive(!Boolean.TRUE.equals(user.getActive()));
+            session.merge(user);
+
+            transaction.commit();
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            rollbackQuietly(transaction);
+            throw e;
+        } catch (Exception e) {
+            rollbackQuietly(transaction);
+            throw new RuntimeException("Une erreur technique est survenue lors du changement de statut de l'utilisateur.", e);
+        }
+    }
+
     private String normalizeRequired(String value, String message) {
         if (value == null || value.trim().isEmpty()) {
             throw new IllegalArgumentException(message);
@@ -179,6 +250,22 @@ public class AdminUserServiceImpl implements AdminUserService {
             throw new IllegalArgumentException("L'adresse e-mail est invalide.");
         }
         return normalizedEmail;
+    }
+
+    private String resolveAccountType(Long userId, Set<Long> adminIds, Set<Long> agentIds, Set<Long> clientIds) {
+        if (userId == null) {
+            return "INCONNU";
+        }
+        if (adminIds.contains(userId)) {
+            return "ADMIN";
+        }
+        if (agentIds.contains(userId)) {
+            return "AGENT";
+        }
+        if (clientIds.contains(userId)) {
+            return "CLIENT";
+        }
+        return "INCONNU";
     }
 
     private void rollbackQuietly(Transaction transaction) {

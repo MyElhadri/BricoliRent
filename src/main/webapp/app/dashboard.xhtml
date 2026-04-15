@@ -1,367 +1,77 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="jakarta.faces.html"
-      xmlns:ui="jakarta.faces.facelets"
-      xmlns:f="jakarta.faces.core">
+      xmlns:ui="jakarta.faces.facelets">
 
 <ui:composition template="/templates/layout.xhtml">
 
-    <ui:define name="title">Tableau de bord — BricoliRent</ui:define>
+    <ui:define name="title">Tableau de bord - BricoliRent</ui:define>
 
     <ui:define name="content">
-        <style>
-            /* --- Premium Dashboard Styles --- */
-            .dash-wrapper {
-                font-family: 'Inter', 'Segoe UI', sans-serif;
-                color: #1e293b;
-                animation: fadeIn 0.5s ease-out;
-            }
-
-            @keyframes fadeIn {
-                from { opacity: 0; transform: translateY(10px); }
-                to { opacity: 1; transform: translateY(0); }
-            }
-
-            .dash-header {
-                display: flex;
-                justify-content: space-between;
-                align-items: flex-end;
-                margin-bottom: 2.5rem;
-            }
-
-            .dash-title h2 {
-                font-size: 2.2rem;
-                font-weight: 800;
-                margin: 0 0 0.4rem 0;
-                background: linear-gradient(135deg, #0f172a, #e94560);
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
-                letter-spacing: -0.5px;
-            }
-
-            .dash-title p {
-                color: #64748b;
-                font-size: 1.05rem;
-                margin: 0;
-                font-weight: 400;
-            }
-
-            .btn-action-primary {
-                background: linear-gradient(135deg, #e94560, #ff6b84);
-                color: white;
-                padding: 0.85rem 1.5rem;
-                border: none;
-                border-radius: 10px;
-                font-weight: 600;
-                font-size: 0.95rem;
-                cursor: pointer;
-                box-shadow: 0 8px 15px rgba(233, 69, 96, 0.25);
-                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-                text-decoration: none;
-                display: inline-flex;
-                align-items: center;
-                gap: 8px;
-            }
-
-            .btn-action-primary:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 12px 20px rgba(233, 69, 96, 0.35);
-                color: white;
-            }
-
-            /* --- KPI Cards Grid --- */
-            .kpi-grid {
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-                gap: 1.8rem;
-                margin-bottom: 3rem;
-            }
-
-            .kpi-card {
-                background: #ffffff;
-                border-radius: 16px;
-                padding: 1.8rem;
-                position: relative;
-                overflow: hidden;
-                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
-                border: 1px solid rgba(0, 0, 0, 0.02);
-                transition: transform 0.3s ease, box-shadow 0.3s ease;
-                display: flex;
-                flex-direction: column;
-            }
-
-            .kpi-card:hover {
-                transform: translateY(-8px);
-                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
-            }
-
-            /* Colored Top Accent Bar */
-            .kpi-card::before {
-                content: '';
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 4px;
-                opacity: 0.8;
-                transition: height 0.3s ease;
-            }
-            .kpi-card:hover::before { height: 6px; }
-
-            .kpi-tools::before { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
-            .kpi-rentals::before { background: linear-gradient(90deg, #e94560, #fb7185); }
-            .kpi-users::before { background: linear-gradient(90deg, #10b981, #34d399); }
-            .kpi-revs::before { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
-
-            .kpi-header {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                margin-bottom: 1.2rem;
-            }
-
-            .kpi-icon {
-                width: 48px;
-                height: 48px;
-                border-radius: 12px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 1.5rem;
-            }
-
-            .kpi-tools .kpi-icon { background: rgba(59, 130, 246, 0.1); color: #3b82f6; }
-            .kpi-rentals .kpi-icon { background: rgba(233, 69, 96, 0.1); color: #e94560; }
-            .kpi-users .kpi-icon { background: rgba(16, 185, 129, 0.1); color: #10b981; }
-            .kpi-revs .kpi-icon { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
-
-            .kpi-label {
-                font-size: 0.95rem;
-                font-weight: 600;
-                color: #64748b;
-                text-transform: uppercase;
-                letter-spacing: 0.5px;
-            }
-
-            .kpi-value {
-                font-size: 2.5rem;
-                font-weight: 800;
-                color: #0f172a;
-                margin-bottom: 0.2rem;
-                line-height: 1;
-            }
-
-            .kpi-trend {
-                font-size: 0.85rem;
-                font-weight: 500;
-                display: flex;
-                align-items: center;
-                gap: 4px;
-            }
-            .kpi-trend.positive { color: #10b981; }
-            .kpi-trend.negative { color: #ef4444; }
-
-            /* --- Sections --- */
-            .main-content-grid {
-                display: grid;
-                grid-template-columns: 2fr 1fr;
-                gap: 2rem;
-            }
-
-            @media (max-width: 1024px) {
-                .main-content-grid { grid-template-columns: 1fr; }
-            }
-
-            .panel {
-                background: #ffffff;
-                border-radius: 16px;
-                padding: 2rem;
-                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
-                border: 1px solid rgba(0, 0, 0, 0.02);
-            }
-
-            .panel-header {
-                font-size: 1.2rem;
-                font-weight: 700;
-                color: #1e293b;
-                margin-bottom: 1.5rem;
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-            }
-
-            .panel-link {
-                font-size: 0.85rem;
-                color: #e94560;
-                font-weight: 600;
-                text-decoration: none;
-                transition: color 0.2s;
-            }
-            .panel-link:hover { color: #be123c; }
-
-            /* Listes */
-            .activity-list {
-                list-style: none;
-                padding: 0;
-                margin: 0;
-            }
-
-            .activity-item {
-                display: flex;
-                align-items: flex-start;
-                gap: 1rem;
-                padding: 1rem 0;
-                border-bottom: 1px solid #f1f5f9;
-            }
-            .activity-item:last-child { border-bottom: none; padding-bottom: 0; }
-
-            .activity-dot-wrapper {
-                padding-top: 5px;
-            }
-
-            .activity-dot {
-                width: 12px;
-                height: 12px;
-                border-radius: 50%;
-                background: #cbd5e1;
-            }
-            .activity-item.rental .activity-dot { background: #e94560; box-shadow: 0 0 0 4px rgba(233,69,96,0.1); }
-            .activity-item.return .activity-dot { background: #10b981; box-shadow: 0 0 0 4px rgba(16,185,129,0.1); }
-            .activity-item.user .activity-dot { background: #3b82f6; box-shadow: 0 0 0 4px rgba(59,130,246,0.1); }
-
-            .activity-content { flex: 1; }
-            .activity-title { font-weight: 600; color: #334155; font-size: 0.95rem; margin-bottom: 2px;}
-            .activity-meta { font-size: 0.85rem; color: #94a3b8; }
-            
-            /* Chart Placeholder */
-            .chart-placeholder {
-                height: 280px;
-                background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
-                border-radius: 12px;
-                border: 2px dashed #cbd5e1;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-                color: #94a3b8;
-            }
-        </style>
-
-        <div class="dash-wrapper">
-            <!-- Header -->
-            <div class="dash-header">
-                <div class="dash-title">
-                    <h2>Tableau de bord</h2>
-                    <p>Bon retour, <strong>#{loginBean.currentUser.fullName}</strong>. Voici un résumé de l'activité.</p>
-                </div>
-                <!-- Action pour Admin/Agent par exemple -->
-                <h:link outcome="/app/catalog/tools.xhtml" styleClass="btn-action-primary" rendered="#{loginBean.currentRole == 'ADMIN' or loginBean.currentRole == 'AGENT'}">
-                    <span>➕</span> Ajouter un outil
-                </h:link>
-            </div>
-
-            <!-- KPI Cards -->
-            <div class="kpi-grid">
-                <!-- KPI 1 -->
-                <div class="kpi-card kpi-tools">
-                    <div class="kpi-header">
-                        <span class="kpi-label">Catalogue</span>
-                        <div class="kpi-icon">🛠️</div>
-                    </div>
-                    <div class="kpi-value">124</div>
-                    <div class="kpi-trend positive">↑ 12% ce mois-ci</div>
+        <div class="dashboard-page">
+            <div class="dashboard-header">
+                <div>
+                    <span class="dashboard-eyebrow">Tableau de bord personnalise</span>
+                    <h2 class="dashboard-title">Bienvenue #{loginBean.currentUser.fullName}</h2>
+                    <p class="dashboard-subtitle">#{dashboardBean.data.subtitle}</p>
                 </div>
 
-                <!-- KPI 2 -->
-                <div class="kpi-card kpi-rentals">
-                    <div class="kpi-header">
-                        <span class="kpi-label">Locations Actives</span>
-                        <div class="kpi-icon">📋</div>
-                    </div>
-                    <div class="kpi-value">38</div>
-                    <div class="kpi-trend negative">↓ 3% cette semaine</div>
-                </div>
-
-                <!-- KPI 3 -->
-                <div class="kpi-card kpi-users">
-                    <div class="kpi-header">
-                        <span class="kpi-label">Clients Inscrits</span>
-                        <div class="kpi-icon">👥</div>
-                    </div>
-                    <div class="kpi-value">850</div>
-                    <div class="kpi-trend positive">↑ 42 nouveaux</div>
-                </div>
-
-                <!-- KPI 4 -->
-                <div class="kpi-card kpi-revs">
-                    <div class="kpi-header">
-                        <span class="kpi-label">Revenus (MAD)</span>
-                        <div class="kpi-icon">💰</div>
-                    </div>
-                    <div class="kpi-value">12.5k</div>
-                    <div class="kpi-trend positive">↑ 8% vs mois préc.</div>
+                <div class="dashboard-role-card">
+                    <span class="dashboard-role-label">Role connecte</span>
+                    <span class="dashboard-role-value">#{dashboardBean.data.roleLabel}</span>
                 </div>
             </div>
 
-            <!-- Main Content -->
-            <div class="main-content-grid">
-                <!-- Left Panel : Chart -->
-                <div class="panel">
-                    <div class="panel-header">
-                        <span>📈 Aperçu des locations</span>
-                        <h:link outcome="#" styleClass="panel-link">Voir le rapport complet</h:link>
+            <h3 class="dashboard-metrics-title">#{dashboardBean.data.metricsTitle}</h3>
+            <div class="dashboard-metrics-grid">
+                <ui:repeat value="#{dashboardBean.data.metrics}" var="metric">
+                    <div class="dashboard-metric-card #{metric.tone}">
+                        <span class="dashboard-metric-label">#{metric.label}</span>
+                        <span class="dashboard-metric-value">#{metric.value}</span>
+                        <span class="dashboard-metric-detail">#{metric.detail}</span>
                     </div>
-                    
-                    <div class="chart-placeholder">
-                        <span style="font-size: 2rem; margin-bottom: 0.5rem;">📊</span>
-                        <span>Graphique des activités à intégrer</span>
-                        <span style="font-size: 0.8rem; margin-top: 4px;">Utilisez une librairie comme Chart.js ou PrimeFaces</span>
-                    </div>
-                </div>
-
-                <!-- Right Panel : Recent Activity -->
-                <div class="panel">
-                    <div class="panel-header">
-                        <span>⚡ Flux d'Activité</span>
-                    </div>
-                    
-                    <ul class="activity-list">
-                        <li class="activity-item rental">
-                            <div class="activity-dot-wrapper"><div class="activity-dot"></div></div>
-                            <div class="activity-content">
-                                <div class="activity-title">Nouvelle location</div>
-                                <div class="activity-meta">Perceuse Bosch Professional - Il y a 15 min</div>
-                            </div>
-                        </li>
-                        <li class="activity-item return">
-                            <div class="activity-dot-wrapper"><div class="activity-dot"></div></div>
-                            <div class="activity-content">
-                                <div class="activity-title">Retour validé</div>
-                                <div class="activity-meta">Scie Circulaire Makita - Il y a 2 heures</div>
-                            </div>
-                        </li>
-                        <li class="activity-item user">
-                            <div class="activity-dot-wrapper"><div class="activity-dot"></div></div>
-                            <div class="activity-content">
-                                <div class="activity-title">Nouvelle inscription</div>
-                                <div class="activity-meta">Youssef El Alaoui - Hier à 14:30</div>
-                            </div>
-                        </li>
-                        <li class="activity-item rental">
-                            <div class="activity-dot-wrapper"><div class="activity-dot"></div></div>
-                            <div class="activity-content">
-                                <div class="activity-title">Location terminée</div>
-                                <div class="activity-title" style="font-weight: 400;">Ponceuse orbitale DeWalt</div>
-                                <div class="activity-meta">Hier à 09:15</div>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
+                </ui:repeat>
             </div>
 
+            <div class="dashboard-layout">
+                <h:panelGroup layout="block" rendered="#{not empty dashboardBean.data.quickLinks}" styleClass="dashboard-panel">
+                    <h3 class="dashboard-section-title">#{dashboardBean.data.linksTitle}</h3>
+                    <div class="dashboard-links-grid">
+                        <ui:repeat value="#{dashboardBean.data.quickLinks}" var="linkItem">
+                            <h:link outcome="#{linkItem.outcome}" styleClass="dashboard-link-card">
+                                <span class="dashboard-link-label">#{linkItem.label}</span>
+                                <span class="dashboard-link-description">#{linkItem.description}</span>
+                            </h:link>
+                        </ui:repeat>
+                    </div>
+                </h:panelGroup>
+
+                <div class="dashboard-panel #{empty dashboardBean.data.quickLinks ? 'dashboard-panel-full' : ''}">
+                    <h3 class="dashboard-section-title">#{dashboardBean.data.activitiesTitle}</h3>
+
+                    <h:panelGroup rendered="#{empty dashboardBean.data.activities}">
+                        <div class="dashboard-empty">#{dashboardBean.data.activitiesEmptyMessage}</div>
+                    </h:panelGroup>
+
+                    <h:panelGroup rendered="#{not empty dashboardBean.data.activities}">
+                        <div class="dashboard-activity-list">
+                            <ui:repeat value="#{dashboardBean.data.activities}" var="activity">
+                                <div class="dashboard-activity-item">
+                                    <div>
+                                        <div class="dashboard-activity-title">#{activity.title}</div>
+                                        <div class="dashboard-activity-subtitle">#{activity.subtitle}</div>
+                                    </div>
+                                    <span class="dashboard-badge #{activity.badgeTone}">#{activity.badgeLabel}</span>
+                                </div>
+                            </ui:repeat>
+                        </div>
+                    </h:panelGroup>
+                </div>
+            </div>
         </div>
     </ui:define>
 
 </ui:composition>
 </html>
+
