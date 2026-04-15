@@ -88,9 +88,15 @@ public interface ReservationService {
 
     void annulerDemande(Long reservationId, Long clientId);
 
+    List<Reservation> getApprovedReservations();
+
+    List<Reservation> getCheckoutHistoryByAgent(Long agentId);
+
     List<Reservation> getPendingReservations();
 
     List<Reservation> getHandledReservationsByAgent(Long agentId);
+
+    void effectuerCheckout(Long reservationId, Long agentId);
 
     void approuverDemande(Long reservationId, Long agentId);
 

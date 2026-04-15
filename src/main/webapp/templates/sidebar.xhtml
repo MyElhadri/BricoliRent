@@ -24,6 +24,7 @@
             </h:panelGroup>
             
             <h:panelGroup rendered="#{loginBean.currentRole == 'AGENT'}">
+                <li><a href="#{request.contextPath}/app/agent/approved-requests.xhtml">Demandes approuvees</a></li>
                 <li><a href="#{request.contextPath}/app/agent/pending-requests.xhtml">Demandes en attente</a></li>
                 <li><a href="#{request.contextPath}/app/agent/returns.xhtml">Retours</a></li>
             </h:panelGroup>

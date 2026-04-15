@@ -1,6 +1,7 @@
 package com.bricolirent.repository;
 
 import com.bricolirent.domain.entity.Reservation;
+import com.bricolirent.domain.entity.Tool;
 import com.bricolirent.domain.enums.ReservationStatus;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -184,6 +185,10 @@ public class ReservationRepository extends GenericRepository<Reservation, Long> 
         }
     }
 
+    public List<Reservation> findApprovedWithToolAndClient() {
+        return findByStatusWithToolAndClient(ReservationStatus.APPROVED);
+    }
+
     public long countActiveReservationsForClient(Long clientId) {
         Transaction transaction = null;
         try {
@@ -266,6 +271,59 @@ public class ReservationRepository extends GenericRepository<Reservation, Long> 
         }
     }
 
+    public void performCheckout(Long reservationId, Long agentId) {
+        Transaction transaction = null;
+        try {
+            Session session = getCurrentSession();
+            transaction = session.beginTransaction();
+
+            Reservation reservation = session.createQuery(
+                            "SELECT r FROM Reservation r " +
+                                    "JOIN FETCH r.tool " +
+                                    "WHERE r.id = :reservationId",
+                            Reservation.class)
+                    .setParameter("reservationId", reservationId)
+                    .uniqueResult();
+            if (reservation == null) {
+                throw new IllegalStateException("La reservation ciblee est introuvable.");
+            }
+            if (reservation.getStatus() != ReservationStatus.APPROVED) {
+                throw new IllegalStateException("Seules les reservations approuvees peuvent etre servies en check-out.");
+            }
+
+            Tool tool = reservation.getTool();
+            if (tool == null) {
+                throw new IllegalStateException("L'outil associe a cette reservation est introuvable.");
+            }
+
+            Integer quantiteDisponible = tool.getAvailableQuantity();
+            if (quantiteDisponible == null) {
+                throw new IllegalStateException("La quantite disponible de l'outil est invalide.");
+            }
+            if (quantiteDisponible < reservation.getQuantity()) {
+                throw new IllegalStateException("Stock insuffisant pour effectuer le check-out.");
+            }
+
+            tool.setAvailableQuantity(quantiteDisponible - reservation.getQuantity());
+
+            reservation.setStatus(ReservationStatus.CHECKED_OUT);
+            reservation.setCheckedOutAt(java.time.Instant.now());
+            if (agentId != null) {
+                reservation.setCheckoutAgent(session.get(com.bricolirent.domain.entity.Agent.class, agentId));
+            }
+
+            session.merge(tool);
+            session.merge(reservation);
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null && transaction.isActive()) {
+                transaction.rollback();
+            }
+            LOGGER.log(Level.SEVERE, "Erreur lors du check-out de la reservation ID=" + reservationId, e);
+            throw e;
+        }
+    }
+
     public List<Reservation> findHandledByAgent(Long agentId) {
         Transaction transaction = null;
         try {
@@ -293,6 +351,38 @@ public class ReservationRepository extends GenericRepository<Reservation, Long> 
                 transaction.rollback();
             }
             LOGGER.log(Level.SEVERE, "Erreur lors du chargement de l'historique agent ID=" + agentId, e);
+            throw e;
+        }
+    }
+
+    public List<Reservation> findCheckoutHistoryByAgent(Long agentId) {
+        Transaction transaction = null;
+        try {
+            Session session = getCurrentSession();
+            transaction = session.beginTransaction();
+            List<Reservation> reservations = session
+                    .createQuery(
+                            "SELECT r FROM Reservation r " +
+                                    "JOIN FETCH r.tool " +
+                                    "JOIN FETCH r.client c " +
+                                    "JOIN FETCH c.users " +
+                                    "WHERE r.checkoutAgent.id = :agentId " +
+                                    "AND r.checkedOutAt IS NOT NULL " +
+                                    "AND r.status IN (:statuses) " +
+                                    "ORDER BY r.checkedOutAt DESC",
+                            Reservation.class)
+                    .setParameter("agentId", agentId)
+                    .setParameterList("statuses", List.of(
+                            ReservationStatus.CHECKED_OUT,
+                            ReservationStatus.RETURNED))
+                    .getResultList();
+            transaction.commit();
+            return reservations;
+        } catch (Exception e) {
+            if (transaction != null && transaction.isActive()) {
+                transaction.rollback();
+            }
+            LOGGER.log(Level.SEVERE, "Erreur lors du chargement de l'historique des check-outs pour agent ID=" + agentId, e);
             throw e;
         }
     }

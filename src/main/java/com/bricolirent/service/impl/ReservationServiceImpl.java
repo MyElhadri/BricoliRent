@@ -161,6 +161,19 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     @Override
+    public List<Reservation> getApprovedReservations() {
+        return reservationRepository.findApprovedWithToolAndClient();
+    }
+
+    @Override
+    public List<Reservation> getCheckoutHistoryByAgent(Long agentId) {
+        if (agentId == null) {
+            throw new IllegalArgumentException("Agent invalide.");
+        }
+        return reservationRepository.findCheckoutHistoryByAgent(agentId);
+    }
+
+    @Override
     public List<Reservation> getPendingReservations() {
         return reservationRepository.findByStatusWithToolAndClient(ReservationStatus.PENDING);
     }
@@ -171,6 +184,31 @@ public class ReservationServiceImpl implements ReservationService {
             throw new IllegalArgumentException("Agent invalide.");
         }
         return reservationRepository.findHandledByAgent(agentId);
+    }
+
+    @Override
+    public void effectuerCheckout(Long reservationId, Long agentId) {
+        Reservation reservation = reservationRepository.findByIdWithToolAndClient(reservationId)
+                .orElseThrow(() -> new IllegalStateException("La demande selectionnee est introuvable."));
+
+        if (reservation.getStatus() != ReservationStatus.APPROVED) {
+            throw new IllegalStateException("Seules les demandes approuvees peuvent passer en check-out.");
+        }
+
+        Tool tool = reservation.getTool();
+        if (tool == null) {
+            throw new IllegalStateException("L'outil associe a cette reservation est introuvable.");
+        }
+
+        Integer quantiteDisponible = tool.getAvailableQuantity();
+        if (quantiteDisponible == null) {
+            throw new IllegalStateException("La quantite disponible de l'outil est invalide.");
+        }
+        if (quantiteDisponible < reservation.getQuantity()) {
+            throw new IllegalStateException("Stock insuffisant pour effectuer le check-out. Quantite disponible actuelle : " + quantiteDisponible + ".");
+        }
+
+        reservationRepository.performCheckout(reservationId, agentId);
     }
 
     @Override
