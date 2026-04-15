@@ -54,9 +54,18 @@ public class PasswordResetServiceImpl implements PasswordResetService {
         // Expiration = +24 heures
         LocalDateTime expiryDate = LocalDateTime.now().plusHours(24);
 
-        // 2. Sauvegarder
-        PasswordResetToken resetToken = new PasswordResetToken(token, user, expiryDate);
-        tokenRepository.save(resetToken);
+        // 2. Vérifier si un token existe déjà et le mettre à jour ou le créer
+        Optional<PasswordResetToken> existingTokenOpt = tokenRepository.findByUser(user);
+        if (existingTokenOpt.isPresent()) {
+            PasswordResetToken existingToken = existingTokenOpt.get();
+            existingToken.setToken(token);
+            existingToken.setExpiryDate(expiryDate);
+            existingToken.setUsed(false);
+            tokenRepository.update(existingToken);
+        } else {
+            PasswordResetToken resetToken = new PasswordResetToken(token, user, expiryDate);
+            tokenRepository.save(resetToken);
+        }
 
         // 3. Envoyer l'email
         // On construit l'URL de réinitialisation. Adapter localhost/bricolirent_war/ au besoin

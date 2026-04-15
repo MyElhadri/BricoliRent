@@ -5,6 +5,7 @@ import org.hibernate.Session;
 import org.hibernate.query.Query;
 
 import java.util.Optional;
+import com.bricolirent.domain.entity.User;
 
 public class PasswordResetTokenRepository extends GenericRepository<PasswordResetToken, Long> {
 
@@ -20,6 +21,21 @@ public class PasswordResetTokenRepository extends GenericRepository<PasswordRese
             session.beginTransaction();
             Query<PasswordResetToken> query = session.createQuery("FROM PasswordResetToken t WHERE t.token = :token", PasswordResetToken.class);
             query.setParameter("token", token);
+            PasswordResetToken result = query.uniqueResult();
+            session.getTransaction().commit();
+            return Optional.ofNullable(result);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Optional.empty();
+        }
+    }
+
+    public Optional<PasswordResetToken> findByUser(User user) {
+        try {
+            Session session = getCurrentSession();
+            session.beginTransaction();
+            Query<PasswordResetToken> query = session.createQuery("FROM PasswordResetToken t WHERE t.user = :user", PasswordResetToken.class);
+            query.setParameter("user", user);
             PasswordResetToken result = query.uniqueResult();
             session.getTransaction().commit();
             return Optional.ofNullable(result);
