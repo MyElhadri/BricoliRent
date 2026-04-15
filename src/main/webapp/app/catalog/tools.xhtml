@@ -227,7 +227,7 @@
                 margin-top: auto;
             }
 
-            .tool-detail-disabled {
+            .tool-detail-link {
                 display: inline-flex;
                 align-items: center;
                 justify-content: center;
@@ -235,8 +235,9 @@
                 border-radius: 12px;
                 color: #ffffff;
                 font-weight: 700;
-                background: linear-gradient(135deg, #94a3b8, #64748b);
-                border: 1px solid rgba(100,116,139,0.25);
+                text-decoration: none;
+                background: linear-gradient(135deg, #1d4ed8, #2563eb);
+                border: 1px solid rgba(37,99,235,0.25);
             }
 
             .empty-state {
@@ -366,7 +367,10 @@
                                     </div>
 
                                     <div class="tool-card-footer">
-                                        <span class="tool-detail-disabled">Fiche detail bientot disponible</span>
+                                        <h:link outcome="/app/catalog/tool-details.xhtml" styleClass="tool-detail-link">
+                                            Voir la fiche detail
+                                            <f:param name="id" value="#{tool.id}" />
+                                        </h:link>
                                     </div>
                                 </div>
                             </ui:repeat>

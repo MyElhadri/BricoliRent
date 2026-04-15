@@ -29,7 +29,11 @@ public class ToolServiceImpl implements ToolService {
 
     @Override
     public Tool getToolById(Long id) {
-        return toolRepository.findById(id).orElse(null);
+        return toolRepository.findAll()
+                .stream()
+                .filter(tool -> tool.getId() != null && tool.getId().equals(id))
+                .findFirst()
+                .orElse(null);
     }
 
     @Override
