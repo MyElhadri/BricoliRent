@@ -33,6 +33,13 @@ public class ToolDetailsBean implements Serializable {
                 && tool.getAvailableQuantity() > 0;
     }
 
+    public String getImageName() {
+        if (tool == null || tool.getImagePath() == null || tool.getImagePath().trim().isEmpty()) {
+            return "default-tool.jpg";
+        }
+        return tool.getImagePath().trim();
+    }
+
     public Long getId() {
         return id;
     }

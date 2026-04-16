@@ -70,7 +70,7 @@
                                     <f:selectItem itemLabel="Choisir un outil" itemValue="#{null}" noSelectionOption="true" />
                                     <f:selectItems value="#{reservationBean.outilsDisponibles}" var="outil"
                                                    itemValue="#{outil.id}"
-                                                   itemLabel="#{outil.name} - #{outil.pricePerDay} EUR/jour (disponible : #{outil.availableQuantity})" />
+                                                   itemLabel="#{outil.name} - #{outil.pricePerDay} MAD/jour (disponible : #{outil.availableQuantity})" />
                                     <f:ajax event="change" render="summaryPanel" />
                                 </h:selectOneMenu>
                             </div>
@@ -145,7 +145,7 @@
                                     <span class="request-summary-value">
                                         <h:outputText value="#{reservationBean.estimation.estimatedRentalAmount}">
                                             <f:convertNumber pattern="#0.00" locale="fr_FR" />
-                                        </h:outputText> EUR
+                                        </h:outputText> MAD
                                     </span>
                                 </div>
 
@@ -154,7 +154,7 @@
                                     <span class="request-summary-value">
                                         <h:outputText value="#{reservationBean.estimation.estimatedDepositAmount}">
                                             <f:convertNumber pattern="#0.00" locale="fr_FR" />
-                                        </h:outputText> EUR
+                                        </h:outputText> MAD
                                     </span>
                                 </div>
 

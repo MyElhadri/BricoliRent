@@ -116,6 +116,7 @@ CREATE TABLE tools (
                        category_id BIGINT NOT NULL,
                        name VARCHAR(150) NOT NULL,
                        description TEXT,
+                       image_path VARCHAR(255),
                        price_per_day NUMERIC(10,2) NOT NULL CHECK (price_per_day >= 0),
                        deposit_amount NUMERIC(10,2) NOT NULL CHECK (deposit_amount >= 0),
                        total_quantity INTEGER NOT NULL CHECK (total_quantity >= 0),

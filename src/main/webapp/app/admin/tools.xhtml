@@ -50,7 +50,7 @@
                             </div>
 
                             <div class="admin-form-group">
-                                <h:outputLabel for="toolPrice" value="Prix par jour (EUR)" />
+                                <h:outputLabel for="toolPrice" value="Prix par jour (MAD)" />
                                 <h:inputText id="toolPrice"
                                              value="#{toolAdminBean.currentTool.pricePerDay}"
                                              required="true"
@@ -61,7 +61,7 @@
                             </div>
 
                             <div class="admin-form-group">
-                                <h:outputLabel for="toolDeposit" value="Caution (EUR)" />
+                                <h:outputLabel for="toolDeposit" value="Caution (MAD)" />
                                 <h:inputText id="toolDeposit"
                                              value="#{toolAdminBean.currentTool.depositAmount}"
                                              required="true"
@@ -93,6 +93,19 @@
                                                  value="#{toolAdminBean.currentTool.description}"
                                                  rows="3"
                                                  styleClass="admin-form-textarea" />
+                            </div>
+
+                            <div class="admin-form-group">
+                                <h:outputLabel for="toolImagePath" value="Nom du fichier image" />
+                                <h:inputText id="toolImagePath"
+                                             value="#{toolAdminBean.currentTool.imagePath}"
+                                             styleClass="admin-form-input" />
+                                <div class="admin-secondary-text">
+                                    Renseignez uniquement le nom du fichier present dans
+                                    <strong>resources/images/tools/</strong> :
+                                    <strong>cric.jpg</strong>, <strong>marteau-perforateur.jpg</strong>.
+                                    Utilisez des minuscules, des tirets, sans accents.
+                                </div>
                             </div>
                         </div>
 
@@ -126,6 +139,10 @@
                                     <div class="admin-secondary-text">
                                         #{empty t.description ? 'Aucune description renseignee.' : t.description}
                                     </div>
+                                    <div class="admin-secondary-text">
+                                        Image :
+                                        #{empty t.imagePath ? 'default-tool.jpg' : t.imagePath}
+                                    </div>
                                 </h:column>
 
                                 <h:column>
@@ -133,13 +150,13 @@
                                     <div class="admin-primary-text">
                                         <h:outputText value="#{t.pricePerDay}">
                                             <f:convertNumber pattern="#0.00" locale="fr_FR" />
-                                        </h:outputText> EUR / jour
+                                        </h:outputText> MAD / jour
                                     </div>
                                     <div class="admin-secondary-text">
                                         Caution :
                                         <h:outputText value="#{t.depositAmount}">
                                             <f:convertNumber pattern="#0.00" locale="fr_FR" />
-                                        </h:outputText> EUR
+                                        </h:outputText> MAD
                                     </div>
                                 </h:column>
 

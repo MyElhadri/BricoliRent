@@ -137,6 +137,7 @@ public class ToolAdminBean implements Serializable {
         copy.setCategory(source.getCategory());
         copy.setName(source.getName());
         copy.setDescription(source.getDescription());
+        copy.setImagePath(source.getImagePath());
         copy.setPricePerDay(source.getPricePerDay());
         copy.setDepositAmount(source.getDepositAmount());
         copy.setTotalQuantity(source.getTotalQuantity());

@@ -11,6 +11,7 @@ import jakarta.inject.Named;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Objects;
 
 @Named("toolCatalogBean")
 @ViewScoped
@@ -54,6 +55,20 @@ public class ToolCatalogBean implements Serializable {
 
     public boolean disponible(Tool tool) {
         return isDisponible(tool);
+    }
+
+    public String imageName(Tool tool) {
+        if (tool == null) {
+            return "default-tool.jpg";
+        }
+
+        String imagePath = tool.getImagePath();
+        if (imagePath == null) {
+            return "default-tool.jpg";
+        }
+
+        String normalized = imagePath.trim();
+        return Objects.equals(normalized, "") ? "default-tool.jpg" : normalized;
     }
 
     public List<Tool> getTools() {
