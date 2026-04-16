@@ -336,6 +336,7 @@ a:hover {
     font-size: 0.96rem;
     font-weight: 700;
     cursor: pointer;
+    appearance: none;
     transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
 }
 
@@ -345,13 +346,28 @@ a:hover {
 
 .btn-primary {
     background: linear-gradient(135deg, var(--primary), #14b8a6);
-    color: #ffffff;
+    color: #0f172a !important;
     box-shadow: 0 16px 30px rgba(15, 118, 110, 0.22);
+    text-shadow: none;
+    opacity: 1;
 }
 
-.btn-primary:hover {
-    color: #ffffff;
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:focus-visible,
+.btn-primary:active {
+    color: #0f172a !important;
     filter: brightness(1.03);
+    outline: none;
+    text-shadow: none;
+    opacity: 1;
+}
+
+.btn-primary:focus,
+.btn-primary:focus-visible {
+    box-shadow:
+        0 16px 30px rgba(15, 118, 110, 0.22),
+        0 0 0 4px rgba(20, 184, 166, 0.18);
 }
 
 .btn-block {
@@ -429,7 +445,7 @@ a:hover {
     display: grid;
     grid-template-columns: 0.95fr 1.05fr;
     border-radius: 32px;
-    overflow: hidden;
+    overflow: visible;
     background: rgba(255, 255, 255, 0.08);
     border: 1px solid rgba(255, 255, 255, 0.10);
     box-shadow: 0 32px 80px rgba(0, 0, 0, 0.28);
@@ -438,6 +454,7 @@ a:hover {
 
 .auth-aside {
     padding: 2.4rem;
+    border-radius: 32px 0 0 32px;
     background:
         radial-gradient(circle at top left, rgba(20, 184, 166, 0.20), transparent 30%),
         linear-gradient(180deg, rgba(8, 15, 25, 0.96), rgba(12, 20, 34, 0.92));
@@ -491,29 +508,41 @@ a:hover {
 .auth-points {
     display: grid;
     gap: 0.9rem;
+    padding-left: 0.2rem;
 }
 
 .auth-point {
     display: flex;
     align-items: flex-start;
     gap: 0.8rem;
-    padding: 0.95rem 1rem;
+    padding: 1rem 1.05rem;
     border-radius: 16px;
     background: rgba(255, 255, 255, 0.06);
     border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .auth-point-bullet {
-    width: 28px;
-    height: 28px;
-    display: inline-flex;
+    min-width: 32px;
+    width: 32px;
+    height: 32px;
+    display: flex;
     align-items: center;
     justify-content: center;
     border-radius: 999px;
     background: rgba(125, 211, 252, 0.14);
     color: #7dd3fc;
-    font-weight: 800;
+    font-size: 0.92rem;
+    font-weight: 900;
     flex-shrink: 0;
+    margin-top: 0;
+    padding: 0;
+    line-height: 1;
+    text-align: center;
+    overflow: visible;
+}
+
+.auth-point > div {
+    min-width: 0;
 }
 
 .auth-point strong {
@@ -531,6 +560,7 @@ a:hover {
 .auth-card {
     padding: 2.4rem;
     background: rgba(255, 255, 255, 0.96);
+    border-radius: 0 32px 32px 0;
 }
 
 .auth-card-header {
@@ -1513,6 +1543,7 @@ a:hover {
     .auth-aside,
     .auth-card {
         padding: 1.6rem;
+        border-radius: 0;
     }
 
     .br-grid-admin,
