@@ -11,6 +11,7 @@ import com.bricolirent.service.ReservationService;
 import jakarta.annotation.PostConstruct;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
+import jakarta.faces.context.ExternalContext;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
@@ -49,11 +50,13 @@ public class ReservationBean implements Serializable {
     private LocalDate dateFin;
 
     private Long reservationId;
+    private Long toolId;
     private Reservation currentReservation;
 
     @PostConstruct
     public void init() {
         chargerOutilsDisponibles();
+        preselectionnerOutilDepuisParametre();
         chargerReservationsClient();
     }
 
@@ -223,6 +226,14 @@ public class ReservationBean implements Serializable {
         this.reservationId = reservationId;
     }
 
+    public Long getToolId() {
+        return toolId;
+    }
+
+    public void setToolId(Long toolId) {
+        this.toolId = toolId;
+    }
+
     public List<Tool> getOutilsDisponibles() {
         return outilsDisponibles;
     }
@@ -298,6 +309,36 @@ public class ReservationBean implements Serializable {
         } catch (Exception e) {
             LOGGER.log(Level.WARNING, "Impossible de charger les reservations du client", e);
             reservations = Collections.emptyList();
+        }
+    }
+
+    private void preselectionnerOutilDepuisParametre() {
+        if (outilSelectionneId != null) {
+            return;
+        }
+
+        Long candidateId = toolId;
+        if (candidateId == null) {
+            ExternalContext externalContext = FacesContext.getCurrentInstance().getExternalContext();
+            String rawToolId = externalContext.getRequestParameterMap().get("toolId");
+            if (rawToolId != null && !rawToolId.isBlank()) {
+                try {
+                    candidateId = Long.valueOf(rawToolId);
+                } catch (NumberFormatException ignored) {
+                    candidateId = null;
+                }
+            }
+        }
+
+        if (candidateId == null) {
+            return;
+        }
+
+        final Long selectedId = candidateId;
+        boolean available = outilsDisponibles.stream().anyMatch(tool -> selectedId.equals(tool.getId()));
+        if (available) {
+            outilSelectionneId = selectedId;
+            toolId = selectedId;
         }
     }
 

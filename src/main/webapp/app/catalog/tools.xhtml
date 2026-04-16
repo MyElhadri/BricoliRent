@@ -224,7 +224,9 @@
                 display: flex;
                 justify-content: flex-end;
                 align-items: center;
+                gap: 0.8rem;
                 margin-top: auto;
+                flex-wrap: wrap;
             }
 
             .tool-detail-link {
@@ -238,6 +240,20 @@
                 text-decoration: none;
                 background: linear-gradient(135deg, #1d4ed8, #2563eb);
                 border: 1px solid rgba(37,99,235,0.25);
+            }
+
+            .tool-order-link {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                padding: 0.75rem 1rem;
+                border-radius: 12px;
+                color: #ffffff;
+                font-weight: 700;
+                text-decoration: none;
+                background: linear-gradient(135deg, #e94560, #ff7c92);
+                border: 1px solid rgba(233,69,96,0.25);
+                box-shadow: 0 12px 25px rgba(233,69,96,0.18);
             }
 
             .empty-state {
@@ -367,6 +383,10 @@
                                     </div>
 
                                     <div class="tool-card-footer">
+                                        <h:link outcome="/app/client/new-request.xhtml" styleClass="tool-order-link">
+                                            Demander
+                                            <f:param name="toolId" value="#{tool.id}" />
+                                        </h:link>
                                         <h:link outcome="/app/catalog/tool-details.xhtml" styleClass="tool-detail-link">
                                             Voir la fiche detail
                                             <f:param name="id" value="#{tool.id}" />

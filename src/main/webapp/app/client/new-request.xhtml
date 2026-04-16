@@ -8,6 +8,10 @@
 
 <ui:composition template="/templates/layout.xhtml">
 
+    <f:metadata>
+        <f:viewParam name="toolId" value="#{reservationBean.toolId}" />
+    </f:metadata>
+
     <ui:define name="title">Nouvelle demande - BricoliRent</ui:define>
 
     <ui:define name="content">
