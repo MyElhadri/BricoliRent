@@ -20,24 +20,30 @@ public interface PaymentService {
         private final BigDecimal rentalAmount;
         private final BigDecimal depositAmount;
         private final BigDecimal latePenaltyAmount;
+        private final BigDecimal refundAmount;
         private final boolean rentalPaid;
         private final boolean depositPaid;
         private final boolean latePenaltyPaid;
+        private final boolean refundPaid;
 
         public PaymentCandidate(Reservation reservation,
                                 BigDecimal rentalAmount,
                                 BigDecimal depositAmount,
                                 BigDecimal latePenaltyAmount,
+                                BigDecimal refundAmount,
                                 boolean rentalPaid,
                                 boolean depositPaid,
-                                boolean latePenaltyPaid) {
+                                boolean latePenaltyPaid,
+                                boolean refundPaid) {
             this.reservation = reservation;
             this.rentalAmount = rentalAmount;
             this.depositAmount = depositAmount;
             this.latePenaltyAmount = latePenaltyAmount;
+            this.refundAmount = refundAmount;
             this.rentalPaid = rentalPaid;
             this.depositPaid = depositPaid;
             this.latePenaltyPaid = latePenaltyPaid;
+            this.refundPaid = refundPaid;
         }
 
         public Reservation getReservation() {
@@ -56,6 +62,10 @@ public interface PaymentService {
             return latePenaltyAmount;
         }
 
+        public BigDecimal getRefundAmount() {
+            return refundAmount;
+        }
+
         public boolean isRentalPaid() {
             return rentalPaid;
         }
@@ -66,6 +76,10 @@ public interface PaymentService {
 
         public boolean isLatePenaltyPaid() {
             return latePenaltyPaid;
+        }
+
+        public boolean isRefundPaid() {
+            return refundPaid;
         }
     }
 }

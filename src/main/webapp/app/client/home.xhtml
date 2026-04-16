@@ -6,32 +6,39 @@
 
 <ui:composition template="/templates/layout.xhtml">
 
-    <ui:define name="title">BricoliRent — Espace Client</ui:define>
+    <ui:define name="title">BricoliRent - Espace Client</ui:define>
 
     <ui:define name="content">
-        <div style="padding: 2rem;">
+        <div class="legacy-home">
+            <section class="legacy-hero">
+                <span class="legacy-kicker">Espace client</span>
+                <h2 class="legacy-title">Bienvenue #{loginBean.currentUser.fullName}</h2>
+                <p class="legacy-subtitle">
+                    Retrouvez un espace plus clair pour consulter le catalogue, envoyer vos demandes
+                    et suivre l'etat de vos reservations.
+                </p>
 
-            <h2>👋 Bienvenue, <strong>#{loginBean.currentUser.fullName}</strong></h2>
-            <p style="color: rgba(255,255,255,0.6);">
-                Vous êtes connecté en tant que <strong>Client</strong>.
-            </p>
+                <div class="legacy-grid">
+                    <div class="legacy-card">
+                        <h3>Catalogue</h3>
+                        <p>Consultez les outils disponibles avec une presentation plus lisible.</p>
+                    </div>
+                    <div class="legacy-card">
+                        <h3>Nouvelle demande</h3>
+                        <p>Lancez une reservation rapidement depuis votre espace personnel.</p>
+                    </div>
+                    <div class="legacy-card">
+                        <h3>Mes demandes</h3>
+                        <p>Gardez une vue simple sur vos demandes deja enregistrees.</p>
+                    </div>
+                </div>
 
-            <hr style="border-color: rgba(255,255,255,0.1); margin: 1.5rem 0;"/>
-
-            <p style="color: rgba(255,255,255,0.5); font-style: italic;">
-                Le dashboard client sera disponible prochainement.
-                (Catalogue, réservations, historique...)
-            </p>
-
-            <!-- Déconnexion -->
-            <h:form>
-                <h:commandButton value="Se déconnecter"
-                                 action="#{loginBean.logout}"
-                                 style="margin-top:1rem; padding:0.6rem 1.4rem;
-                                        background:#e94560; border:none; border-radius:8px;
-                                        color:#fff; cursor:pointer; font-size:0.9rem;"/>
-            </h:form>
-
+                <div class="legacy-actions">
+                    <a href="#{request.contextPath}/app/catalog/tools.xhtml" class="legacy-link primary">Voir le catalogue</a>
+                    <a href="#{request.contextPath}/app/client/new-request.xhtml" class="legacy-link">Nouvelle demande</a>
+                    <a href="#{request.contextPath}/app/client/my-requests.xhtml" class="legacy-link">Mes demandes</a>
+                </div>
+            </section>
         </div>
     </ui:define>
 

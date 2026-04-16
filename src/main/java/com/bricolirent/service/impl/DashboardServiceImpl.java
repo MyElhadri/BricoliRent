@@ -12,6 +12,7 @@ import com.bricolirent.repository.ReservationRepository;
 import com.bricolirent.repository.ReturnRecordRepository;
 import com.bricolirent.service.DashboardService;
 import com.bricolirent.util.HibernateUtil;
+import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -29,10 +30,18 @@ import java.util.Set;
 public class DashboardServiceImpl implements DashboardService {
 
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-    private final ReservationRepository reservationRepository = new ReservationRepository();
-    private final PaymentRepository paymentRepository = new PaymentRepository();
-    private final ReturnRecordRepository returnRecordRepository = new ReturnRecordRepository();
-    private final ClientRepository clientRepository = new ClientRepository();
+    private ReservationRepository reservationRepository;
+    private PaymentRepository paymentRepository;
+    private ReturnRecordRepository returnRecordRepository;
+    private ClientRepository clientRepository;
+
+    @PostConstruct
+    public void init() {
+        this.reservationRepository = new ReservationRepository();
+        this.paymentRepository = new PaymentRepository();
+        this.returnRecordRepository = new ReturnRecordRepository();
+        this.clientRepository = new ClientRepository();
+    }
 
     @Override
     public DashboardViewData buildAdminDashboard() {

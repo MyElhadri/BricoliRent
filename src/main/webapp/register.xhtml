@@ -7,94 +7,135 @@
 <h:head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>BricoliRent — Inscription Client</title>
+    <title>BricoliRent - Inscription client</title>
     <h:outputStylesheet name="css/style.css"/>
 </h:head>
 
 <h:body>
-    <div class="login-container">
-        <div class="login-card">
-
-            <!-- Logo / Titre -->
-            <div class="login-header">
-                <h1> BricoliRent</h1>
-                <p>Créer un compte client</p>
-            </div>
-
-            <!-- Messages globaux -->
-            <div style="margin-bottom: 20px;">
-                <h:messages globalOnly="true" infoClass="alert alert-success" errorClass="alert alert-error" showDetail="true" showSummary="false"/>
-            </div>
-
-            <!-- Formulaire d'inscription -->
-            <h:form id="registerForm">
-
-                <div class="form-group">
-                    <h:outputLabel for="fullName" value="Nom complet"/>
-                    <h:inputText id="fullName"
-                                 value="#{registerBean.fullName}"
-                                 required="true"
-                                 requiredMessage="Le nom complet est obligatoire."
-                                 styleClass="form-control">
-                        <f:validateRequired/>
-                    </h:inputText>
-                    <h:message for="fullName" style="color:#f87171;font-size:0.85rem;display:block;margin-top:5px;"/>
+    <div class="auth-page">
+        <div class="auth-shell">
+            <aside class="auth-aside">
+                <div>
+                    <div class="auth-brand">
+                        <span class="auth-brand-mark">BR</span>
+                        <span class="auth-brand-text">BricoliRent</span>
+                    </div>
+                    <span class="auth-kicker">Nouveau compte</span>
+                    <h1>Creer un espace client clair, rapide et pret a l'emploi.</h1>
+                    <p>
+                        En quelques informations, vous pourrez consulter le catalogue,
+                        envoyer vos demandes et suivre l'avancement de vos reservations.
+                    </p>
                 </div>
 
-                <div class="form-group">
-                    <h:outputLabel for="email" value="Adresse email"/>
-                    <h:inputText id="email"
-                                 value="#{registerBean.email}"
-                                 required="true"
-                                 requiredMessage="L'email est obligatoire."
-                                 validatorMessage="Format d'email invalide."
-                                 autocomplete="email"
-                                 styleClass="form-control">
-                        <f:validateRequired/>
-                    </h:inputText>
-                    <h:message for="email" style="color:#f87171;font-size:0.85rem;display:block;margin-top:5px;"/>
+                <div class="auth-points">
+                    <div class="auth-point">
+                        <span class="auth-point-bullet">1</span>
+                        <div>
+                            <strong>Inscription simple</strong>
+                            <span>Le formulaire reste court et facile a comprendre.</span>
+                        </div>
+                    </div>
+                    <div class="auth-point">
+                        <span class="auth-point-bullet">2</span>
+                        <div>
+                            <strong>Compte personnel</strong>
+                            <span>Chaque demande de location reste associee a votre espace.</span>
+                        </div>
+                    </div>
+                    <div class="auth-point">
+                        <span class="auth-point-bullet">3</span>
+                        <div>
+                            <strong>Suivi plus lisible</strong>
+                            <span>Une fois connecte, vous retrouvez vos actions en un clin d'oeil.</span>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <section class="auth-card">
+                <div class="auth-card-header">
+                    <h2>Inscription client</h2>
+                    <p>Creez votre compte pour commencer.</p>
                 </div>
 
-                <div class="form-group">
-                    <h:outputLabel for="password" value="Mot de passe"/>
-                    <h:inputSecret id="password"
-                                   value="#{registerBean.password}"
-                                   required="true"
-                                   requiredMessage="Le mot de passe est obligatoire."
-                                   redisplay="false"
-                                   styleClass="form-control">
-                        <f:validateRequired/>
-                    </h:inputSecret>
-                    <h:message for="password" style="color:#f87171;font-size:0.85rem;display:block;margin-top:5px;"/>
+                <div class="auth-messages">
+                    <h:messages globalOnly="true"
+                                infoClass="alert alert-success"
+                                errorClass="alert alert-error"
+                                showDetail="true"
+                                showSummary="false"/>
                 </div>
 
-                <div class="form-group">
-                    <h:outputLabel for="confirmPassword" value="Confirmer le mot de passe"/>
-                    <h:inputSecret id="confirmPassword"
-                                   value="#{registerBean.confirmPassword}"
-                                   required="true"
-                                   requiredMessage="La confirmation est obligatoire."
-                                   redisplay="false"
-                                   styleClass="form-control">
-                        <f:validateRequired/>
-                    </h:inputSecret>
-                    <h:message for="confirmPassword" style="color:#f87171;font-size:0.85rem;display:block;margin-top:5px;"/>
+                <h:form id="registerForm">
+                    <div class="form-group">
+                        <h:outputLabel for="fullName" value="Nom complet"/>
+                        <h:inputText id="fullName"
+                                     value="#{registerBean.fullName}"
+                                     required="true"
+                                     requiredMessage="Le nom complet est obligatoire."
+                                     styleClass="form-control">
+                            <f:validateRequired/>
+                        </h:inputText>
+                        <h:message for="fullName" style="color:#dc2626;font-size:0.85rem;display:block;margin-top:5px;"/>
+                    </div>
+
+                    <div class="form-group">
+                        <h:outputLabel for="email" value="Adresse email"/>
+                        <h:inputText id="email"
+                                     value="#{registerBean.email}"
+                                     required="true"
+                                     requiredMessage="L'email est obligatoire."
+                                     validatorMessage="Format d'email invalide."
+                                     autocomplete="email"
+                                     styleClass="form-control">
+                            <f:validateRequired/>
+                        </h:inputText>
+                        <h:message for="email" style="color:#dc2626;font-size:0.85rem;display:block;margin-top:5px;"/>
+                    </div>
+
+                    <div class="form-group">
+                        <h:outputLabel for="password" value="Mot de passe"/>
+                        <h:inputSecret id="password"
+                                       value="#{registerBean.password}"
+                                       required="true"
+                                       requiredMessage="Le mot de passe est obligatoire."
+                                       redisplay="false"
+                                       styleClass="form-control">
+                            <f:validateRequired/>
+                        </h:inputSecret>
+                        <h:message for="password" style="color:#dc2626;font-size:0.85rem;display:block;margin-top:5px;"/>
+                    </div>
+
+                    <div class="form-group">
+                        <h:outputLabel for="confirmPassword" value="Confirmer le mot de passe"/>
+                        <h:inputSecret id="confirmPassword"
+                                       value="#{registerBean.confirmPassword}"
+                                       required="true"
+                                       requiredMessage="La confirmation est obligatoire."
+                                       redisplay="false"
+                                       styleClass="form-control">
+                            <f:validateRequired/>
+                        </h:inputSecret>
+                        <h:message for="confirmPassword" style="color:#dc2626;font-size:0.85rem;display:block;margin-top:5px;"/>
+                    </div>
+
+                    <div class="auth-form-actions">
+                        <h:commandButton value="S'inscrire"
+                                         action="#{registerBean.register}"
+                                         styleClass="btn btn-primary btn-block"/>
+                    </div>
+                </h:form>
+
+                <div class="auth-links">
+                    <h:link outcome="/login.xhtml" styleClass="auth-primary-link">
+                        Vous avez deja un compte ? Connectez-vous
+                    </h:link>
+                    <h:link outcome="/index.xhtml" styleClass="auth-secondary-link">
+                        Retour a l'accueil
+                    </h:link>
                 </div>
-
-                <div style="margin-top: 25px;">
-                    <h:commandButton value="S'inscrire"
-                                     action="#{registerBean.register}"
-                                     styleClass="btn btn-primary btn-block"/>
-                </div>
-
-            </h:form>
-
-            <div style="text-align: center; margin-top: 20px;">
-                <h:link outcome="/login.xhtml" style="color: #64748b; font-size: 0.9rem;">
-                    Vous avez déjà un compte ? Connectez-vous
-                </h:link>
-            </div>
-
+            </section>
         </div>
     </div>
 </h:body>

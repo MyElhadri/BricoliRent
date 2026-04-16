@@ -6,44 +6,44 @@
 
 <ui:composition template="/templates/layout.xhtml">
 
-    <ui:define name="title">BricoliRent — Espace Admin</ui:define>
+    <ui:define name="title">BricoliRent - Espace Admin</ui:define>
 
     <ui:define name="content">
-        <div style="padding: 2rem;">
+        <div class="legacy-home">
+            <section class="legacy-hero">
+                <span class="legacy-kicker">Administration</span>
+                <h2 class="legacy-title">Bienvenue #{loginBean.currentUser.fullName}</h2>
+                <p class="legacy-subtitle">
+                    Cet espace vous permet de superviser la plateforme, d'organiser les categories,
+                    de maintenir le catalogue et de suivre la gestion des comptes.
+                </p>
 
-            <h2>👋 Bienvenue, <strong>#{loginBean.currentUser.fullName}</strong></h2>
-            <p style="color: rgba(255,255,255,0.6);">
-                Vous êtes connecté en tant que <strong>Administrateur</strong>.
-            </p>
+                <div class="legacy-grid">
+                    <div class="legacy-card">
+                        <h3>Catalogue</h3>
+                        <p>Ajoutez, modifiez ou desactivez les outils disponibles.</p>
+                    </div>
+                    <div class="legacy-card">
+                        <h3>Categories</h3>
+                        <p>Structurez l'offre pour garder un espace clair et ordonne.</p>
+                    </div>
+                    <div class="legacy-card">
+                        <h3>Utilisateurs</h3>
+                        <p>Consultez les comptes et gardez une vision d'ensemble.</p>
+                    </div>
+                </div>
 
-            <hr style="border-color: rgba(255,255,255,0.1); margin: 1.5rem 0;"/>
-
-            <p style="color: rgba(255,255,255,0.5); font-style: italic;">
-                Le dashboard administrateur sera disponible prochainement.
-                (Gestion utilisateurs, outils, catégories, statistiques...)
-            </p>
-
-            <div style="margin-top: 2rem;">
-                <h3>Accès rapides :</h3>
-                <a href="#{request.contextPath}/app/admin/categories.xhtml"
-                   style="display:inline-block; padding:0.8rem 1.5rem; background:#4CAF50; color:white; text-decoration:none; border-radius:5px; margin-right:1rem; margin-bottom: 1rem;">
-                    📁 Gérer les Catégories
-                </a>
-                <a href="#{request.contextPath}/app/admin/tools.xhtml"
-                   style="display:inline-block; padding:0.8rem 1.5rem; background:#2196F3; color:white; text-decoration:none; border-radius:5px; margin-right:1rem; margin-bottom: 1rem;">
-                    🔧 Gérer les Outils
-                </a>
-            </div>
-
-            <!-- Déconnexion -->
-            <h:form>
-                <h:commandButton value="Se déconnecter"
-                                 action="#{loginBean.logout}"
-                                 style="margin-top:1rem; padding:0.6rem 1.4rem;
-                                        background:#e94560; border:none; border-radius:8px;
-                                        color:#fff; cursor:pointer; font-size:0.9rem;"/>
-            </h:form>
-
+                <div class="legacy-actions">
+                    <a href="#{request.contextPath}/app/admin/categories.xhtml" class="legacy-link primary">Gerer les categories</a>
+                    <a href="#{request.contextPath}/app/admin/tools.xhtml" class="legacy-link">Gerer les outils</a>
+                    <h:form>
+                        <h:commandButton value="Se deconnecter"
+                                         action="#{loginBean.logout}"
+                                         styleClass="legacy-link danger"
+                                         style="border:none;cursor:pointer;"/>
+                    </h:form>
+                </div>
+            </section>
         </div>
     </ui:define>
 

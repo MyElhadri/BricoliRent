@@ -10,82 +10,123 @@
     <ui:define name="title">Demandes approuvees - BricoliRent</ui:define>
 
     <ui:define name="content">
-        <style>
-            .approved-page { padding: 2rem; color: #1e293b; }
-            .approved-header { margin-bottom: 1.8rem; }
-            .approved-title { margin: 0; font-size: 2rem; font-weight: 900; color: #0f172a; }
-            .approved-subtitle { margin: 0.6rem 0 0 0; color: #64748b; line-height: 1.7; max-width: 820px; }
-            .approved-card { background: linear-gradient(180deg, #ffffff, #f8fafc); border: 1px solid rgba(148,163,184,0.18); border-radius: 22px; box-shadow: 0 18px 44px rgba(15,23,42,0.10); padding: 1.5rem; }
-            .approved-section-title { margin: 0 0 1rem 0; font-size: 1.2rem; font-weight: 900; color: #0f172a; }
-            .approved-section-subtitle { margin: 0 0 1.2rem 0; color: #64748b; line-height: 1.6; }
-            .approved-table { width: 100%; border-collapse: collapse; }
-            .approved-table th, .approved-table td { padding: 0.9rem 0.7rem; text-align: left; border-bottom: 1px solid #e2e8f0; vertical-align: top; }
-            .approved-table th { color: #475569; font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.04em; }
-            .approved-main { font-weight: 800; color: #0f172a; }
-            .approved-sub { color: #64748b; font-size: 0.92rem; }
-            .approved-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 120px; padding: 0.45rem 0.7rem; border-radius: 999px; font-size: 0.8rem; font-weight: 800; color: #0284c7; background: rgba(14,165,233,0.12); }
-            .approved-badge.success { color: #16a34a; background: rgba(34,197,94,0.14); }
-            .approved-badge.info { color: #0284c7; background: rgba(14,165,233,0.12); }
-            .approved-badge.warning { color: #b45309; background: rgba(245,158,11,0.16); }
-            .approved-badge.danger { color: #dc2626; background: rgba(239,68,68,0.15); }
-            .approved-badge.neutral { color: #475569; background: rgba(148,163,184,0.15); }
-            .approved-button { border: none; background: none; padding: 0; font-weight: 800; cursor: pointer; color: #16a34a; }
-            .approved-empty { padding: 1.25rem; border-radius: 16px; background: #ffffff; border: 1px dashed #cbd5e1; color: #64748b; text-align: center; }
-            .approved-messages { color: #e94560; font-weight: 700; list-style: none; padding: 0 0 1rem 0; }
-            .approved-stack { display: grid; gap: 1.5rem; }
-        </style>
-
-        <div class="approved-page">
-            <div class="approved-header">
-                <h2 class="approved-title">Demandes approuvees</h2>
-                <p class="approved-subtitle">
+        <div class="br-page">
+            <div class="br-header">
+                <h2 class="br-title">Demandes approuvees</h2>
+                <p class="br-subtitle">
                     Retrouvez ici les reservations deja approuvees et pretes a etre servies. L'action de check-out
-                    enregistre la sortie du materiel, l'agent responsable et l'horodatage correspondant.
+                    enregistre la sortie du materiel, l'agent responsable et l'horodatage correspondant, puis vous
+                    redirige vers l'ecran Paiements cash pour encaisser la location et la caution.
                 </p>
             </div>
 
-            <h:messages globalOnly="true" showDetail="true" showSummary="true" styleClass="approved-messages" />
+            <h:messages globalOnly="true" showDetail="true" showSummary="true" styleClass="br-messages" />
 
-            <div class="approved-stack">
-                <div class="approved-card">
-                    <h3 class="approved-section-title">Reservations approuvees a servir</h3>
-                    <p class="approved-section-subtitle">
-                        Cette liste contient uniquement les reservations approuvees prêtes pour le check-out.
+            <div class="br-stack">
+                <div class="br-card">
+                    <h3 class="br-section-title">Reservations approuvees a servir</h3>
+                    <p class="br-section-subtitle">
+                        Cette liste contient uniquement les reservations approuvees pretes pour le check-out.
                     </p>
 
                     <h:panelGroup rendered="#{empty agentCheckoutBean.approvedReservations}">
-                        <div class="approved-empty">Aucune reservation approuvee n'est actuellement prete pour le check-out.</div>
+                        <div class="br-empty">Aucune reservation approuvee n'est actuellement prete pour le check-out.</div>
                     </h:panelGroup>
 
                     <h:panelGroup rendered="#{not empty agentCheckoutBean.approvedReservations}">
                         <h:form id="approvedRequestsForm">
-                            <h:dataTable value="#{agentCheckoutBean.approvedReservations}" var="reservation" styleClass="approved-table">
+                            <div class="br-table-wrapper">
+                                <h:dataTable value="#{agentCheckoutBean.approvedReservations}" var="reservation" styleClass="br-table">
+                                    <h:column>
+                                        <f:facet name="header">Client</f:facet>
+                                        <div class="br-main">#{reservation.client.users.fullName}</div>
+                                        <div class="br-sub">#{reservation.client.users.email}</div>
+                                    </h:column>
+
+                                    <h:column>
+                                        <f:facet name="header">Outil</f:facet>
+                                        <div class="br-main">#{reservation.tool.name}</div>
+                                        <div class="br-sub">Quantite : #{reservation.quantity}</div>
+                                    </h:column>
+
+                                    <h:column>
+                                        <f:facet name="header">Periode</f:facet>
+                                        <div class="br-main">#{reservation.startDate} au #{reservation.endDate}</div>
+                                        <div class="br-sub">Approuvee le #{reservation.approvedAt}</div>
+                                    </h:column>
+
+                                    <h:column>
+                                        <f:facet name="header">Montants</f:facet>
+                                        <div class="br-main">
+                                            <h:outputText value="#{reservation.estimatedRentalAmount}">
+                                                <f:convertNumber pattern="#0.00" locale="fr_FR" />
+                                            </h:outputText> EUR
+                                        </div>
+                                        <div class="br-sub">
+                                            Caution :
+                                            <h:outputText value="#{reservation.estimatedDepositAmount}">
+                                                <f:convertNumber pattern="#0.00" locale="fr_FR" />
+                                            </h:outputText> EUR
+                                        </div>
+                                    </h:column>
+
+                                    <h:column>
+                                        <f:facet name="header">Statut</f:facet>
+                                        <span class="br-badge info">Approuvee</span>
+                                    </h:column>
+
+                                    <h:column>
+                                        <f:facet name="header">Action</f:facet>
+                                        <h:commandButton value="Check-out puis paiements"
+                                                         action="#{agentCheckoutBean.checkout(reservation.id)}"
+                                                         onclick="return confirm('Confirmer la sortie du materiel pour cette reservation ?');"
+                                                         styleClass="br-button br-button-primary" />
+                                    </h:column>
+                                </h:dataTable>
+                            </div>
+                        </h:form>
+                    </h:panelGroup>
+                </div>
+
+                <div class="br-card">
+                    <h3 class="br-section-title">Historique de mes check-outs</h3>
+                    <p class="br-section-subtitle">
+                        Consultez ici uniquement les reservations que vous avez vous-meme servies en check-out.
+                    </p>
+
+                    <h:panelGroup rendered="#{empty agentCheckoutBean.checkoutHistory}">
+                        <div class="br-empty">Aucun check-out enregistre pour cet agent pour le moment.</div>
+                    </h:panelGroup>
+
+                    <h:panelGroup rendered="#{not empty agentCheckoutBean.checkoutHistory}">
+                        <div class="br-table-wrapper">
+                            <h:dataTable value="#{agentCheckoutBean.checkoutHistory}" var="reservation" styleClass="br-table">
                                 <h:column>
                                     <f:facet name="header">Client</f:facet>
-                                    <div class="approved-main">#{reservation.client.users.fullName}</div>
-                                    <div class="approved-sub">#{reservation.client.users.email}</div>
+                                    <div class="br-main">#{reservation.client.users.fullName}</div>
+                                    <div class="br-sub">#{reservation.client.users.email}</div>
                                 </h:column>
 
                                 <h:column>
                                     <f:facet name="header">Outil</f:facet>
-                                    <div class="approved-main">#{reservation.tool.name}</div>
-                                    <div class="approved-sub">Quantite : #{reservation.quantity}</div>
+                                    <div class="br-main">#{reservation.tool.name}</div>
+                                    <div class="br-sub">Quantite : #{reservation.quantity}</div>
                                 </h:column>
 
                                 <h:column>
                                     <f:facet name="header">Periode</f:facet>
-                                    <div class="approved-main">#{reservation.startDate} au #{reservation.endDate}</div>
-                                    <div class="approved-sub">Approuvee le #{reservation.approvedAt}</div>
+                                    <div class="br-main">#{reservation.startDate} au #{reservation.endDate}</div>
+                                    <div class="br-sub">Check-out le #{reservation.checkedOutAt}</div>
                                 </h:column>
 
                                 <h:column>
                                     <f:facet name="header">Montants</f:facet>
-                                    <div class="approved-main">
+                                    <div class="br-main">
                                         <h:outputText value="#{reservation.estimatedRentalAmount}">
                                             <f:convertNumber pattern="#0.00" locale="fr_FR" />
                                         </h:outputText> EUR
                                     </div>
-                                    <div class="approved-sub">
+                                    <div class="br-sub">
                                         Caution :
                                         <h:outputText value="#{reservation.estimatedDepositAmount}">
                                             <f:convertNumber pattern="#0.00" locale="fr_FR" />
@@ -95,71 +136,10 @@
 
                                 <h:column>
                                     <f:facet name="header">Statut</f:facet>
-                                    <span class="approved-badge info">Approuvee</span>
-                                </h:column>
-
-                                <h:column>
-                                    <f:facet name="header">Action</f:facet>
-                                    <h:commandButton value="Effectuer le check-out"
-                                                     action="#{agentCheckoutBean.checkout(reservation.id)}"
-                                                     onclick="return confirm('Confirmer la sortie du materiel pour cette reservation ?');"
-                                                     styleClass="approved-button" />
+                                    <span class="br-badge #{agentCheckoutBean.statusTone(reservation)}">#{agentCheckoutBean.displayStatus(reservation)}</span>
                                 </h:column>
                             </h:dataTable>
-                        </h:form>
-                    </h:panelGroup>
-                </div>
-
-                <div class="approved-card">
-                    <h3 class="approved-section-title">Historique de mes check-outs</h3>
-                    <p class="approved-section-subtitle">
-                        Consultez ici uniquement les reservations que vous avez vous-meme servies en check-out.
-                    </p>
-
-                    <h:panelGroup rendered="#{empty agentCheckoutBean.checkoutHistory}">
-                        <div class="approved-empty">Aucun check-out enregistre pour cet agent pour le moment.</div>
-                    </h:panelGroup>
-
-                    <h:panelGroup rendered="#{not empty agentCheckoutBean.checkoutHistory}">
-                        <h:dataTable value="#{agentCheckoutBean.checkoutHistory}" var="reservation" styleClass="approved-table">
-                            <h:column>
-                                <f:facet name="header">Client</f:facet>
-                                <div class="approved-main">#{reservation.client.users.fullName}</div>
-                                <div class="approved-sub">#{reservation.client.users.email}</div>
-                            </h:column>
-
-                            <h:column>
-                                <f:facet name="header">Outil</f:facet>
-                                <div class="approved-main">#{reservation.tool.name}</div>
-                                <div class="approved-sub">Quantite : #{reservation.quantity}</div>
-                            </h:column>
-
-                            <h:column>
-                                <f:facet name="header">Periode</f:facet>
-                                <div class="approved-main">#{reservation.startDate} au #{reservation.endDate}</div>
-                                <div class="approved-sub">Check-out le #{reservation.checkedOutAt}</div>
-                            </h:column>
-
-                            <h:column>
-                                <f:facet name="header">Montants</f:facet>
-                                <div class="approved-main">
-                                    <h:outputText value="#{reservation.estimatedRentalAmount}">
-                                        <f:convertNumber pattern="#0.00" locale="fr_FR" />
-                                    </h:outputText> EUR
-                                </div>
-                                <div class="approved-sub">
-                                    Caution :
-                                    <h:outputText value="#{reservation.estimatedDepositAmount}">
-                                        <f:convertNumber pattern="#0.00" locale="fr_FR" />
-                                    </h:outputText> EUR
-                                </div>
-                            </h:column>
-
-                            <h:column>
-                                <f:facet name="header">Statut</f:facet>
-                                <span class="approved-badge #{agentCheckoutBean.statusTone(reservation)}">#{agentCheckoutBean.displayStatus(reservation)}</span>
-                            </h:column>
-                        </h:dataTable>
+                        </div>
                     </h:panelGroup>
                 </div>
             </div>
@@ -167,4 +147,5 @@
     </ui:define>
 
 </ui:composition>
+
 </html>

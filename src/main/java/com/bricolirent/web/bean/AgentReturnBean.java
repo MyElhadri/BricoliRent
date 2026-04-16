@@ -11,6 +11,7 @@ import jakarta.inject.Inject;
 import jakarta.inject.Named;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
@@ -37,17 +38,20 @@ public class AgentReturnBean implements Serializable {
         refreshData();
     }
 
-    public void registerReturn(Long reservationId) {
+    public String registerReturn(Long reservationId) {
         try {
             ReturnService.ReturnProcessResult result = returnService.enregistrerRetour(reservationId, getAgentId());
-            addMessage(FacesMessage.SEVERITY_INFO, "Retour enregistre", result.message());
+            FacesContext.getCurrentInstance().getExternalContext().getFlash().setKeepMessages(true);
+            addMessage(FacesMessage.SEVERITY_INFO, "Retour enregistre", buildReturnFollowUpMessage(result));
             refreshData();
+            return "/app/agent/payments.xhtml?faces-redirect=true";
         } catch (IllegalArgumentException | IllegalStateException e) {
             addMessage(FacesMessage.SEVERITY_ERROR, "Erreur", e.getMessage());
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Erreur lors de l'enregistrement d'un retour", e);
             addMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Une erreur technique est survenue.");
         }
+        return null;
     }
 
     public List<Reservation> getReservationsToReturn() {
@@ -103,6 +107,16 @@ public class AgentReturnBean implements Serializable {
 
     private Long getAgentId() {
         return loginBean.getCurrentUser() != null ? loginBean.getCurrentUser().getId() : null;
+    }
+
+    private String buildReturnFollowUpMessage(ReturnService.ReturnProcessResult result) {
+        if (result == null) {
+            return "Le retour a ete enregistre. Verifiez les mouvements de paiement associes.";
+        }
+        if (result.latePenalty() != null && result.latePenalty().compareTo(BigDecimal.ZERO) > 0) {
+            return result.message() + " Enregistrez maintenant la penalite depuis l'ecran Paiements cash.";
+        }
+        return result.message() + " Si la caution a deja ete encaissee, vous pouvez maintenant tracer son remboursement depuis l'ecran Paiements cash.";
     }
 
     private void addMessage(FacesMessage.Severity severity, String summary, String detail) {

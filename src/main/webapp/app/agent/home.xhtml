@@ -6,32 +6,39 @@
 
 <ui:composition template="/templates/layout.xhtml">
 
-    <ui:define name="title">BricoliRent — Espace Agent</ui:define>
+    <ui:define name="title">BricoliRent - Espace Agent</ui:define>
 
     <ui:define name="content">
-        <div style="padding: 2rem;">
+        <div class="legacy-home">
+            <section class="legacy-hero">
+                <span class="legacy-kicker">Espace agent</span>
+                <h2 class="legacy-title">Bienvenue #{loginBean.currentUser.fullName}</h2>
+                <p class="legacy-subtitle">
+                    Retrouvez vos operations essentielles dans un espace plus lisible :
+                    validations, check-outs, paiements cash et retours.
+                </p>
 
-            <h2>👋 Bienvenue, <strong>#{loginBean.currentUser.fullName}</strong></h2>
-            <p style="color: rgba(255,255,255,0.6);">
-                Vous êtes connecté en tant que <strong>Agent</strong>.
-            </p>
+                <div class="legacy-grid">
+                    <div class="legacy-card">
+                        <h3>Demandes en attente</h3>
+                        <p>Traitez rapidement les reservations a valider ou a refuser.</p>
+                    </div>
+                    <div class="legacy-card">
+                        <h3>Paiements</h3>
+                        <p>Enregistrez plus clairement les locations, cautions et penalites.</p>
+                    </div>
+                    <div class="legacy-card">
+                        <h3>Retours</h3>
+                        <p>Suivez les retours et les penalites de retard en un seul coup d'oeil.</p>
+                    </div>
+                </div>
 
-            <hr style="border-color: rgba(255,255,255,0.1); margin: 1.5rem 0;"/>
-
-            <p style="color: rgba(255,255,255,0.5); font-style: italic;">
-                Le dashboard agent sera disponible prochainement.
-                (Gestion check-out, retours, paiements...)
-            </p>
-
-            <!-- Déconnexion -->
-            <h:form>
-                <h:commandButton value="Se déconnecter"
-                                 action="#{loginBean.logout}"
-                                 style="margin-top:1rem; padding:0.6rem 1.4rem;
-                                        background:#e94560; border:none; border-radius:8px;
-                                        color:#fff; cursor:pointer; font-size:0.9rem;"/>
-            </h:form>
-
+                <div class="legacy-actions">
+                    <a href="#{request.contextPath}/app/agent/pending-requests.xhtml" class="legacy-link primary">Demandes en attente</a>
+                    <a href="#{request.contextPath}/app/agent/payments.xhtml" class="legacy-link">Paiements</a>
+                    <a href="#{request.contextPath}/app/agent/returns.xhtml" class="legacy-link">Retours</a>
+                </div>
+            </section>
         </div>
     </ui:define>
 

@@ -46,20 +46,24 @@ public class PaymentServiceImpl implements PaymentService {
             List<Payment> payments = paymentRepository.findByReservationId(reservation.getId());
             boolean rentalPaid = containsPaymentType(payments, PaymentType.RENTAL);
             boolean depositPaid = containsPaymentType(payments, PaymentType.DEPOSIT);
+            boolean refundPaid = containsPaymentType(payments, PaymentType.REFUND);
             ReturnRecord returnRecord = returnRecordRepository.findByReservationId(reservation.getId());
             BigDecimal latePenalty = returnRecord == null || returnRecord.getLatePenalty() == null
                     ? BigDecimal.ZERO
                     : returnRecord.getLatePenalty();
             boolean latePenaltyPaid = containsPaymentType(payments, PaymentType.LATE_PENALTY);
+            BigDecimal refundAmount = computeRefundAmount(reservation, returnRecord, depositPaid, latePenaltyPaid, refundPaid);
 
             PaymentCandidate candidate = new PaymentCandidate(
                     reservation,
                     safeAmount(reservation.getEstimatedRentalAmount()),
                     safeAmount(reservation.getEstimatedDepositAmount()),
                     safeAmount(latePenalty),
+                    safeAmount(refundAmount),
                     rentalPaid,
                     depositPaid,
-                    latePenaltyPaid
+                    latePenaltyPaid,
+                    refundPaid
             );
 
             if (hasOutstandingPayment(candidate)) {
@@ -85,6 +89,9 @@ public class PaymentServiceImpl implements PaymentService {
                 .orElseThrow(() -> new IllegalStateException("La reservation selectionnee est introuvable."));
 
         BigDecimal expectedAmount = getExpectedAmount(reservation, type);
+        if (expectedAmount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalStateException("Aucun montant n'est attendu pour ce mouvement.");
+        }
         if (amount.compareTo(expectedAmount) != 0) {
             throw new IllegalArgumentException("Le montant saisi doit correspondre au montant attendu : " + expectedAmount + " EUR.");
         }
@@ -115,7 +122,8 @@ public class PaymentServiceImpl implements PaymentService {
         boolean rentalDue = candidate.getRentalAmount().compareTo(BigDecimal.ZERO) > 0 && !candidate.isRentalPaid();
         boolean depositDue = candidate.getDepositAmount().compareTo(BigDecimal.ZERO) > 0 && !candidate.isDepositPaid();
         boolean penaltyDue = candidate.getLatePenaltyAmount().compareTo(BigDecimal.ZERO) > 0 && !candidate.isLatePenaltyPaid();
-        return rentalDue || depositDue || penaltyDue;
+        boolean refundDue = candidate.getRefundAmount().compareTo(BigDecimal.ZERO) > 0 && !candidate.isRefundPaid();
+        return rentalDue || depositDue || penaltyDue || refundDue;
     }
 
     private BigDecimal getExpectedAmount(Reservation reservation, PaymentType type) {
@@ -129,8 +137,42 @@ public class PaymentServiceImpl implements PaymentService {
                 }
                 yield safeAmount(returnRecord.getLatePenalty());
             }
-            default -> throw new IllegalArgumentException("Type de paiement non pris en charge.");
+            case REFUND -> {
+                List<Payment> payments = paymentRepository.findByReservationId(reservation.getId());
+                boolean depositPaid = containsPaymentType(payments, PaymentType.DEPOSIT);
+                boolean refundPaid = containsPaymentType(payments, PaymentType.REFUND);
+                ReturnRecord returnRecord = returnRecordRepository.findByReservationId(reservation.getId());
+                boolean latePenaltyPaid = containsPaymentType(payments, PaymentType.LATE_PENALTY);
+
+                BigDecimal refundAmount = computeRefundAmount(reservation, returnRecord, depositPaid, latePenaltyPaid, refundPaid);
+                if (refundAmount.compareTo(BigDecimal.ZERO) <= 0) {
+                    throw new IllegalStateException("La caution ne peut pas etre remboursee pour cette reservation.");
+                }
+                yield refundAmount;
+            }
         };
+    }
+
+    private BigDecimal computeRefundAmount(Reservation reservation,
+                                           ReturnRecord returnRecord,
+                                           boolean depositPaid,
+                                           boolean latePenaltyPaid,
+                                           boolean refundPaid) {
+        if (reservation.getStatus() != ReservationStatus.RETURNED) {
+            return BigDecimal.ZERO;
+        }
+        if (!depositPaid || refundPaid) {
+            return BigDecimal.ZERO;
+        }
+
+        BigDecimal latePenalty = returnRecord == null || returnRecord.getLatePenalty() == null
+                ? BigDecimal.ZERO
+                : safeAmount(returnRecord.getLatePenalty());
+        if (latePenalty.compareTo(BigDecimal.ZERO) > 0 && !latePenaltyPaid) {
+            return BigDecimal.ZERO;
+        }
+
+        return safeAmount(reservation.getEstimatedDepositAmount());
     }
 
     private BigDecimal safeAmount(BigDecimal value) {
@@ -138,6 +180,11 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     private String buildPaymentNotes(PaymentType type, BigDecimal amount) {
-        return "Paiement cash enregistre pour " + type + " : " + amount + " EUR.";
+        return switch (type) {
+            case RENTAL -> "Paiement cash enregistre pour la location : " + amount + " EUR.";
+            case DEPOSIT -> "Paiement cash enregistre pour la caution : " + amount + " EUR.";
+            case LATE_PENALTY -> "Paiement cash enregistre pour la penalite de retard : " + amount + " EUR.";
+            case REFUND -> "Remboursement cash de la caution enregistre : " + amount + " EUR.";
+        };
     }
 }

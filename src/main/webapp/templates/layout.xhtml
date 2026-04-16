@@ -10,37 +10,36 @@
     <title><ui:insert name="title">BricoliRent</ui:insert></title>
     <h:outputStylesheet name="css/style.css"/>
 </h:head>
-<h:body>
-    <div class="layout-wrapper">
+<h:body styleClass="app-shell-body">
+    <div class="app-shell-background" aria-hidden="true">
+        <span class="app-glow glow-left"></span>
+        <span class="app-glow glow-right"></span>
+    </div>
 
-        <!-- Header -->
+    <div class="layout-wrapper">
         <header class="layout-header">
             <ui:insert name="header">
                 <ui:include src="/templates/header.xhtml"/>
             </ui:insert>
         </header>
 
-        <!-- Sidebar -->
         <aside class="layout-sidebar">
             <ui:insert name="sidebar">
                 <ui:include src="/templates/sidebar.xhtml"/>
             </ui:insert>
         </aside>
 
-        <!-- Main Content -->
         <main class="layout-content">
-            <ui:insert name="content">
-                <!-- Page content goes here -->
-            </ui:insert>
+            <div class="page-surface">
+                <ui:insert name="content"/>
+            </div>
         </main>
 
-        <!-- Footer -->
         <footer class="layout-footer">
             <ui:insert name="footer">
                 <ui:include src="/templates/footer.xhtml"/>
             </ui:insert>
         </footer>
-
     </div>
 </h:body>
 </html>

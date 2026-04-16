@@ -3,32 +3,36 @@
                 xmlns:ui="jakarta.faces.facelets">
 
     <div class="sidebar-content">
-        <h3>Navigation</h3>
+        <div class="sidebar-heading">
+            <span class="sidebar-kicker">Navigation</span>
+            <h3>Acces rapides</h3>
+        </div>
+
         <ul class="sidebar-menu">
-            <li><a href="#{request.contextPath}/app/dashboard.xhtml">Dashboard</a></li>
-            
-            <h:panelGroup rendered="#{loginBean.currentRole == 'ADMIN'}">
-                <li><a href="#{request.contextPath}/app/admin/categories.xhtml">Catégories</a></li>
-                <li><a href="#{request.contextPath}/app/admin/tools.xhtml">Outils (Admin)</a></li>
+            <li><a href="#{request.contextPath}/app/dashboard.xhtml">Tableau de bord</a></li>
+
+            <ui:fragment rendered="#{loginBean.currentRole == 'ADMIN'}">
+                <li><a href="#{request.contextPath}/app/admin/categories.xhtml">Categories</a></li>
+                <li><a href="#{request.contextPath}/app/admin/tools.xhtml">Outils</a></li>
                 <li><a href="#{request.contextPath}/app/admin/agents.xhtml">Agents</a></li>
                 <li><a href="#{request.contextPath}/app/admin/users.xhtml">Utilisateurs</a></li>
-            </h:panelGroup>
+            </ui:fragment>
 
-            <h:panelGroup rendered="#{loginBean.currentRole == 'CLIENT' or loginBean.currentRole == 'ADMIN'}">
+            <ui:fragment rendered="#{loginBean.currentRole == 'CLIENT' or loginBean.currentRole == 'ADMIN'}">
                 <li><a href="#{request.contextPath}/app/catalog/tools.xhtml">Catalogue</a></li>
-            </h:panelGroup>
-            
-            <h:panelGroup rendered="#{loginBean.currentRole == 'CLIENT'}">
+            </ui:fragment>
+
+            <ui:fragment rendered="#{loginBean.currentRole == 'CLIENT'}">
                 <li><a href="#{request.contextPath}/app/client/new-request.xhtml">Nouvelle demande</a></li>
                 <li><a href="#{request.contextPath}/app/client/my-requests.xhtml">Mes demandes</a></li>
-            </h:panelGroup>
-            
-            <h:panelGroup rendered="#{loginBean.currentRole == 'AGENT'}">
+            </ui:fragment>
+
+            <ui:fragment rendered="#{loginBean.currentRole == 'AGENT'}">
                 <li><a href="#{request.contextPath}/app/agent/approved-requests.xhtml">Demandes approuvees</a></li>
                 <li><a href="#{request.contextPath}/app/agent/pending-requests.xhtml">Demandes en attente</a></li>
                 <li><a href="#{request.contextPath}/app/agent/returns.xhtml">Retours</a></li>
                 <li><a href="#{request.contextPath}/app/agent/payments.xhtml">Paiements</a></li>
-            </h:panelGroup>
+            </ui:fragment>
         </ul>
     </div>
 

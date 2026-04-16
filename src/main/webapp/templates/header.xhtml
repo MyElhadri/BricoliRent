@@ -3,23 +3,26 @@
                 xmlns:ui="jakarta.faces.facelets">
 
     <div class="header-content">
-        <div class="header-logo">
-            <a href="#{request.contextPath}/app/dashboard.xhtml" style="text-decoration:none;">
-                <span class="logo-text"> BricoliRent</span>
+        <div class="header-brand">
+            <a href="#{request.contextPath}/app/dashboard.xhtml" class="header-brand-link">
+                <span class="header-brand-mark">BR</span>
+                <span class="logo-text">BricoliRent</span>
             </a>
         </div>
-        <nav class="header-nav">
+
+        <nav class="header-nav" aria-label="Navigation principale">
             <h:panelGroup rendered="#{loginBean.currentRole == 'CLIENT' or loginBean.currentRole == 'ADMIN'}">
                 <a href="#{request.contextPath}/app/catalog/tools.xhtml">Catalogue</a>
             </h:panelGroup>
-            <a href="#{request.contextPath}/app/dashboard.xhtml">Dashboard</a>
+            <a href="#{request.contextPath}/app/dashboard.xhtml">Tableau de bord</a>
         </nav>
+
         <div class="header-user">
-            <h:form>
-                <h:outputText value="#{loginBean.currentUser.fullName}"
-                              rendered="#{loginBean.loggedIn}"/>
-                <h:commandLink value="Déconnexion" action="#{loginBean.logout()}"
-                               rendered="#{loginBean.loggedIn}"/>
+            <h:panelGroup rendered="#{loginBean.loggedIn}">
+                <span class="header-user-name">#{loginBean.currentUser.fullName}</span>
+            </h:panelGroup>
+            <h:form rendered="#{loginBean.loggedIn}" styleClass="header-logout-form">
+                <h:commandLink value="Deconnexion" action="#{loginBean.logout()}" styleClass="header-logout-link"/>
             </h:form>
         </div>
     </div>

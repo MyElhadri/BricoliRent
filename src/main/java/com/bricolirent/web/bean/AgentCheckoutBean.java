@@ -36,17 +36,24 @@ public class AgentCheckoutBean implements Serializable {
         refreshData();
     }
 
-    public void checkout(Long reservationId) {
+    public String checkout(Long reservationId) {
         try {
             reservationService.effectuerCheckout(reservationId, getAgentId());
-            addMessage(FacesMessage.SEVERITY_INFO, "Check-out effectue", "La sortie du materiel a ete enregistree avec succes.");
+            FacesContext.getCurrentInstance().getExternalContext().getFlash().setKeepMessages(true);
+            addMessage(
+                    FacesMessage.SEVERITY_INFO,
+                    "Check-out effectue",
+                    "La sortie du materiel a ete enregistree avec succes. Enregistrez maintenant la location et la caution depuis l'ecran Paiements cash."
+            );
             refreshData();
+            return "/app/agent/payments.xhtml?faces-redirect=true";
         } catch (IllegalArgumentException | IllegalStateException e) {
             addMessage(FacesMessage.SEVERITY_ERROR, "Erreur", e.getMessage());
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Erreur lors du check-out", e);
             addMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Une erreur technique est survenue.");
         }
+        return null;
     }
 
     public List<Reservation> getApprovedReservations() {
