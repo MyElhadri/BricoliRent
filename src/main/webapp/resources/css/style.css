@@ -669,6 +669,10 @@ a:hover {
     border-radius: 18px;
 }
 
+.br-table-wrapper-returns {
+    overflow-x: visible;
+}
+
 .br-table {
     width: 100%;
     min-width: 920px;
@@ -691,6 +695,50 @@ a:hover {
     white-space: nowrap;
 }
 
+.br-table-returns {
+    min-width: 0;
+    table-layout: fixed;
+}
+
+.br-table-returns th,
+.br-table-returns td {
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
+.br-table-returns .br-cell-client {
+    width: 25%;
+}
+
+.br-table-returns .br-cell-tool {
+    width: 19%;
+}
+
+.br-table-returns .br-cell-period {
+    width: 20%;
+}
+
+.br-table-returns .br-cell-money {
+    width: 15%;
+}
+
+.br-table-returns .br-cell-delay {
+    width: 18%;
+}
+
+.br-table-returns .br-cell-status {
+    width: 11rem;
+}
+
+.br-table-returns .br-cell-action {
+    width: 15rem;
+}
+
+.br-table-returns-history .br-cell-status {
+    width: 10rem;
+}
+
 .br-table tbody tr:hover {
     background: rgba(148, 163, 184, 0.06);
 }
@@ -700,11 +748,22 @@ a:hover {
     color: #0f172a;
 }
 
+.br-value-stack {
+    display: grid;
+    gap: 0.2rem;
+    min-width: 0;
+}
+
 .br-sub {
     color: var(--text-soft);
     font-size: 0.92rem;
     margin-top: 0.2rem;
     line-height: 1.6;
+}
+
+.br-wrap-anywhere {
+    overflow-wrap: anywhere;
+    word-break: break-word;
 }
 
 .br-badge {
@@ -720,6 +779,15 @@ a:hover {
     white-space: nowrap;
     color: #475569;
     background: rgba(148, 163, 184, 0.15);
+}
+
+.br-badge-wide {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    white-space: normal;
+    line-height: 1.35;
+    padding: 0.55rem 0.8rem;
 }
 
 .br-badge.info {
@@ -768,6 +836,21 @@ a:hover {
 
 .br-button-primary:hover {
     filter: brightness(1.03);
+}
+
+.br-actions-inline {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.br-button-wide {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+    white-space: normal;
+    line-height: 1.35;
+    min-height: 48px;
 }
 
 .br-note {
@@ -1461,5 +1544,13 @@ a:hover {
     .dashboard-header,
     .dashboard-activity-item {
         flex-direction: column;
+    }
+
+    .br-table-wrapper-returns {
+        overflow-x: auto;
+    }
+
+    .br-table-returns {
+        min-width: 880px;
     }
 }

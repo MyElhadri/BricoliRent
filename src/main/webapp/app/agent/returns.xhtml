@@ -23,41 +23,47 @@
             <h:messages globalOnly="true" showDetail="true" showSummary="true" styleClass="br-messages" />
 
             <div class="br-stack">
-                <div class="br-grid-admin">
-                    <div class="br-card">
-                        <h3 class="br-section-title">Reservations a retourner</h3>
-                        <p class="br-section-subtitle">
-                            Cette liste contient uniquement les reservations actuellement sorties en check-out.
-                        </p>
+                <div class="br-card">
+                    <h3 class="br-section-title">Reservations a retourner</h3>
+                    <p class="br-section-subtitle">
+                        Cette liste contient uniquement les reservations actuellement sorties en check-out.
+                    </p>
 
-                        <h:panelGroup rendered="#{empty agentReturnBean.reservationsToReturn}">
-                            <div class="br-empty">Aucune reservation en check-out n'est actuellement en attente de retour.</div>
-                        </h:panelGroup>
+                    <h:panelGroup rendered="#{empty agentReturnBean.reservationsToReturn}">
+                        <div class="br-empty">Aucune reservation en check-out n'est actuellement en attente de retour.</div>
+                    </h:panelGroup>
 
-                        <h:panelGroup rendered="#{not empty agentReturnBean.reservationsToReturn}">
-                            <h:form id="returnsForm">
-                                <div class="br-table-wrapper">
-                                    <h:dataTable value="#{agentReturnBean.reservationsToReturn}" var="reservation" styleClass="br-table">
-                                        <h:column>
-                                            <f:facet name="header">Client</f:facet>
+                    <h:panelGroup rendered="#{not empty agentReturnBean.reservationsToReturn}">
+                        <h:form id="returnsForm">
+                            <div class="br-table-wrapper br-table-wrapper-returns">
+                                <h:dataTable value="#{agentReturnBean.reservationsToReturn}" var="reservation" styleClass="br-table br-table-returns">
+                                    <h:column styleClass="br-cell-client" headerClass="br-cell-client">
+                                        <f:facet name="header">Client</f:facet>
+                                        <div class="br-value-stack">
                                             <div class="br-main">#{reservation.client.users.fullName}</div>
-                                            <div class="br-sub">#{reservation.client.users.email}</div>
-                                        </h:column>
+                                            <div class="br-sub br-wrap-anywhere">#{reservation.client.users.email}</div>
+                                        </div>
+                                    </h:column>
 
-                                        <h:column>
-                                            <f:facet name="header">Outil</f:facet>
-                                            <div class="br-main">#{reservation.tool.name}</div>
+                                    <h:column styleClass="br-cell-tool" headerClass="br-cell-tool">
+                                        <f:facet name="header">Outil</f:facet>
+                                        <div class="br-value-stack">
+                                            <div class="br-main br-wrap-anywhere">#{reservation.tool.name}</div>
                                             <div class="br-sub">Quantite : #{reservation.quantity}</div>
-                                        </h:column>
+                                        </div>
+                                    </h:column>
 
-                                        <h:column>
-                                            <f:facet name="header">Periode</f:facet>
+                                    <h:column styleClass="br-cell-period" headerClass="br-cell-period">
+                                        <f:facet name="header">Periode</f:facet>
+                                        <div class="br-value-stack">
                                             <div class="br-main">#{reservation.startDate} au #{reservation.endDate}</div>
-                                            <div class="br-sub">Check-out le #{reservation.checkedOutAt}</div>
-                                        </h:column>
+                                            <div class="br-sub br-wrap-anywhere">Check-out le #{reservation.checkedOutAt}</div>
+                                        </div>
+                                    </h:column>
 
-                                        <h:column>
-                                            <f:facet name="header">Montants</f:facet>
+                                    <h:column styleClass="br-cell-money" headerClass="br-cell-money">
+                                        <f:facet name="header">Montants</f:facet>
+                                        <div class="br-value-stack">
                                             <div class="br-main">
                                                 <h:outputText value="#{reservation.estimatedRentalAmount}">
                                                     <f:convertNumber pattern="#0.00" locale="fr_FR" />
@@ -69,41 +75,27 @@
                                                     <f:convertNumber pattern="#0.00" locale="fr_FR" />
                                                 </h:outputText> EUR
                                             </div>
-                                        </h:column>
+                                        </div>
+                                    </h:column>
 
-                                        <h:column>
-                                            <f:facet name="header">Statut</f:facet>
-                                            <span class="br-badge warning">Check-out effectue</span>
-                                        </h:column>
+                                    <h:column styleClass="br-cell-status" headerClass="br-cell-status">
+                                        <f:facet name="header">Statut</f:facet>
+                                        <span class="br-badge br-badge-wide warning">Check-out effectue</span>
+                                    </h:column>
 
-                                        <h:column>
-                                            <f:facet name="header">Action</f:facet>
+                                    <h:column styleClass="br-cell-action" headerClass="br-cell-action">
+                                        <f:facet name="header">Action</f:facet>
+                                        <div class="br-actions-inline">
                                             <h:commandButton value="Retour puis paiements"
                                                              action="#{agentReturnBean.registerReturn(reservation.id)}"
                                                              onclick="return confirm(&quot;Confirmer l'enregistrement du retour pour cette reservation ?&quot;);"
-                                                             styleClass="br-button br-button-primary" />
-                                        </h:column>
-                                    </h:dataTable>
-                                </div>
-                            </h:form>
-                        </h:panelGroup>
-                    </div>
-
-                    <div>
-                        <div class="br-card" style="position: sticky; top: 24px;">
-                            <h3 class="br-section-title">Regles metier</h3>
-                            <div class="br-stack" style="margin-top: 16px;">
-                                <div class="br-note">
-                                    <div class="br-main">Penalites</div>
-                                    <div class="br-sub">La penalite de retard appliquee est de <strong>50,00 EUR</strong> par jour de retard. Le retard est calcule a partir de la date de fin prevue de la reservation.</div>
-                                </div>
-                                <div class="br-note" style="border-left-color: var(--info); background: var(--info-bg); color: var(--info);">
-                                    <div class="br-main" style="color: var(--info);">Stock et remboursement</div>
-                                    <div class="br-sub" style="color: var(--info);">Le retour remet automatiquement la quantite dans le stock disponible. Si la caution a deja ete encaissee, son remboursement peut etre trace depuis l'ecran Paiements.</div>
-                                </div>
+                                                             styleClass="br-button br-button-primary br-button-wide" />
+                                        </div>
+                                    </h:column>
+                                </h:dataTable>
                             </div>
-                        </div>
-                    </div>
+                        </h:form>
+                    </h:panelGroup>
                 </div>
 
                 <div class="br-card">
@@ -117,45 +109,55 @@
                     </h:panelGroup>
 
                     <h:panelGroup rendered="#{not empty agentReturnBean.returnHistory}">
-                        <div class="br-table-wrapper">
-                            <h:dataTable value="#{agentReturnBean.returnHistory}" var="record" styleClass="br-table">
-                                <h:column>
+                        <div class="br-table-wrapper br-table-wrapper-returns">
+                            <h:dataTable value="#{agentReturnBean.returnHistory}" var="record" styleClass="br-table br-table-returns br-table-returns-history">
+                                <h:column styleClass="br-cell-client" headerClass="br-cell-client">
                                     <f:facet name="header">Client</f:facet>
-                                    <div class="br-main">#{record.reservation.client.users.fullName}</div>
-                                    <div class="br-sub">#{record.reservation.client.users.email}</div>
-                                </h:column>
-
-                                <h:column>
-                                    <f:facet name="header">Outil</f:facet>
-                                    <div class="br-main">#{record.reservation.tool.name}</div>
-                                    <div class="br-sub">Quantite : #{record.reservation.quantity}</div>
-                                </h:column>
-
-                                <h:column>
-                                    <f:facet name="header">Dates</f:facet>
-                                    <div class="br-main">Fin prevue : #{record.reservation.endDate}</div>
-                                    <div class="br-sub">Retour le #{record.actualReturnDate}</div>
-                                </h:column>
-
-                                <h:column>
-                                    <f:facet name="header">Retard</f:facet>
-                                    <div class="br-main">#{record.lateDays} jour(s)</div>
-                                    <div class="br-sub">#{empty record.notes ? 'Aucune note detaillee.' : record.notes}</div>
-                                </h:column>
-
-                                <h:column>
-                                    <f:facet name="header">Penalite</f:facet>
-                                    <div class="br-main">
-                                        <h:outputText value="#{record.latePenalty}">
-                                            <f:convertNumber pattern="#0.00" locale="fr_FR" />
-                                        </h:outputText> EUR
+                                    <div class="br-value-stack">
+                                        <div class="br-main">#{record.reservation.client.users.fullName}</div>
+                                        <div class="br-sub br-wrap-anywhere">#{record.reservation.client.users.email}</div>
                                     </div>
-                                    <div class="br-sub">Retour ##{record.id}</div>
                                 </h:column>
 
-                                <h:column>
+                                <h:column styleClass="br-cell-tool" headerClass="br-cell-tool">
+                                    <f:facet name="header">Outil</f:facet>
+                                    <div class="br-value-stack">
+                                        <div class="br-main br-wrap-anywhere">#{record.reservation.tool.name}</div>
+                                        <div class="br-sub">Quantite : #{record.reservation.quantity}</div>
+                                    </div>
+                                </h:column>
+
+                                <h:column styleClass="br-cell-period" headerClass="br-cell-period">
+                                    <f:facet name="header">Dates</f:facet>
+                                    <div class="br-value-stack">
+                                        <div class="br-main">Fin prevue : #{record.reservation.endDate}</div>
+                                        <div class="br-sub br-wrap-anywhere">Retour le #{record.actualReturnDate}</div>
+                                    </div>
+                                </h:column>
+
+                                <h:column styleClass="br-cell-delay" headerClass="br-cell-delay">
+                                    <f:facet name="header">Retard</f:facet>
+                                    <div class="br-value-stack">
+                                        <div class="br-main">#{record.lateDays} jour(s)</div>
+                                        <div class="br-sub br-wrap-anywhere">#{empty record.notes ? 'Aucune note detaillee.' : record.notes}</div>
+                                    </div>
+                                </h:column>
+
+                                <h:column styleClass="br-cell-money" headerClass="br-cell-money">
+                                    <f:facet name="header">Penalite</f:facet>
+                                    <div class="br-value-stack">
+                                        <div class="br-main">
+                                            <h:outputText value="#{record.latePenalty}">
+                                                <f:convertNumber pattern="#0.00" locale="fr_FR" />
+                                            </h:outputText> EUR
+                                        </div>
+                                        <div class="br-sub">Retour ##{record.id}</div>
+                                    </div>
+                                </h:column>
+
+                                <h:column styleClass="br-cell-status" headerClass="br-cell-status">
                                     <f:facet name="header">Statut</f:facet>
-                                    <span class="br-badge #{agentReturnBean.penaltyTone(record)}">#{agentReturnBean.displayStatus(record.reservation)}</span>
+                                    <span class="br-badge br-badge-wide #{agentReturnBean.penaltyTone(record)}">#{agentReturnBean.displayStatus(record.reservation)}</span>
                                 </h:column>
                             </h:dataTable>
                         </div>
