@@ -6,6 +6,7 @@ import com.bricolirent.domain.entity.Reservation;
 import com.bricolirent.domain.entity.ReturnRecord;
 import com.bricolirent.domain.enums.PaymentStatus;
 import com.bricolirent.domain.enums.ReservationStatus;
+import com.bricolirent.service.AdminSupervisionService;
 import com.bricolirent.repository.ClientRepository;
 import com.bricolirent.repository.PaymentRepository;
 import com.bricolirent.repository.ReservationRepository;
@@ -14,6 +15,7 @@ import com.bricolirent.service.DashboardService;
 import com.bricolirent.util.HibernateUtil;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
@@ -30,6 +32,8 @@ import java.util.Set;
 public class DashboardServiceImpl implements DashboardService {
 
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    @Inject
+    private AdminSupervisionService adminSupervisionService;
     private ReservationRepository reservationRepository;
     private PaymentRepository paymentRepository;
     private ReturnRecordRepository returnRecordRepository;
@@ -45,59 +49,51 @@ public class DashboardServiceImpl implements DashboardService {
 
     @Override
     public DashboardViewData buildAdminDashboard() {
-        Transaction transaction = null;
         try {
-            Session session = HibernateUtil.getSessionFactory().getCurrentSession();
-            transaction = session.beginTransaction();
-
+            AdminSupervisionService.AdminDashboardSnapshot snapshot = adminSupervisionService.getDashboardSnapshot();
+            List<Reservation> recentReservations = adminSupervisionService.getAllReservations().stream()
+                    .sorted(Comparator.comparing(Reservation::getReservationDate, Comparator.nullsLast(Comparator.naturalOrder())).reversed())
+                    .limit(6)
+                    .toList();
             DashboardViewData data = new DashboardViewData();
             data.setRoleLabel("ADMIN");
-            data.setSubtitle("Vue de synthese sur le catalogue, les comptes et les principaux volumes de la plateforme.");
-            data.setMetricsTitle("Indicateurs d'administration");
+            data.setSubtitle("Vue transverse sur les reservations, les paiements, les comptes et le catalogue de la plateforme.");
+            data.setMetricsTitle("Pilotage global");
             data.setLinksTitle("Acces rapides");
-            data.setActivitiesTitle("Derniers comptes enregistres");
-            data.setActivitiesEmptyMessage("Aucun compte recent a afficher.");
+            data.setActivitiesTitle("Reservations recentes");
+            data.setActivitiesEmptyMessage("Aucune reservation recente a afficher.");
 
-            long categoryCount = count(session, "SELECT count(c) FROM Category c");
-            long toolCount = count(session, "SELECT count(t) FROM Tool t");
-            long activeToolCount = count(session, "SELECT count(t) FROM Tool t WHERE t.active = true");
-            long agentCount = count(session, "SELECT count(a) FROM Agent a");
-            long userCount = count(session, "SELECT count(u) FROM User u");
-            long clientCount = count(session, "SELECT count(c) FROM Client c");
-
-            data.getMetrics().add(new DashboardMetric("Categories", String.valueOf(categoryCount), "Categories actuellement configurees", "info"));
-            data.getMetrics().add(new DashboardMetric("Outils", String.valueOf(toolCount), activeToolCount + " outil(s) actif(s)", "success"));
-            data.getMetrics().add(new DashboardMetric("Agents", String.valueOf(agentCount), "Comptes agents disponibles", "warning"));
-            data.getMetrics().add(new DashboardMetric("Utilisateurs", String.valueOf(userCount), clientCount + " client(s) inscrits", "neutral"));
+            data.getMetrics().add(new DashboardMetric("Reservations", String.valueOf(snapshot.getTotalReservations()), snapshot.getPendingReservations() + " en attente", "info"));
+            data.getMetrics().add(new DashboardMetric("Approuvees", String.valueOf(snapshot.getApprovedReservations()), snapshot.getCheckedOutReservations() + " check-out effectue(s)", "success"));
+            data.getMetrics().add(new DashboardMetric("Rejetees", String.valueOf(snapshot.getRejectedReservations()), snapshot.getReturnedReservations() + " retournee(s)", "danger"));
+            data.getMetrics().add(new DashboardMetric("Paiements", String.valueOf(snapshot.getTotalPayments()), "Flux cash traces dans le systeme", "warning"));
+            data.getMetrics().add(new DashboardMetric("Locations", formatMoney(snapshot.getTotalRentalRevenue()), "Locations encaissees", "info"));
+            data.getMetrics().add(new DashboardMetric("Cautions", formatMoney(snapshot.getTotalDepositsCollected()), "Cautions encaissees", "warning"));
+            data.getMetrics().add(new DashboardMetric("Penalites", formatMoney(snapshot.getTotalLatePenalties()), "Retards encaisses", "danger"));
+            data.getMetrics().add(new DashboardMetric("Remboursements", formatMoney(snapshot.getTotalRefunds()), "Cautions remboursees", "success"));
+            data.getMetrics().add(new DashboardMetric("Encours caution", formatMoney(snapshot.getOutstandingDeposits()), "Cautions encore detenues", "neutral"));
+            data.getMetrics().add(new DashboardMetric("Utilisateurs", String.valueOf(snapshot.getTotalUsers()), snapshot.getTotalClients() + " client(s)", "neutral"));
+            data.getMetrics().add(new DashboardMetric("Agents", String.valueOf(snapshot.getTotalAgents()), "Comptes terrain disponibles", "warning"));
+            data.getMetrics().add(new DashboardMetric("Catalogue", String.valueOf(snapshot.getTotalActiveTools()), snapshot.getTotalCategories() + " categorie(s)", "success"));
 
             data.getQuickLinks().add(new DashboardLink("Ajouter un outil", "Acceder a la gestion du catalogue interne.", "/app/admin/tools.xhtml"));
             data.getQuickLinks().add(new DashboardLink("Gerer les categories", "Organiser les familles d'outils.", "/app/admin/categories.xhtml"));
             data.getQuickLinks().add(new DashboardLink("Gerer les agents", "Creer, activer ou supprimer un agent.", "/app/admin/agents.xhtml"));
             data.getQuickLinks().add(new DashboardLink("Gerer les utilisateurs", "Consulter les comptes et leur statut.", "/app/admin/users.xhtml"));
+            data.getQuickLinks().add(new DashboardLink("Toutes les reservations", "Superviser les reservations du systeme.", "/app/admin/reservations.xhtml"));
+            data.getQuickLinks().add(new DashboardLink("Tous les paiements", "Analyser les flux cash et remboursements.", "/app/admin/payments.xhtml"));
             data.getQuickLinks().add(new DashboardLink("Voir le catalogue", "Consulter le catalogue client/public.", "/app/catalog/tools.xhtml"));
 
-            List<Object[]> recentUsers = session.createQuery(
-                            "SELECT u.id, u.fullName, u.email FROM User u ORDER BY u.id DESC",
-                            Object[].class)
-                    .setMaxResults(5)
-                    .getResultList();
-
-            Set<Long> adminIds = new HashSet<>(session.createQuery("SELECT a.id FROM Admin a", Long.class).getResultList());
-            Set<Long> agentIds = new HashSet<>(session.createQuery("SELECT a.id FROM Agent a", Long.class).getResultList());
-            Set<Long> clientIds = new HashSet<>(session.createQuery("SELECT c.id FROM Client c", Long.class).getResultList());
-
-            for (Object[] row : recentUsers) {
-                Long userId = (Long) row[0];
-                String fullName = (String) row[1];
-                String email = (String) row[2];
-                String accountType = resolveAccountType(userId, adminIds, agentIds, clientIds);
-                data.getActivities().add(new DashboardActivity(fullName, email, accountType, accountType.toLowerCase(Locale.ROOT)));
+            for (Reservation reservation : recentReservations) {
+                String title = reservation.getTool() != null ? reservation.getTool().getName() : "Reservation";
+                String clientName = reservation.getClient() != null && reservation.getClient().getUsers() != null
+                        ? reservation.getClient().getUsers().getFullName()
+                        : "Client inconnu";
+                String subtitle = clientName + " - " + formatDate(reservation.getStartDate()) + " au " + formatDate(reservation.getEndDate());
+                data.getActivities().add(new DashboardActivity(title, subtitle, formatReservationStatus(reservation.getStatus()), toneForReservation(reservation.getStatus())));
             }
-
-            transaction.commit();
             return data;
         } catch (Exception e) {
-            rollbackQuietly(transaction);
             throw new RuntimeException("Impossible de charger le dashboard administrateur.", e);
         }
     }
@@ -218,6 +214,11 @@ public class DashboardServiceImpl implements DashboardService {
             return "CLIENT";
         }
         return "INCONNU";
+    }
+
+    private String formatMoney(java.math.BigDecimal amount) {
+        java.math.BigDecimal safeAmount = amount == null ? java.math.BigDecimal.ZERO : amount;
+        return String.format(Locale.FRANCE, "%,.2f MAD", safeAmount);
     }
 
     private String formatReservationStatus(ReservationStatus status) {

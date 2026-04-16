@@ -11,6 +11,7 @@ import org.hibernate.Transaction;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -174,6 +175,58 @@ public class PaymentRepository extends GenericRepository<Payment, Long> {
                 transaction.rollback();
             }
             LOGGER.log(Level.SEVERE, "Erreur lors du chargement de l'historique des paiements pour agent ID=" + agentId, e);
+            throw e;
+        }
+    }
+
+    public List<Payment> findAllDetailedForAdmin() {
+        Transaction transaction = null;
+        try {
+            Session session = getCurrentSession();
+            transaction = session.beginTransaction();
+            List<Payment> payments = session
+                    .createQuery(
+                            "SELECT p FROM Payment p " +
+                                    "JOIN FETCH p.reservation r " +
+                                    "JOIN FETCH r.tool t " +
+                                    "JOIN FETCH t.category " +
+                                    "JOIN FETCH r.client c " +
+                                    "JOIN FETCH c.users " +
+                                    "LEFT JOIN FETCH p.recordedByAgent a " +
+                                    "LEFT JOIN FETCH a.users " +
+                                    "ORDER BY p.paymentDate DESC",
+                            Payment.class)
+                    .getResultList();
+            transaction.commit();
+            return payments;
+        } catch (Exception e) {
+            if (transaction != null && transaction.isActive()) {
+                transaction.rollback();
+            }
+            LOGGER.log(Level.SEVERE, "Erreur lors du chargement global des paiements admin", e);
+            throw e;
+        }
+    }
+
+    public BigDecimal sumPaidAmountByType(PaymentType type) {
+        Transaction transaction = null;
+        try {
+            Session session = getCurrentSession();
+            transaction = session.beginTransaction();
+            BigDecimal total = session.createQuery(
+                            "SELECT COALESCE(SUM(p.amount), 0) FROM Payment p " +
+                                    "WHERE p.type = :type AND p.status = :status",
+                            BigDecimal.class)
+                    .setParameter("type", type)
+                    .setParameter("status", PaymentStatus.PAID)
+                    .getSingleResult();
+            transaction.commit();
+            return Objects.requireNonNullElse(total, BigDecimal.ZERO);
+        } catch (Exception e) {
+            if (transaction != null && transaction.isActive()) {
+                transaction.rollback();
+            }
+            LOGGER.log(Level.SEVERE, "Erreur lors du calcul du total encaisse par type : " + type, e);
             throw e;
         }
     }

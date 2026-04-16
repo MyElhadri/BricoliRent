@@ -2,7 +2,8 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="jakarta.faces.html"
-      xmlns:ui="jakarta.faces.facelets">
+      xmlns:ui="jakarta.faces.facelets"
+      xmlns:f="jakarta.faces.core">
 
 <ui:composition template="/templates/layout.xhtml">
 
@@ -23,16 +24,40 @@
                 </div>
             </div>
 
-            <h3 class="dashboard-metrics-title">#{dashboardBean.data.metricsTitle}</h3>
-            <div class="dashboard-metrics-grid">
-                <ui:repeat value="#{dashboardBean.data.metrics}" var="metric">
-                    <div class="dashboard-metric-card #{metric.tone}">
-                        <span class="dashboard-metric-label">#{metric.label}</span>
-                        <span class="dashboard-metric-value">#{metric.value}</span>
-                        <span class="dashboard-metric-detail">#{metric.detail}</span>
+            <h:form id="dashboardMetricsForm">
+                <h3 class="dashboard-metrics-title">#{dashboardBean.data.metricsTitle}</h3>
+                <div class="dashboard-metrics-grid">
+                    <ui:repeat value="#{dashboardBean.admin ? dashboardBean.primaryMetrics : dashboardBean.data.metrics}" var="metric">
+                        <div class="dashboard-metric-card #{metric.tone}">
+                            <span class="dashboard-metric-label">#{metric.label}</span>
+                            <span class="dashboard-metric-value">#{metric.value}</span>
+                            <span class="dashboard-metric-detail">#{metric.detail}</span>
+                        </div>
+                    </ui:repeat>
+                </div>
+
+                <h:panelGroup rendered="#{dashboardBean.admin and dashboardBean.hasSecondaryMetrics()}">
+                    <div style="margin-top: 1rem; display: flex; justify-content: center;">
+                        <h:commandButton value="#{dashboardBean.moreStatsLabel}"
+                                         action="#{dashboardBean.toggleMoreStats}"
+                                         styleClass="dashboard-more-button">
+                            <f:ajax render="dashboardMetricsForm" />
+                        </h:commandButton>
                     </div>
-                </ui:repeat>
-            </div>
+                </h:panelGroup>
+
+                <h:panelGroup rendered="#{dashboardBean.admin and dashboardBean.showMoreStats and dashboardBean.hasSecondaryMetrics()}">
+                    <div class="dashboard-metrics-grid" style="margin-top: 1rem;">
+                        <ui:repeat value="#{dashboardBean.secondaryMetrics}" var="metric">
+                            <div class="dashboard-metric-card #{metric.tone}">
+                                <span class="dashboard-metric-label">#{metric.label}</span>
+                                <span class="dashboard-metric-value">#{metric.value}</span>
+                                <span class="dashboard-metric-detail">#{metric.detail}</span>
+                            </div>
+                        </ui:repeat>
+                    </div>
+                </h:panelGroup>
+            </h:form>
 
             <div class="dashboard-layout">
                 <h:panelGroup layout="block" rendered="#{not empty dashboardBean.data.quickLinks}" styleClass="dashboard-panel">

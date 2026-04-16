@@ -386,4 +386,55 @@ public class ReservationRepository extends GenericRepository<Reservation, Long> 
             throw e;
         }
     }
+
+    public List<Reservation> findAllDetailedForAdmin() {
+        Transaction transaction = null;
+        try {
+            Session session = getCurrentSession();
+            transaction = session.beginTransaction();
+            List<Reservation> reservations = session
+                    .createQuery(
+                            "SELECT DISTINCT r FROM Reservation r " +
+                                    "JOIN FETCH r.tool t " +
+                                    "JOIN FETCH t.category " +
+                                    "JOIN FETCH r.client c " +
+                                    "JOIN FETCH c.users " +
+                                    "LEFT JOIN FETCH r.handledByAgent ha " +
+                                    "LEFT JOIN FETCH ha.users " +
+                                    "LEFT JOIN FETCH r.checkoutAgent ca " +
+                                    "LEFT JOIN FETCH ca.users " +
+                                    "ORDER BY r.reservationDate DESC",
+                            Reservation.class)
+                    .getResultList();
+            transaction.commit();
+            return reservations;
+        } catch (Exception e) {
+            if (transaction != null && transaction.isActive()) {
+                transaction.rollback();
+            }
+            LOGGER.log(Level.SEVERE, "Erreur lors du chargement global des reservations admin", e);
+            throw e;
+        }
+    }
+
+    public long countByStatus(ReservationStatus status) {
+        Transaction transaction = null;
+        try {
+            Session session = getCurrentSession();
+            transaction = session.beginTransaction();
+            Long count = session.createQuery(
+                            "SELECT COUNT(r) FROM Reservation r WHERE r.status = :status",
+                            Long.class)
+                    .setParameter("status", status)
+                    .getSingleResult();
+            transaction.commit();
+            return count == null ? 0L : count;
+        } catch (Exception e) {
+            if (transaction != null && transaction.isActive()) {
+                transaction.rollback();
+            }
+            LOGGER.log(Level.SEVERE, "Erreur lors du comptage des reservations par statut : " + status, e);
+            throw e;
+        }
+    }
 }

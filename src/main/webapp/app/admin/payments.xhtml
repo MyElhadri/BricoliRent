@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core"
+      xmlns:ui="jakarta.faces.facelets"
+      xmlns:pt="jakarta.faces.passthrough">
+
+<ui:composition template="/templates/layout.xhtml">
+
+    <ui:define name="title">Paiements admin - BricoliRent</ui:define>
+
+    <ui:define name="content">
+        <style>
+            .admin-page {
+                padding: 2rem;
+                color: #1e293b;
+                background:
+                    linear-gradient(180deg, rgba(255,255,255,0.92), rgba(247,250,252,0.96)),
+                    linear-gradient(90deg, rgba(148,163,184,0.1) 1px, transparent 1px),
+                    linear-gradient(rgba(148,163,184,0.1) 1px, transparent 1px);
+                background-size: auto, 120px 120px, 120px 120px;
+                border-radius: 28px;
+            }
+            .admin-shell { max-width: 1280px; margin: 0 auto; }
+            .admin-header { margin-bottom: 1.35rem; }
+            .admin-title { margin: 0; font-size: 2.7rem; line-height: 1.05; font-weight: 900; letter-spacing: -0.04em; color: #0f172a; }
+            .admin-subtitle { margin: 0.75rem 0 0 0; color: #52627a; line-height: 1.7; max-width: 940px; }
+            .admin-card {
+                background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(251,253,255,0.98));
+                border: 1px solid rgba(226,232,240,0.95);
+                border-radius: 28px;
+                box-shadow: 0 18px 48px rgba(15,23,42,0.08);
+                overflow: hidden;
+            }
+            .admin-card-head { padding: 1.25rem 1.25rem 1rem; }
+            .admin-section-title { margin: 0; font-size: 1.4rem; font-weight: 850; color: #0f172a; letter-spacing: -0.03em; }
+            .admin-section-subtitle { margin: 0.55rem 0 0 0; color: #64748b; line-height: 1.6; }
+            .admin-toolbar { padding: 0 1.25rem 1rem; display: flex; flex-direction: column; gap: 0.9rem; }
+            .admin-search-row { display: grid; grid-template-columns: minmax(0, 420px); }
+            .admin-search {
+                width: 100%; border: 1px solid rgba(148,163,184,0.28); background: rgba(255,255,255,0.96); color: #0f172a;
+                border-radius: 16px; padding: 0.95rem 1rem; font-size: 0.96rem; box-sizing: border-box;
+                box-shadow: 0 10px 30px rgba(148,163,184,0.12);
+            }
+            .admin-search:focus, .admin-search:focus-visible { outline: none; border-color: #5ab7b2; box-shadow: 0 0 0 4px rgba(90,183,178,0.16); }
+            .admin-filters { display: flex; flex-wrap: wrap; gap: 0.7rem; align-items: center; }
+            .admin-filter-group { display: flex; flex-direction: column; gap: 0.55rem; }
+            .admin-filter-label { color: #64748b; font-weight: 700; font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.06em; }
+            .admin-pill {
+                display: inline-flex; align-items: center; justify-content: center; padding: 0.6rem 1rem; border-radius: 999px;
+                border: 1px solid rgba(203,213,225,0.95); background: rgba(255,255,255,0.9); color: #475569; text-decoration: none;
+                font-weight: 700; font-size: 0.92rem; box-shadow: 0 8px 20px rgba(148,163,184,0.12);
+            }
+            .admin-pill.active { background: linear-gradient(135deg, rgba(105,199,191,0.28), rgba(136,225,216,0.34)); border-color: rgba(90,183,178,0.34); color: #0f766e; }
+            .admin-empty { padding: 2rem; margin: 0 1.25rem 1rem; border-radius: 20px; background: rgba(255,255,255,0.94); border: 1px dashed #cbd5e1; color: #64748b; text-align: center; }
+            .admin-table-wrap { width: 100%; overflow-x: auto; }
+            .admin-table { width: 100%; border-collapse: collapse; min-width: 1280px; }
+            .admin-table th, .admin-table td { padding: 1.05rem 1rem; text-align: left; border-bottom: 1px solid rgba(226,232,240,0.92); vertical-align: top; }
+            .admin-table th { color: #334155; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 800; background: rgba(255,255,255,0.88); }
+            .admin-tool { display: flex; gap: 0.85rem; align-items: flex-start; }
+            .admin-tool-image-shell {
+                width: 54px; height: 54px; border-radius: 14px; border: 1px solid rgba(226,232,240,0.95);
+                background: linear-gradient(180deg, #f7f3e9, #fffdf8); display: flex; align-items: center; justify-content: center; padding: 0.35rem; flex: 0 0 auto;
+            }
+            .admin-tool-image { width: 100%; height: 100%; object-fit: contain; object-position: center; display: block; }
+            .admin-main { font-weight: 850; color: #0f172a; font-size: 1.05rem; line-height: 1.15; }
+            .admin-sub { color: #64748b; font-size: 0.92rem; margin-top: 0.2rem; line-height: 1.45; }
+            .admin-money-main { font-weight: 800; color: #0b4f93; font-size: 1.08rem; }
+            .admin-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 126px; padding: 0.5rem 0.82rem; border-radius: 999px; font-size: 0.82rem; font-weight: 800; white-space: nowrap; }
+            .admin-badge.warning { color: #b45309; background: rgba(245,158,11,0.16); }
+            .admin-badge.info { color: #0284c7; background: rgba(14,165,233,0.12); }
+            .admin-badge.success { color: #0f766e; background: rgba(94,234,212,0.22); }
+            .admin-badge.danger { color: #dc2626; background: rgba(239,68,68,0.15); }
+            .admin-badge.neutral { color: #475569; background: rgba(148,163,184,0.15); }
+            @media (max-width: 720px) { .admin-page { padding: 1rem; } .admin-title { font-size: 2rem; } }
+        </style>
+
+        <div class="admin-page">
+            <div class="admin-shell">
+                <div class="admin-header">
+                    <h2 class="admin-title">Tous les paiements</h2>
+                    <p class="admin-subtitle">Analyse transverse des flux cash : location, caution, penalite et remboursement, avec reservation, client, agent et date d'enregistrement.</p>
+                </div>
+
+                <h:form id="adminPaymentsForm">
+                    <div class="admin-card">
+                        <div class="admin-card-head">
+                            <h3 class="admin-section-title">Supervision des paiements</h3>
+                            <p class="admin-section-subtitle">Recherchez un paiement, filtrez par type et par statut, puis analysez les flux traces dans tout le systeme.</p>
+                        </div>
+
+                        <div class="admin-toolbar">
+                            <div class="admin-search-row">
+                                <h:inputText id="search" value="#{adminSupervisionBean.paymentSearchKeyword}" styleClass="admin-search" pt:placeholder="Rechercher un paiement...">
+                                    <f:ajax event="keyup" render="paymentsTable paymentTypePills paymentStatusPills" />
+                                </h:inputText>
+                            </div>
+
+                            <div class="admin-filter-group">
+                                <span class="admin-filter-label">Type de paiement</span>
+                                <h:panelGroup id="paymentTypePills" layout="block">
+                                    <div class="admin-filters">
+                                        <h:commandLink value="Tous" action="#{adminSupervisionBean.applyPaymentFilters}" styleClass="admin-pill #{adminSupervisionBean.paymentTypeFilterActive('') ? 'active' : ''}">
+                                            <f:setPropertyActionListener target="#{adminSupervisionBean.paymentTypeFilter}" value="" />
+                                            <f:ajax render="paymentsTable paymentTypePills paymentStatusPills" />
+                                        </h:commandLink>
+                                        <h:commandLink value="Location" action="#{adminSupervisionBean.applyPaymentFilters}" styleClass="admin-pill #{adminSupervisionBean.paymentTypeFilterActive('RENTAL') ? 'active' : ''}">
+                                            <f:setPropertyActionListener target="#{adminSupervisionBean.paymentTypeFilter}" value="RENTAL" />
+                                            <f:ajax render="paymentsTable paymentTypePills paymentStatusPills" />
+                                        </h:commandLink>
+                                        <h:commandLink value="Caution" action="#{adminSupervisionBean.applyPaymentFilters}" styleClass="admin-pill #{adminSupervisionBean.paymentTypeFilterActive('DEPOSIT') ? 'active' : ''}">
+                                            <f:setPropertyActionListener target="#{adminSupervisionBean.paymentTypeFilter}" value="DEPOSIT" />
+                                            <f:ajax render="paymentsTable paymentTypePills paymentStatusPills" />
+                                        </h:commandLink>
+                                        <h:commandLink value="Penalite" action="#{adminSupervisionBean.applyPaymentFilters}" styleClass="admin-pill #{adminSupervisionBean.paymentTypeFilterActive('LATE_PENALTY') ? 'active' : ''}">
+                                            <f:setPropertyActionListener target="#{adminSupervisionBean.paymentTypeFilter}" value="LATE_PENALTY" />
+                                            <f:ajax render="paymentsTable paymentTypePills paymentStatusPills" />
+                                        </h:commandLink>
+                                        <h:commandLink value="Remboursement" action="#{adminSupervisionBean.applyPaymentFilters}" styleClass="admin-pill #{adminSupervisionBean.paymentTypeFilterActive('REFUND') ? 'active' : ''}">
+                                            <f:setPropertyActionListener target="#{adminSupervisionBean.paymentTypeFilter}" value="REFUND" />
+                                            <f:ajax render="paymentsTable paymentTypePills paymentStatusPills" />
+                                        </h:commandLink>
+                                    </div>
+                                </h:panelGroup>
+                            </div>
+
+                            <div class="admin-filter-group">
+                                <span class="admin-filter-label">Statut</span>
+                                <h:panelGroup id="paymentStatusPills" layout="block">
+                                    <div class="admin-filters">
+                                        <h:commandLink value="Tous statuts" action="#{adminSupervisionBean.applyPaymentFilters}" styleClass="admin-pill #{adminSupervisionBean.paymentStatusFilterActive('') ? 'active' : ''}">
+                                            <f:setPropertyActionListener target="#{adminSupervisionBean.paymentStatusFilter}" value="" />
+                                            <f:ajax render="paymentsTable paymentTypePills paymentStatusPills" />
+                                        </h:commandLink>
+                                        <h:commandLink value="Payes" action="#{adminSupervisionBean.applyPaymentFilters}" styleClass="admin-pill #{adminSupervisionBean.paymentStatusFilterActive('PAID') ? 'active' : ''}">
+                                            <f:setPropertyActionListener target="#{adminSupervisionBean.paymentStatusFilter}" value="PAID" />
+                                            <f:ajax render="paymentsTable paymentTypePills paymentStatusPills" />
+                                        </h:commandLink>
+                                        <h:commandLink value="En attente" action="#{adminSupervisionBean.applyPaymentFilters}" styleClass="admin-pill #{adminSupervisionBean.paymentStatusFilterActive('PENDING') ? 'active' : ''}">
+                                            <f:setPropertyActionListener target="#{adminSupervisionBean.paymentStatusFilter}" value="PENDING" />
+                                            <f:ajax render="paymentsTable paymentTypePills paymentStatusPills" />
+                                        </h:commandLink>
+                                    </div>
+                                </h:panelGroup>
+                            </div>
+                        </div>
+
+                        <h:panelGroup id="paymentsTable" layout="block">
+                            <h:panelGroup rendered="#{empty adminSupervisionBean.filteredPayments}">
+                                <div class="admin-empty">Aucun paiement ne correspond a votre recherche ou aux filtres selectionnes.</div>
+                            </h:panelGroup>
+
+                            <h:panelGroup rendered="#{not empty adminSupervisionBean.filteredPayments}">
+                                <div class="admin-table-wrap">
+                                    <h:dataTable value="#{adminSupervisionBean.filteredPayments}" var="payment" styleClass="admin-table">
+                                        <h:column>
+                                            <f:facet name="header">Reservation</f:facet>
+                                            <div class="admin-main">##{payment.reservation.id}</div>
+                                            <div class="admin-sub">#{payment.reservation.client.users.fullName}</div>
+                                            <div class="admin-sub">#{payment.reservation.client.users.email}</div>
+                                        </h:column>
+
+                                        <h:column>
+                                            <f:facet name="header">Outil</f:facet>
+                                            <div class="admin-tool">
+                                                <div class="admin-tool-image-shell">
+                                                    <h:graphicImage library="images" name="tools/#{adminSupervisionBean.imageName(payment)}" alt="#{payment.reservation.tool.name}" styleClass="admin-tool-image" />
+                                                </div>
+                                                <div>
+                                                    <div class="admin-main">#{payment.reservation.tool.name}</div>
+                                                    <div class="admin-sub">#{payment.reservation.startDate} - #{payment.reservation.endDate}</div>
+                                                </div>
+                                            </div>
+                                        </h:column>
+
+                                        <h:column>
+                                            <f:facet name="header">Type</f:facet>
+                                            <span class="admin-badge #{adminSupervisionBean.paymentTypeTone(payment.type)}">#{adminSupervisionBean.paymentTypeLabel(payment.type)}</span>
+                                            <div class="admin-sub">Methode : #{adminSupervisionBean.paymentMethodLabel(payment)}</div>
+                                        </h:column>
+
+                                        <h:column>
+                                            <f:facet name="header">Montant</f:facet>
+                                            <div class="admin-money-main"><h:outputText value="#{payment.amount}"><f:convertNumber pattern="#0.00" locale="fr_FR" /></h:outputText> MAD</div>
+                                            <div class="admin-sub">#{empty payment.receiptNumber ? 'Sans recu interne' : payment.receiptNumber}</div>
+                                        </h:column>
+
+                                        <h:column>
+                                            <f:facet name="header">Statut</f:facet>
+                                            <span class="admin-badge #{adminSupervisionBean.paymentStatusTone(payment)}">#{adminSupervisionBean.paymentStatusLabel(payment)}</span>
+                                        </h:column>
+
+                                        <h:column>
+                                            <f:facet name="header">Agent / Date</f:facet>
+                                            <div class="admin-sub">Agent : #{adminSupervisionBean.agentLabel(payment.recordedByAgent)}</div>
+                                            <div class="admin-sub">Date : #{payment.paymentDate}</div>
+                                        </h:column>
+                                    </h:dataTable>
+                                </div>
+                            </h:panelGroup>
+                        </h:panelGroup>
+                    </div>
+                </h:form>
+            </div>
+        </div>
+    </ui:define>
+
+</ui:composition>
+</html>
