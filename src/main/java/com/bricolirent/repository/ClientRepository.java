@@ -58,7 +58,7 @@ public class ClientRepository extends GenericRepository<Client, Long> {
             // On persiste l'utilisateur d'abord (il devient managed et reçoit son ID)
             session.persist(user);
             
-            // On attache l'utilisateur (actuellement managed) au client
+            // On attache l'utilisateur (actuellement managed) au client darori pour le role Ndaa
             client.setUsers(user);
             
             // On persiste le client (sans erreur car user n'est pas detached)

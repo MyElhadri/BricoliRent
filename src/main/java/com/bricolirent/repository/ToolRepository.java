@@ -102,6 +102,7 @@ public class ToolRepository extends GenericRepository<Tool, Long> {
      *
      * @param keyword Le mot-clé de recherche
      * @return La liste des outils correspondants
+     * filtre
      */
     public List<Tool> findByNameContaining(String keyword) {
         Transaction transaction = null;
@@ -128,6 +129,7 @@ public class ToolRepository extends GenericRepository<Tool, Long> {
     /**
      * Vérifie si un outil existe déjà avec le même nom dans la même catégorie.
      * En mode édition, exclut l'ID de l'outil en cours.
+     * si un tool existe deja avec le meme nom et la meme categorie Non
      */
     public boolean existsByNameAndCategory(String name, Long categoryId, Long excludeToolId) {
         Transaction transaction = null;
@@ -136,6 +138,7 @@ public class ToolRepository extends GenericRepository<Tool, Long> {
             transaction = session.beginTransaction();
 
             String hql = "SELECT count(t) FROM Tool t WHERE LOWER(t.name) = LOWER(:name) AND t.category.id = :categoryId";
+            // cas de modification kiwliw 3 verification Ndaaa
             if (excludeToolId != null) {
                 hql += " AND t.id != :excludeToolId";
             }

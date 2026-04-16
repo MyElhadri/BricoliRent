@@ -67,7 +67,7 @@ public class AuthenticationFilter implements Filter {
 
         if (loggedIn) {
             String role = (String) session.getAttribute(AuthServiceImpl.SESSION_ROLE_KEY);
-
+            // ghir mn home kansardoh n dashboard w sf
             if (requestURI.endsWith("/app/admin/home.xhtml")
                     || requestURI.endsWith("/app/agent/home.xhtml")
                     || requestURI.endsWith("/app/client/home.xhtml")) {
