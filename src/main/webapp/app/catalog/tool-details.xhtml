@@ -298,7 +298,10 @@
                                 Retour au catalogue
                             </h:link>
 
-                            <span class="action-disabled">Demande bientot disponible</span>
+                            <h:link outcome="/app/client/new-request.xhtml" styleClass="action-disabled">
+                                Demander
+                                <f:param name="toolId" value="#{toolDetailsBean.tool.id}" />
+                            </h:link>
                         </div>
                     </div>
                 </div>
