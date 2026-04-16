@@ -1,9 +1,15 @@
 package com.bricolirent.repository;
 
 import com.bricolirent.domain.entity.Payment;
+import com.bricolirent.domain.entity.Reservation;
+import com.bricolirent.domain.enums.PaymentMethod;
+import com.bricolirent.domain.enums.PaymentStatus;
+import com.bricolirent.domain.enums.PaymentType;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
+import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -45,6 +51,95 @@ public class PaymentRepository extends GenericRepository<Payment, Long> {
                 transaction.rollback();
             }
             LOGGER.log(Level.SEVERE, "Erreur lors de la recherche des paiements pour la réservation ID=" + reservationId, e);
+            throw e;
+        }
+    }
+
+    public void saveCashPayment(Long reservationId,
+                                Long agentId,
+                                PaymentType type,
+                                BigDecimal amount,
+                                String notes) {
+        Transaction transaction = null;
+        try {
+            Session session = getCurrentSession();
+            transaction = session.beginTransaction();
+
+            Payment existingPayment = session.createQuery(
+                            "SELECT p FROM Payment p " +
+                                    "WHERE p.reservation.id = :reservationId " +
+                                    "AND p.type = :type",
+                            Payment.class)
+                    .setParameter("reservationId", reservationId)
+                    .setParameter("type", type)
+                    .uniqueResult();
+            if (existingPayment != null) {
+                throw new IllegalStateException("Un paiement de type " + type + " existe deja pour cette reservation.");
+            }
+
+            Reservation reservation = session.get(Reservation.class, reservationId);
+            if (reservation == null) {
+                throw new IllegalStateException("La reservation ciblee est introuvable.");
+            }
+
+            Payment payment = new Payment();
+            payment.setReservation(reservation);
+            if (agentId != null) {
+                payment.setRecordedByAgent(session.get(com.bricolirent.domain.entity.Agent.class, agentId));
+            }
+            payment.setType(type);
+            payment.setMethod(PaymentMethod.CASH);
+            payment.setAmount(amount);
+            payment.setStatus(PaymentStatus.PAID);
+            payment.setPaymentDate(Instant.now());
+            payment.setNotes(notes);
+            session.createNativeMutationQuery(
+                            "INSERT INTO payments " +
+                                    "(reservation_id, recorded_by_agent_id, type, method, amount, status, payment_date, notes) " +
+                                    "VALUES (:reservationId, :agentId, CAST(:type AS payment_type), CAST(:method AS payment_method), :amount, CAST(:status AS payment_status), :paymentDate, :notes)")
+                    .setParameter("reservationId", reservationId)
+                    .setParameter("agentId", agentId)
+                    .setParameter("type", payment.getType().name())
+                    .setParameter("method", payment.getMethod().name())
+                    .setParameter("amount", payment.getAmount())
+                    .setParameter("status", payment.getStatus().name())
+                    .setParameter("paymentDate", payment.getPaymentDate())
+                    .setParameter("notes", payment.getNotes())
+                    .executeUpdate();
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null && transaction.isActive()) {
+                transaction.rollback();
+            }
+            LOGGER.log(Level.SEVERE, "Erreur lors de l'enregistrement d'un paiement cash pour reservation ID=" + reservationId, e);
+            throw e;
+        }
+    }
+
+    public List<Payment> findByRecordedByAgent(Long agentId) {
+        Transaction transaction = null;
+        try {
+            Session session = getCurrentSession();
+            transaction = session.beginTransaction();
+            List<Payment> payments = session
+                    .createQuery(
+                            "SELECT p FROM Payment p " +
+                                    "JOIN FETCH p.reservation r " +
+                                    "JOIN FETCH r.tool " +
+                                    "JOIN FETCH r.client c " +
+                                    "JOIN FETCH c.users " +
+                                    "WHERE p.recordedByAgent.id = :agentId " +
+                                    "ORDER BY p.paymentDate DESC",
+                            Payment.class)
+                    .setParameter("agentId", agentId)
+                    .getResultList();
+            transaction.commit();
+            return payments;
+        } catch (Exception e) {
+            if (transaction != null && transaction.isActive()) {
+                transaction.rollback();
+            }
+            LOGGER.log(Level.SEVERE, "Erreur lors du chargement de l'historique des paiements pour agent ID=" + agentId, e);
             throw e;
         }
     }

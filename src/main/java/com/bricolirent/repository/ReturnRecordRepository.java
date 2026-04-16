@@ -52,6 +52,27 @@ public class ReturnRecordRepository extends GenericRepository<ReturnRecord, Long
         }
     }
 
+    public ReturnRecord findByReservationId(Long reservationId) {
+        Transaction transaction = null;
+        try {
+            Session session = getCurrentSession();
+            transaction = session.beginTransaction();
+            ReturnRecord record = session.createQuery(
+                            "SELECT rr FROM ReturnRecord rr WHERE rr.reservation.id = :reservationId",
+                            ReturnRecord.class)
+                    .setParameter("reservationId", reservationId)
+                    .uniqueResult();
+            transaction.commit();
+            return record;
+        } catch (Exception e) {
+            if (transaction != null && transaction.isActive()) {
+                transaction.rollback();
+            }
+            LOGGER.log(Level.SEVERE, "Erreur lors du chargement du retour pour reservation ID=" + reservationId, e);
+            throw e;
+        }
+    }
+
     public ReturnRecord registerReturn(Long reservationId,
                                        Long agentId,
                                        Instant actualReturnDate,
