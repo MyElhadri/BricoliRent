@@ -96,6 +96,8 @@ public interface ReservationService {
 
     List<Reservation> getHandledReservationsByAgent(Long agentId);
 
+    boolean isCheckoutReady(Long reservationId);
+
     void effectuerCheckout(Long reservationId, Long agentId);
 
     void approuverDemande(Long reservationId, Long agentId);

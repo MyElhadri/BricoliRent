@@ -39,8 +39,8 @@
             <div class="payments-header">
                 <h2 class="payments-title">Paiements cash</h2>
                 <p class="payments-subtitle">
-                    Enregistrez ici les mouvements cash lies aux reservations : location, caution, penalite de retard
-                    et remboursement de caution. Chaque ligne correspond a une action unique a tracer, sans binding JSF fragile.
+                    Enregistrez ici les mouvements cash apres retour : penalite de retard eventuelle et remboursement
+                    de caution. L'encaissement de la location et de la caution avant sortie se fait directement depuis l'ecran des demandes approuvees.
                 </p>
             </div>
 
@@ -50,8 +50,7 @@
                 <div class="payments-card">
                     <h3 class="payments-section-title">Mouvements a enregistrer</h3>
                     <p class="payments-section-subtitle">
-                        Apres un check-out, encaissez ici la location et la caution. Apres un retour, encaissez la penalite
-                        eventuelle puis tracez le remboursement de caution si celui-ci est disponible.
+                        Apres un retour, encaissez la penalite eventuelle puis tracez le remboursement de caution si celui-ci est disponible.
                     </p>
 
                     <h:panelGroup rendered="#{empty agentPaymentBean.paymentRows}">

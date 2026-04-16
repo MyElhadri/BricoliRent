@@ -178,12 +178,6 @@ public class AgentPaymentBean implements Serializable {
     private List<PaymentRow> buildPaymentRows(List<PaymentService.PaymentCandidate> paymentCandidates) {
         List<PaymentRow> rows = new ArrayList<>();
         for (PaymentService.PaymentCandidate candidate : paymentCandidates) {
-            if (!candidate.isRentalPaid() && candidate.getRentalAmount().compareTo(BigDecimal.ZERO) > 0) {
-                rows.add(new PaymentRow(candidate.getReservation(), PaymentType.RENTAL, candidate.getRentalAmount()));
-            }
-            if (!candidate.isDepositPaid() && candidate.getDepositAmount().compareTo(BigDecimal.ZERO) > 0) {
-                rows.add(new PaymentRow(candidate.getReservation(), PaymentType.DEPOSIT, candidate.getDepositAmount()));
-            }
             if (!candidate.isLatePenaltyPaid() && candidate.getLatePenaltyAmount().compareTo(BigDecimal.ZERO) > 0) {
                 rows.add(new PaymentRow(candidate.getReservation(), PaymentType.LATE_PENALTY, candidate.getLatePenaltyAmount()));
             }

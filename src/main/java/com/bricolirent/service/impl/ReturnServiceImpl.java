@@ -85,13 +85,13 @@ public class ReturnServiceImpl implements ReturnService {
         if (delayDays <= 0) {
             return "Retour enregistre sans retard.";
         }
-        return "Retour enregistre avec " + delayDays + " jour(s) de retard. Penalite calculee : " + latePenalty + " EUR.";
+        return "Retour enregistre avec " + delayDays + " jour(s) de retard. Penalite calculee : " + latePenalty + " MAD.";
     }
 
     private String buildClientMessage(int delayDays, BigDecimal latePenalty) {
         if (delayDays <= 0) {
             return "Le retour a ete enregistre sans retard.";
         }
-        return "Le retour a ete enregistre avec " + delayDays + " jour(s) de retard. Penalite de retard : " + latePenalty + " EUR.";
+        return "Le retour a ete enregistre avec " + delayDays + " jour(s) de retard. Penalite de retard : " + latePenalty + " MAD.";
     }
 }

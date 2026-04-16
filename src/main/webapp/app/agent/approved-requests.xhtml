@@ -14,9 +14,8 @@
             <div class="br-header">
                 <h2 class="br-title">Demandes approuvees</h2>
                 <p class="br-subtitle">
-                    Retrouvez ici les reservations deja approuvees et pretes a etre servies. L'action de check-out
-                    enregistre la sortie du materiel, l'agent responsable et l'horodatage correspondant, puis vous
-                    redirige vers l'ecran Paiements cash pour encaisser la location et la caution.
+                    Retrouvez ici les reservations deja approuvees et pretes a etre servies. Le flux metier impose
+                    d'abord l'encaissement de la location et de la caution, puis seulement ensuite le check-out du materiel.
                 </p>
             </div>
 
@@ -26,7 +25,8 @@
                 <div class="br-card">
                     <h3 class="br-section-title">Reservations approuvees a servir</h3>
                     <p class="br-section-subtitle">
-                        Cette liste contient uniquement les reservations approuvees pretes pour le check-out.
+                        Cette liste contient les reservations approuvees. Encaissez d'abord la location et la caution,
+                        puis effectuez le check-out une fois le paiement complet confirme.
                     </p>
 
                     <h:panelGroup rendered="#{empty agentCheckoutBean.approvedReservations}">
@@ -72,13 +72,22 @@
 
                                     <h:column>
                                         <f:facet name="header">Statut</f:facet>
-                                        <span class="br-badge info">Approuvee</span>
+                                        <div class="br-value-stack">
+                                            <span class="br-badge info">Approuvee</span>
+                                            <span class="br-badge #{agentCheckoutBean.paymentStateTone(reservation)}">#{agentCheckoutBean.paymentStateLabel(reservation)}</span>
+                                        </div>
                                     </h:column>
 
                                     <h:column>
                                         <f:facet name="header">Action</f:facet>
-                                        <h:commandButton value="Check-out puis paiements"
+                                        <h:commandButton value="Encaisser"
+                                                         action="#{agentCheckoutBean.encaisserAvantCheckout(reservation.id)}"
+                                                         rendered="#{agentCheckoutBean.requiresPayment(reservation)}"
+                                                         onclick="return confirm('Confirmer l''encaissement de la location et de la caution pour cette reservation ?');"
+                                                         styleClass="br-button br-button-primary" />
+                                        <h:commandButton value="Effectuer le check-out"
                                                          action="#{agentCheckoutBean.checkout(reservation.id)}"
+                                                         rendered="#{agentCheckoutBean.canCheckout(reservation)}"
                                                          onclick="return confirm('Confirmer la sortie du materiel pour cette reservation ?');"
                                                          styleClass="br-button br-button-primary" />
                                     </h:column>

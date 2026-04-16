@@ -11,6 +11,10 @@ public interface PaymentService {
 
     List<PaymentCandidate> getPaymentCandidates();
 
+    void encaisserAvantCheckout(Long reservationId, Long agentId);
+
+    boolean isPreCheckoutPaymentComplete(Long reservationId);
+
     void enregistrerPaiementCash(Long reservationId, PaymentType type, BigDecimal amount, Long agentId);
 
     List<Payment> getPaymentHistoryByAgent(Long agentId);

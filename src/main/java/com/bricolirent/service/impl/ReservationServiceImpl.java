@@ -1,10 +1,14 @@
 package com.bricolirent.service.impl;
 
 import com.bricolirent.domain.entity.Client;
+import com.bricolirent.domain.entity.Payment;
 import com.bricolirent.domain.entity.Reservation;
 import com.bricolirent.domain.entity.Tool;
+import com.bricolirent.domain.enums.PaymentStatus;
+import com.bricolirent.domain.enums.PaymentType;
 import com.bricolirent.domain.enums.ReservationStatus;
 import com.bricolirent.repository.ClientRepository;
+import com.bricolirent.repository.PaymentRepository;
 import com.bricolirent.repository.ReservationRepository;
 import com.bricolirent.repository.ToolRepository;
 import com.bricolirent.service.ReservationService;
@@ -33,12 +37,14 @@ public class ReservationServiceImpl implements ReservationService {
     private ReservationRepository reservationRepository;
     private ToolRepository toolRepository;
     private ClientRepository clientRepository;
+    private PaymentRepository paymentRepository;
 
     @PostConstruct
     public void init() {
         this.reservationRepository = new ReservationRepository();
         this.toolRepository = new ToolRepository();
         this.clientRepository = new ClientRepository();
+        this.paymentRepository = new PaymentRepository();
     }
 
     @Override
@@ -187,12 +193,25 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     @Override
+    public boolean isCheckoutReady(Long reservationId) {
+        if (reservationId == null) {
+            return false;
+        }
+        List<Payment> payments = paymentRepository.findByReservationId(reservationId);
+        return containsPaymentType(payments, PaymentType.RENTAL)
+                && containsPaymentType(payments, PaymentType.DEPOSIT);
+    }
+
+    @Override
     public void effectuerCheckout(Long reservationId, Long agentId) {
         Reservation reservation = reservationRepository.findByIdWithToolAndClient(reservationId)
                 .orElseThrow(() -> new IllegalStateException("La demande selectionnee est introuvable."));
 
         if (reservation.getStatus() != ReservationStatus.APPROVED) {
             throw new IllegalStateException("Seules les demandes approuvees peuvent passer en check-out.");
+        }
+        if (!isCheckoutReady(reservationId)) {
+            throw new IllegalStateException("Impossible de faire le check-out tant que la location et la caution ne sont pas payees.");
         }
 
         Tool tool = reservation.getTool();
@@ -352,6 +371,10 @@ public class ReservationServiceImpl implements ReservationService {
     private BigDecimal calculateEstimatedDeposit(Tool tool, int quantity) {
         return tool.getDepositAmount()
                 .multiply(BigDecimal.valueOf(quantity));
+    }
+
+    private boolean containsPaymentType(List<Payment> payments, PaymentType type) {
+        return payments.stream().anyMatch(payment -> payment.getType() == type && payment.getStatus() == PaymentStatus.PAID);
     }
 
     private record Decision(ReservationStatus status, String clientMessage, String reason, boolean automatic) {

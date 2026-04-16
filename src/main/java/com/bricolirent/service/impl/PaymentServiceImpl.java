@@ -3,6 +3,7 @@ package com.bricolirent.service.impl;
 import com.bricolirent.domain.entity.Payment;
 import com.bricolirent.domain.entity.Reservation;
 import com.bricolirent.domain.entity.ReturnRecord;
+import com.bricolirent.domain.enums.PaymentStatus;
 import com.bricolirent.domain.enums.PaymentType;
 import com.bricolirent.domain.enums.ReservationStatus;
 import com.bricolirent.repository.PaymentRepository;
@@ -37,9 +38,8 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     public List<PaymentCandidate> getPaymentCandidates() {
         Map<Long, Reservation> reservations = new LinkedHashMap<>();
-        addReservations(reservations, reservationRepository.findByStatusWithToolAndClient(ReservationStatus.APPROVED));
-        addReservations(reservations, reservationRepository.findByStatusWithToolAndClient(ReservationStatus.CHECKED_OUT));
         addReservations(reservations, reservationRepository.findByStatusWithToolAndClient(ReservationStatus.RETURNED));
+        addReservations(reservations, reservationRepository.findByStatusWithToolAndClient(ReservationStatus.CHECKED_OUT));
 
         List<PaymentCandidate> candidates = new ArrayList<>();
         for (Reservation reservation : reservations.values()) {
@@ -71,6 +71,52 @@ public class PaymentServiceImpl implements PaymentService {
             }
         }
         return candidates;
+    }
+
+    @Override
+    public void encaisserAvantCheckout(Long reservationId, Long agentId) {
+        if (reservationId == null) {
+            throw new IllegalArgumentException("Reservation invalide.");
+        }
+
+        Reservation reservation = reservationRepository.findByIdWithToolAndClient(reservationId)
+                .orElseThrow(() -> new IllegalStateException("La reservation selectionnee est introuvable."));
+
+        if (reservation.getStatus() != ReservationStatus.APPROVED) {
+            throw new IllegalStateException("Seules les reservations approuvees peuvent etre encaissees avant check-out.");
+        }
+
+        BigDecimal rentalAmount = safeAmount(reservation.getEstimatedRentalAmount());
+        BigDecimal depositAmount = safeAmount(reservation.getEstimatedDepositAmount());
+        if (rentalAmount.compareTo(BigDecimal.ZERO) <= 0 || depositAmount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalStateException("La location et la caution doivent etre definies avant l'encaissement.");
+        }
+
+        List<Payment> payments = paymentRepository.findByReservationId(reservationId);
+        if (containsPaymentType(payments, PaymentType.RENTAL) || containsPaymentType(payments, PaymentType.DEPOSIT)) {
+            throw new IllegalStateException("L'encaissement avant check-out a deja ete enregistre pour cette reservation.");
+        }
+
+        String receiptNumber = buildReceiptNumber("ENC", reservationId);
+        paymentRepository.saveBeforeCheckoutPayments(
+                reservationId,
+                agentId,
+                rentalAmount,
+                depositAmount,
+                receiptNumber,
+                "Encaissement cash avant check-out - location : " + rentalAmount + " MAD.",
+                "Encaissement cash avant check-out - caution : " + depositAmount + " MAD."
+        );
+    }
+
+    @Override
+    public boolean isPreCheckoutPaymentComplete(Long reservationId) {
+        if (reservationId == null) {
+            return false;
+        }
+        List<Payment> payments = paymentRepository.findByReservationId(reservationId);
+        return containsPaymentType(payments, PaymentType.RENTAL)
+                && containsPaymentType(payments, PaymentType.DEPOSIT);
     }
 
     @Override
@@ -115,7 +161,7 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     private boolean containsPaymentType(List<Payment> payments, PaymentType type) {
-        return payments.stream().anyMatch(payment -> payment.getType() == type);
+        return payments.stream().anyMatch(payment -> payment.getType() == type && payment.getStatus() == PaymentStatus.PAID);
     }
 
     private boolean hasOutstandingPayment(PaymentCandidate candidate) {
@@ -181,10 +227,14 @@ public class PaymentServiceImpl implements PaymentService {
 
     private String buildPaymentNotes(PaymentType type, BigDecimal amount) {
         return switch (type) {
-            case RENTAL -> "Paiement cash enregistre pour la location : " + amount + " EUR.";
-            case DEPOSIT -> "Paiement cash enregistre pour la caution : " + amount + " EUR.";
-            case LATE_PENALTY -> "Paiement cash enregistre pour la penalite de retard : " + amount + " EUR.";
-            case REFUND -> "Remboursement cash de la caution enregistre : " + amount + " EUR.";
+            case RENTAL -> "Paiement cash enregistre pour la location : " + amount + " MAD.";
+            case DEPOSIT -> "Paiement cash enregistre pour la caution : " + amount + " MAD.";
+            case LATE_PENALTY -> "Paiement cash enregistre pour la penalite de retard : " + amount + " MAD.";
+            case REFUND -> "Remboursement cash de la caution enregistre : " + amount + " MAD.";
         };
+    }
+
+    private String buildReceiptNumber(String prefix, Long reservationId) {
+        return prefix + "-" + reservationId + "-" + System.currentTimeMillis();
     }
 }

@@ -1,6 +1,7 @@
 package com.bricolirent.web.bean;
 
 import com.bricolirent.domain.entity.Reservation;
+import com.bricolirent.service.PaymentService;
 import com.bricolirent.service.ReservationService;
 import jakarta.annotation.PostConstruct;
 import jakarta.faces.application.FacesMessage;
@@ -26,6 +27,9 @@ public class AgentCheckoutBean implements Serializable {
     private ReservationService reservationService;
 
     @Inject
+    private PaymentService paymentService;
+
+    @Inject
     private LoginBean loginBean;
 
     private List<Reservation> approvedReservations = Collections.emptyList();
@@ -39,14 +43,12 @@ public class AgentCheckoutBean implements Serializable {
     public String checkout(Long reservationId) {
         try {
             reservationService.effectuerCheckout(reservationId, getAgentId());
-            FacesContext.getCurrentInstance().getExternalContext().getFlash().setKeepMessages(true);
             addMessage(
                     FacesMessage.SEVERITY_INFO,
                     "Check-out effectue",
-                    "La sortie du materiel a ete enregistree avec succes. Enregistrez maintenant la location et la caution depuis l'ecran Paiements cash."
+                    "La sortie du materiel a ete enregistree avec succes."
             );
             refreshData();
-            return "/app/agent/payments.xhtml?faces-redirect=true";
         } catch (IllegalArgumentException | IllegalStateException e) {
             addMessage(FacesMessage.SEVERITY_ERROR, "Erreur", e.getMessage());
         } catch (Exception e) {
@@ -54,6 +56,23 @@ public class AgentCheckoutBean implements Serializable {
             addMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Une erreur technique est survenue.");
         }
         return null;
+    }
+
+    public void encaisserAvantCheckout(Long reservationId) {
+        try {
+            paymentService.encaisserAvantCheckout(reservationId, getAgentId());
+            addMessage(
+                    FacesMessage.SEVERITY_INFO,
+                    "Encaissement enregistre",
+                    "La location et la caution ont ete encaissees avec succes. Vous pouvez maintenant effectuer le check-out."
+            );
+            refreshData();
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            addMessage(FacesMessage.SEVERITY_ERROR, "Erreur", e.getMessage());
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Erreur lors de l'encaissement avant check-out", e);
+            addMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Une erreur technique est survenue.");
+        }
     }
 
     public List<Reservation> getApprovedReservations() {
@@ -87,6 +106,24 @@ public class AgentCheckoutBean implements Serializable {
             case PENDING -> "warning";
             case REJECTED -> "danger";
         };
+    }
+
+    public boolean canCheckout(Reservation reservation) {
+        return reservation != null
+                && reservation.getId() != null
+                && reservationService.isCheckoutReady(reservation.getId());
+    }
+
+    public boolean requiresPayment(Reservation reservation) {
+        return !canCheckout(reservation);
+    }
+
+    public String paymentStateLabel(Reservation reservation) {
+        return canCheckout(reservation) ? "Paiement complet" : "Encaissement requis";
+    }
+
+    public String paymentStateTone(Reservation reservation) {
+        return canCheckout(reservation) ? "success" : "warning";
     }
 
     private void refreshData() {

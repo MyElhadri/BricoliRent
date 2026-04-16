@@ -116,6 +116,40 @@ public class PaymentRepository extends GenericRepository<Payment, Long> {
         }
     }
 
+    public void saveBeforeCheckoutPayments(Long reservationId,
+                                           Long agentId,
+                                           BigDecimal rentalAmount,
+                                           BigDecimal depositAmount,
+                                           String receiptNumber,
+                                           String rentalNotes,
+                                           String depositNotes) {
+        Transaction transaction = null;
+        try {
+            Session session = getCurrentSession();
+            transaction = session.beginTransaction();
+
+            assertNoPaymentExists(session, reservationId, PaymentType.RENTAL);
+            assertNoPaymentExists(session, reservationId, PaymentType.DEPOSIT);
+
+            Reservation reservation = session.get(Reservation.class, reservationId);
+            if (reservation == null) {
+                throw new IllegalStateException("La reservation ciblee est introuvable.");
+            }
+
+            Instant paymentDate = Instant.now();
+            insertPayment(session, reservationId, agentId, PaymentType.RENTAL, rentalAmount, receiptNumber, paymentDate, rentalNotes);
+            insertPayment(session, reservationId, agentId, PaymentType.DEPOSIT, depositAmount, receiptNumber, paymentDate, depositNotes);
+
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null && transaction.isActive()) {
+                transaction.rollback();
+            }
+            LOGGER.log(Level.SEVERE, "Erreur lors de l'encaissement avant check-out pour reservation ID=" + reservationId, e);
+            throw e;
+        }
+    }
+
     public List<Payment> findByRecordedByAgent(Long agentId) {
         Transaction transaction = null;
         try {
@@ -142,5 +176,41 @@ public class PaymentRepository extends GenericRepository<Payment, Long> {
             LOGGER.log(Level.SEVERE, "Erreur lors du chargement de l'historique des paiements pour agent ID=" + agentId, e);
             throw e;
         }
+    }
+
+    private void assertNoPaymentExists(Session session, Long reservationId, PaymentType type) {
+        Payment existingPayment = session.createQuery(
+                        "SELECT p FROM Payment p WHERE p.reservation.id = :reservationId AND p.type = :type",
+                        Payment.class)
+                .setParameter("reservationId", reservationId)
+                .setParameter("type", type)
+                .uniqueResult();
+        if (existingPayment != null) {
+            throw new IllegalStateException("Un paiement de type " + type + " existe deja pour cette reservation.");
+        }
+    }
+
+    private void insertPayment(Session session,
+                               Long reservationId,
+                               Long agentId,
+                               PaymentType type,
+                               BigDecimal amount,
+                               String receiptNumber,
+                               Instant paymentDate,
+                               String notes) {
+        session.createNativeMutationQuery(
+                        "INSERT INTO payments " +
+                                "(reservation_id, recorded_by_agent_id, type, method, amount, status, payment_date, receipt_number, notes) " +
+                                "VALUES (:reservationId, :agentId, CAST(:type AS payment_type), CAST(:method AS payment_method), :amount, CAST(:status AS payment_status), :paymentDate, :receiptNumber, :notes)")
+                .setParameter("reservationId", reservationId)
+                .setParameter("agentId", agentId)
+                .setParameter("type", type.name())
+                .setParameter("method", PaymentMethod.CASH.name())
+                .setParameter("amount", amount)
+                .setParameter("status", PaymentStatus.PAID.name())
+                .setParameter("paymentDate", paymentDate)
+                .setParameter("receiptNumber", receiptNumber)
+                .setParameter("notes", notes)
+                .executeUpdate();
     }
 }
