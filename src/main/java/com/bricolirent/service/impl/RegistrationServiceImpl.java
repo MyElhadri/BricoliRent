@@ -53,7 +53,7 @@ public class RegistrationServiceImpl implements RegistrationService {
 
             // 4. Créer l'entité Client associée via @MapsId
             Client client = new Client();
-            client.setScore(0); // Score par défaut pour un nouveau client
+            client.setScore(100); // Score par défaut pour un nouveau client
 
             // 5. Persister le User et le Client en une seule transaction
             // Cela empêche la création d'un "User fantôme" sans "Client" en cas d'erreur
