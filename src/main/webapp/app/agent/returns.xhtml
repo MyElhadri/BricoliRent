@@ -3,166 +3,225 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="jakarta.faces.html"
       xmlns:f="jakarta.faces.core"
-      xmlns:ui="jakarta.faces.facelets">
+      xmlns:ui="jakarta.faces.facelets"
+      xmlns:pt="jakarta.faces.passthrough">
 
 <ui:composition template="/templates/layout.xhtml">
 
     <ui:define name="title">Retours - BricoliRent</ui:define>
 
     <ui:define name="content">
-        <div class="br-page">
-            <div class="br-header">
-                <h2 class="br-title">Gestion des retours</h2>
-                <p class="br-subtitle">
-                    Enregistrez ici les retours de materiel deja sortis. Le systeme calcule automatiquement
-                    le retard, la penalite de retard et remet la quantite retournee dans le stock disponible. Apres validation,
-                    vous etes redirige vers l'ecran Paiements cash pour encaisser une penalite eventuelle ou tracer le remboursement de caution.
-                </p>
-            </div>
+        <style>
+            .agent-page { padding: 2rem; color: #1e293b; background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(247,250,252,0.95)), linear-gradient(90deg, rgba(148,163,184,0.12) 1px, transparent 1px), linear-gradient(rgba(148,163,184,0.12) 1px, transparent 1px); background-size: auto, 120px 120px, 120px 120px; border-radius: 28px; }
+            .agent-shell { max-width: 1240px; margin: 0 auto; }
+            .agent-header { margin-bottom: 1.35rem; }
+            .agent-title { margin: 0; font-size: 2.65rem; line-height: 1.05; font-weight: 900; letter-spacing: -0.04em; color: #0f172a; }
+            .agent-subtitle { margin: 0.7rem 0 0 0; color: #52627a; line-height: 1.7; max-width: 920px; font-size: 1rem; }
+            .agent-toolbar, .agent-card-toolbar { display: flex; flex-direction: column; gap: 0.9rem; }
+            .agent-card-toolbar { padding: 0 1.2rem 1rem; }
+            .agent-search-row { display: grid; grid-template-columns: minmax(0, 1fr); max-width: 420px; }
+            .agent-search { width: 100%; border: 1px solid rgba(148,163,184,0.28); background: rgba(255,255,255,0.96); color: #0f172a; border-radius: 16px; padding: 0.95rem 1rem; font-size: 0.96rem; box-sizing: border-box; box-shadow: 0 10px 30px rgba(148,163,184,0.12); }
+            .agent-search:focus, .agent-search:focus-visible { outline: none; border-color: #5ab7b2; box-shadow: 0 0 0 4px rgba(90,183,178,0.16); background: #ffffff; }
+            .agent-filters { display: flex; flex-wrap: wrap; gap: 0.7rem; align-items: center; }
+            .agent-pill { display: inline-flex; align-items: center; justify-content: center; padding: 0.6rem 1rem; border-radius: 999px; border: 1px solid rgba(203,213,225,0.95); background: rgba(255,255,255,0.9); color: #475569; text-decoration: none; font-weight: 700; font-size: 0.92rem; box-shadow: 0 8px 20px rgba(148,163,184,0.12); }
+            .agent-pill.active { background: linear-gradient(135deg, rgba(105,199,191,0.28), rgba(136,225,216,0.34)); border-color: rgba(90,183,178,0.34); color: #0f766e; }
+            .agent-stack { display: grid; gap: 1.4rem; }
+            .agent-card { background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(251,253,255,0.98)); border: 1px solid rgba(226,232,240,0.95); border-radius: 28px; box-shadow: 0 18px 48px rgba(15,23,42,0.08); padding: 1.2rem 0 0.2rem; overflow: hidden; }
+            .agent-card-head { padding: 0 1.2rem 1rem; }
+            .agent-section-title { margin: 0; font-size: 1.45rem; font-weight: 850; color: #0f172a; letter-spacing: -0.03em; }
+            .agent-section-subtitle { margin: 0.55rem 0 0 0; color: #64748b; line-height: 1.6; }
+            .agent-empty { padding: 2rem; margin: 0 1.2rem 1rem; border-radius: 20px; background: rgba(255,255,255,0.94); border: 1px dashed #cbd5e1; color: #64748b; text-align: center; }
+            .agent-messages { color: #e94560; font-weight: 700; list-style: none; padding: 0 0 1rem 0; margin: 0; }
+            .agent-table-wrap { width: 100%; overflow-x: auto; }
+            .agent-table { width: 100%; border-collapse: collapse; min-width: 1120px; }
+            .agent-table th, .agent-table td { padding: 1.05rem 1rem; text-align: left; border-bottom: 1px solid rgba(226,232,240,0.92); vertical-align: top; }
+            .agent-table th { color: #334155; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 800; background: rgba(255,255,255,0.88); }
+            .agent-tool { display: flex; gap: 0.85rem; align-items: flex-start; }
+            .agent-tool-image-shell { width: 54px; height: 54px; border-radius: 14px; border: 1px solid rgba(226,232,240,0.95); background: linear-gradient(180deg, #f7f3e9, #fffdf8); display: flex; align-items: center; justify-content: center; padding: 0.35rem; flex: 0 0 auto; }
+            .agent-tool-image { width: 100%; height: 100%; object-fit: contain; object-position: center; display: block; }
+            .agent-main { font-weight: 850; color: #0f172a; font-size: 1.05rem; line-height: 1.15; }
+            .agent-sub { color: #64748b; font-size: 0.92rem; margin-top: 0.2rem; line-height: 1.45; }
+            .agent-money-main { font-weight: 800; color: #0b4f93; font-size: 1.12rem; }
+            .agent-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 126px; padding: 0.5rem 0.82rem; border-radius: 999px; font-size: 0.82rem; font-weight: 800; white-space: nowrap; }
+            .agent-badge.warning { color: #b45309; background: rgba(245,158,11,0.16); }
+            .agent-badge.info { color: #0284c7; background: rgba(14,165,233,0.12); }
+            .agent-badge.success { color: #0f766e; background: rgba(94,234,212,0.22); }
+            .agent-badge.danger { color: #dc2626; background: rgba(239,68,68,0.15); }
+            .agent-actions { display: flex; flex-direction: column; gap: 0.65rem; align-items: flex-start; }
+            .agent-button { display: inline-flex; align-items: center; justify-content: center; min-height: 42px; padding: 0 1rem; border-radius: 12px; font-weight: 800; text-decoration: none; border: none; cursor: pointer; }
+            .agent-button-primary { background: linear-gradient(135deg, #54b3af, #6ec7c2); color: #ffffff; box-shadow: 0 12px 25px rgba(84,179,175,0.18); }
+            @media (max-width: 720px) { .agent-page { padding: 1rem; } .agent-title { font-size: 2rem; } }
+        </style>
 
-            <h:messages globalOnly="true" showDetail="true" showSummary="true" styleClass="br-messages" />
+        <div class="agent-page">
+            <div class="agent-shell">
+                <div class="agent-header">
+                    <h2 class="agent-title">Gestion des retours</h2>
+                    <p class="agent-subtitle">Enregistrez ici les retours de materiel deja sortis. Le systeme calcule automatiquement le retard, la penalite et prepare ensuite les mouvements de paiement associes.</p>
+                </div>
 
-            <div class="br-stack">
-                <div class="br-card">
-                    <h3 class="br-section-title">Reservations a retourner</h3>
-                    <p class="br-section-subtitle">
-                        Cette liste contient uniquement les reservations actuellement sorties en check-out.
-                    </p>
+                <h:messages globalOnly="true" showDetail="true" showSummary="true" styleClass="agent-messages" />
 
-                    <h:panelGroup rendered="#{empty agentReturnBean.reservationsToReturn}">
-                        <div class="br-empty">Aucune reservation en check-out n'est actuellement en attente de retour.</div>
-                    </h:panelGroup>
+                <h:form id="returnsPageForm">
+                    <div class="agent-stack">
+                        <h:panelGroup id="returnsResults" layout="block">
+                            <div class="agent-card">
+                                <div class="agent-card-head">
+                                    <h3 class="agent-section-title">Reservations a retourner</h3>
+                                    <p class="agent-section-subtitle">Cette liste contient les reservations actuellement sorties en check-out.</p>
+                                </div>
 
-                    <h:panelGroup rendered="#{not empty agentReturnBean.reservationsToReturn}">
-                        <h:form id="returnsForm">
-                            <div class="br-table-wrapper br-table-wrapper-returns">
-                                <h:dataTable value="#{agentReturnBean.reservationsToReturn}" var="reservation" styleClass="br-table br-table-returns">
-                                    <h:column styleClass="br-cell-client" headerClass="br-cell-client">
-                                        <f:facet name="header">Client</f:facet>
-                                        <div class="br-value-stack">
-                                            <div class="br-main">#{reservation.client.users.fullName}</div>
-                                            <div class="br-sub br-wrap-anywhere">#{reservation.client.users.email}</div>
-                                        </div>
-                                    </h:column>
+                                <h:panelGroup rendered="#{empty agentReturnBean.reservationsToReturn}">
+                                    <div class="agent-empty">Aucune reservation n'est actuellement en attente de retour.</div>
+                                </h:panelGroup>
 
-                                    <h:column styleClass="br-cell-tool" headerClass="br-cell-tool">
-                                        <f:facet name="header">Outil</f:facet>
-                                        <div class="br-value-stack">
-                                            <div class="br-main br-wrap-anywhere">#{reservation.tool.name}</div>
-                                            <div class="br-sub">Quantite : #{reservation.quantity}</div>
-                                        </div>
-                                    </h:column>
+                                <h:panelGroup rendered="#{not empty agentReturnBean.reservationsToReturn}">
+                                    <div class="agent-table-wrap">
+                                        <h:dataTable value="#{agentReturnBean.reservationsToReturn}" var="reservation" styleClass="agent-table">
+                                            <h:column>
+                                                <f:facet name="header">Client</f:facet>
+                                                <div class="agent-main">#{reservation.client.users.fullName}</div>
+                                                <div class="agent-sub">#{reservation.client.users.email}</div>
+                                            </h:column>
 
-                                    <h:column styleClass="br-cell-period" headerClass="br-cell-period">
-                                        <f:facet name="header">Periode</f:facet>
-                                        <div class="br-value-stack">
-                                            <div class="br-main">#{reservation.startDate} au #{reservation.endDate}</div>
-                                            <div class="br-sub br-wrap-anywhere">Check-out le #{reservation.checkedOutAt}</div>
-                                        </div>
-                                    </h:column>
+                                            <h:column>
+                                                <f:facet name="header">Outil</f:facet>
+                                                <div class="agent-tool">
+                                                    <div class="agent-tool-image-shell">
+                                                        <h:graphicImage library="images" name="tools/#{agentReturnBean.imageName(reservation)}" alt="#{reservation.tool.name}" styleClass="agent-tool-image" />
+                                                    </div>
+                                                    <div>
+                                                        <div class="agent-main">#{reservation.tool.name}</div>
+                                                        <div class="agent-sub">Quantite : #{reservation.quantity}</div>
+                                                    </div>
+                                                </div>
+                                            </h:column>
 
-                                    <h:column styleClass="br-cell-money" headerClass="br-cell-money">
-                                        <f:facet name="header">Montants</f:facet>
-                                        <div class="br-value-stack">
-                                            <div class="br-main">
-                                                <h:outputText value="#{reservation.estimatedRentalAmount}">
-                                                    <f:convertNumber pattern="#0.00" locale="fr_FR" />
-                                                </h:outputText> MAD
-                                            </div>
-                                            <div class="br-sub">
-                                                Caution :
-                                                <h:outputText value="#{reservation.estimatedDepositAmount}">
-                                                    <f:convertNumber pattern="#0.00" locale="fr_FR" />
-                                                </h:outputText> MAD
-                                            </div>
-                                        </div>
-                                    </h:column>
+                                            <h:column>
+                                                <f:facet name="header">Periode</f:facet>
+                                                <div class="agent-main">#{reservation.startDate} - #{reservation.endDate}</div>
+                                                <div class="agent-sub">Check-out le #{reservation.checkedOutAt}</div>
+                                            </h:column>
 
-                                    <h:column styleClass="br-cell-status" headerClass="br-cell-status">
-                                        <f:facet name="header">Statut</f:facet>
-                                        <span class="br-badge br-badge-wide warning">Check-out effectue</span>
-                                    </h:column>
+                                            <h:column>
+                                                <f:facet name="header">Montants</f:facet>
+                                                <div class="agent-money-main"><h:outputText value="#{reservation.estimatedRentalAmount}"><f:convertNumber pattern="#0.00" locale="fr_FR" /></h:outputText> MAD</div>
+                                                <div class="agent-sub">Caution : <h:outputText value="#{reservation.estimatedDepositAmount}"><f:convertNumber pattern="#0.00" locale="fr_FR" /></h:outputText> MAD</div>
+                                            </h:column>
 
-                                    <h:column styleClass="br-cell-action" headerClass="br-cell-action">
-                                        <f:facet name="header">Action</f:facet>
-                                        <div class="br-actions-inline">
-                                            <h:commandButton value="Retour puis paiements"
-                                                             action="#{agentReturnBean.registerReturn(reservation.id)}"
-                                                             onclick="return confirm(&quot;Confirmer l'enregistrement du retour pour cette reservation ?&quot;);"
-                                                             styleClass="br-button br-button-primary br-button-wide" />
-                                        </div>
-                                    </h:column>
-                                </h:dataTable>
+                                            <h:column>
+                                                <f:facet name="header">Statut</f:facet>
+                                                <span class="agent-badge warning">Check-out effectue</span>
+                                            </h:column>
+
+                                            <h:column>
+                                                <f:facet name="header">Action</f:facet>
+                                                <div class="agent-actions">
+                                                    <h:commandButton value="Retour puis paiements"
+                                                                     action="#{agentReturnBean.registerReturn(reservation.id)}"
+                                                                     onclick="return confirm(&quot;Confirmer l'enregistrement du retour pour cette reservation ?&quot;);"
+                                                                     styleClass="agent-button agent-button-primary" />
+                                                </div>
+                                            </h:column>
+                                        </h:dataTable>
+                                    </div>
+                                </h:panelGroup>
                             </div>
-                        </h:form>
-                    </h:panelGroup>
-                </div>
+                        </h:panelGroup>
 
-                <div class="br-card">
-                    <h3 class="br-section-title">Historique recent de mes retours</h3>
-                    <p class="br-section-subtitle">
-                        Consultez ici les retours que vous avez vous-meme enregistres, avec retard et penalite eventuelle.
-                    </p>
+                        <h:panelGroup id="historyResults" layout="block">
+                            <div class="agent-card">
+                                <div class="agent-card-head">
+                                    <h3 class="agent-section-title">Historique recent de mes retours</h3>
+                                    <p class="agent-section-subtitle">Consultez ici les retours que vous avez vous-meme enregistres, avec retard et penalite eventuelle.</p>
+                                </div>
 
-                    <h:panelGroup rendered="#{empty agentReturnBean.returnHistory}">
-                        <div class="br-empty">Aucun retour enregistre pour cet agent pour le moment.</div>
-                    </h:panelGroup>
-
-                    <h:panelGroup rendered="#{not empty agentReturnBean.returnHistory}">
-                        <div class="br-table-wrapper br-table-wrapper-returns">
-                            <h:dataTable value="#{agentReturnBean.returnHistory}" var="record" styleClass="br-table br-table-returns br-table-returns-history">
-                                <h:column styleClass="br-cell-client" headerClass="br-cell-client">
-                                    <f:facet name="header">Client</f:facet>
-                                    <div class="br-value-stack">
-                                        <div class="br-main">#{record.reservation.client.users.fullName}</div>
-                                        <div class="br-sub br-wrap-anywhere">#{record.reservation.client.users.email}</div>
+                                <div class="agent-card-toolbar">
+                                    <div class="agent-search-row">
+                                        <h:inputText id="historySearch" value="#{agentReturnBean.searchKeyword}" styleClass="agent-search" pt:placeholder="Rechercher un retour historise...">
+                                            <f:ajax event="keyup" render="historyList historyFilterPills" />
+                                        </h:inputText>
                                     </div>
-                                </h:column>
 
-                                <h:column styleClass="br-cell-tool" headerClass="br-cell-tool">
-                                    <f:facet name="header">Outil</f:facet>
-                                    <div class="br-value-stack">
-                                        <div class="br-main br-wrap-anywhere">#{record.reservation.tool.name}</div>
-                                        <div class="br-sub">Quantite : #{record.reservation.quantity}</div>
-                                    </div>
-                                </h:column>
-
-                                <h:column styleClass="br-cell-period" headerClass="br-cell-period">
-                                    <f:facet name="header">Dates</f:facet>
-                                    <div class="br-value-stack">
-                                        <div class="br-main">Fin prevue : #{record.reservation.endDate}</div>
-                                        <div class="br-sub br-wrap-anywhere">Retour le #{record.actualReturnDate}</div>
-                                    </div>
-                                </h:column>
-
-                                <h:column styleClass="br-cell-delay" headerClass="br-cell-delay">
-                                    <f:facet name="header">Retard</f:facet>
-                                    <div class="br-value-stack">
-                                        <div class="br-main">#{record.lateDays} jour(s)</div>
-                                        <div class="br-sub br-wrap-anywhere">#{empty record.notes ? 'Aucune note detaillee.' : record.notes}</div>
-                                    </div>
-                                </h:column>
-
-                                <h:column styleClass="br-cell-money" headerClass="br-cell-money">
-                                    <f:facet name="header">Penalite</f:facet>
-                                    <div class="br-value-stack">
-                                        <div class="br-main">
-                                            <h:outputText value="#{record.latePenalty}">
-                                                <f:convertNumber pattern="#0.00" locale="fr_FR" />
-                                            </h:outputText> MAD
+                                    <h:panelGroup id="historyFilterPills" layout="block">
+                                        <div class="agent-filters">
+                                            <h:commandLink value="Toutes" action="#{agentReturnBean.applyFilter}" styleClass="agent-pill #{agentReturnBean.filterActive('') ? 'active' : ''}">
+                                                <f:setPropertyActionListener target="#{agentReturnBean.selectedFilter}" value="" />
+                                                <f:ajax render="historyList historyFilterPills" />
+                                            </h:commandLink>
+                                            <h:commandLink value="Retournees" action="#{agentReturnBean.applyFilter}" styleClass="agent-pill #{agentReturnBean.filterActive('RETURNED') ? 'active' : ''}">
+                                                <f:setPropertyActionListener target="#{agentReturnBean.selectedFilter}" value="RETURNED" />
+                                                <f:ajax render="historyList historyFilterPills" />
+                                            </h:commandLink>
+                                            <h:commandLink value="Avec retard" action="#{agentReturnBean.applyFilter}" styleClass="agent-pill #{agentReturnBean.filterActive('LATE') ? 'active' : ''}">
+                                                <f:setPropertyActionListener target="#{agentReturnBean.selectedFilter}" value="LATE" />
+                                                <f:ajax render="historyList historyFilterPills" />
+                                            </h:commandLink>
+                                            <h:commandLink value="Sans retard" action="#{agentReturnBean.applyFilter}" styleClass="agent-pill #{agentReturnBean.filterActive('ON_TIME') ? 'active' : ''}">
+                                                <f:setPropertyActionListener target="#{agentReturnBean.selectedFilter}" value="ON_TIME" />
+                                                <f:ajax render="historyList historyFilterPills" />
+                                            </h:commandLink>
                                         </div>
-                                        <div class="br-sub">Retour ##{record.id}</div>
-                                    </div>
-                                </h:column>
+                                    </h:panelGroup>
+                                </div>
 
-                                <h:column styleClass="br-cell-status" headerClass="br-cell-status">
-                                    <f:facet name="header">Statut</f:facet>
-                                    <span class="br-badge br-badge-wide #{agentReturnBean.penaltyTone(record)}">#{agentReturnBean.displayStatus(record.reservation)}</span>
-                                </h:column>
-                            </h:dataTable>
-                        </div>
-                    </h:panelGroup>
-                </div>
+                                <h:panelGroup id="historyList" layout="block">
+                                    <h:panelGroup rendered="#{empty agentReturnBean.filteredReturnHistory}">
+                                        <div class="agent-empty">Aucun retour enregistre ne correspond a votre recherche ou au filtre selectionne.</div>
+                                    </h:panelGroup>
+
+                                    <h:panelGroup rendered="#{not empty agentReturnBean.filteredReturnHistory}">
+                                        <div class="agent-table-wrap">
+                                            <h:dataTable value="#{agentReturnBean.filteredReturnHistory}" var="record" styleClass="agent-table">
+                                                <h:column>
+                                                    <f:facet name="header">Client</f:facet>
+                                                    <div class="agent-main">#{record.reservation.client.users.fullName}</div>
+                                                    <div class="agent-sub">#{record.reservation.client.users.email}</div>
+                                                </h:column>
+
+                                                <h:column>
+                                                    <f:facet name="header">Outil</f:facet>
+                                                    <div class="agent-tool">
+                                                        <div class="agent-tool-image-shell">
+                                                            <h:graphicImage library="images" name="tools/#{agentReturnBean.imageName(record)}" alt="#{record.reservation.tool.name}" styleClass="agent-tool-image" />
+                                                        </div>
+                                                        <div>
+                                                            <div class="agent-main">#{record.reservation.tool.name}</div>
+                                                            <div class="agent-sub">Quantite : #{record.reservation.quantity}</div>
+                                                        </div>
+                                                    </div>
+                                                </h:column>
+
+                                                <h:column>
+                                                    <f:facet name="header">Dates</f:facet>
+                                                    <div class="agent-main">Fin prevue : #{record.reservation.endDate}</div>
+                                                    <div class="agent-sub">Retour le #{record.actualReturnDate}</div>
+                                                </h:column>
+
+                                                <h:column>
+                                                    <f:facet name="header">Retard</f:facet>
+                                                    <div class="agent-main">#{record.lateDays} jour(s)</div>
+                                                    <div class="agent-sub">#{empty record.notes ? 'Aucune note detaillee.' : record.notes}</div>
+                                                </h:column>
+
+                                                <h:column>
+                                                    <f:facet name="header">Penalite</f:facet>
+                                                    <div class="agent-money-main"><h:outputText value="#{record.latePenalty}"><f:convertNumber pattern="#0.00" locale="fr_FR" /></h:outputText> MAD</div>
+                                                    <div class="agent-sub">Retour ##{record.id}</div>
+                                                </h:column>
+
+                                                <h:column>
+                                                    <f:facet name="header">Statut</f:facet>
+                                                    <span class="agent-badge #{agentReturnBean.penaltyTone(record)}">#{agentReturnBean.displayStatus(record.reservation)}</span>
+                                                </h:column>
+                                            </h:dataTable>
+                                        </div>
+                                    </h:panelGroup>
+                                </h:panelGroup>
+                            </div>
+                        </h:panelGroup>
+                    </div>
+                </h:form>
             </div>
         </div>
     </ui:define>

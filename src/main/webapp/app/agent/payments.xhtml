@@ -3,7 +3,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="jakarta.faces.html"
       xmlns:f="jakarta.faces.core"
-      xmlns:ui="jakarta.faces.facelets">
+      xmlns:ui="jakarta.faces.facelets"
+      xmlns:pt="jakarta.faces.passthrough">
 
 <ui:composition template="/templates/layout.xhtml">
 
@@ -11,145 +12,214 @@
 
     <ui:define name="content">
         <style>
-            .payments-page { padding: 2rem; color: #1e293b; }
-            .payments-header { margin-bottom: 1.8rem; }
-            .payments-title { margin: 0; font-size: 2rem; font-weight: 900; color: #0f172a; }
-            .payments-subtitle { margin: 0.6rem 0 0 0; color: #64748b; line-height: 1.7; max-width: 900px; }
-            .payments-card { background: linear-gradient(180deg, #ffffff, #f8fafc); border: 1px solid rgba(148,163,184,0.18); border-radius: 22px; box-shadow: 0 18px 44px rgba(15,23,42,0.10); padding: 1.5rem; }
-            .payments-section-title { margin: 0 0 1rem 0; font-size: 1.2rem; font-weight: 900; color: #0f172a; }
-            .payments-section-subtitle { margin: 0 0 1.2rem 0; color: #64748b; line-height: 1.6; }
-            .payments-table { width: 100%; border-collapse: collapse; }
-            .payments-table th, .payments-table td { padding: 0.9rem 0.7rem; text-align: left; border-bottom: 1px solid #e2e8f0; vertical-align: top; }
-            .payments-table th { color: #475569; font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.04em; }
-            .payments-main { font-weight: 800; color: #0f172a; }
-            .payments-sub { color: #64748b; font-size: 0.92rem; }
-            .payments-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 120px; padding: 0.45rem 0.7rem; border-radius: 999px; font-size: 0.8rem; font-weight: 800; color: #475569; background: rgba(148,163,184,0.15); }
-            .payments-badge.success { color: #16a34a; background: rgba(34,197,94,0.14); }
-            .payments-badge.warning { color: #b45309; background: rgba(245,158,11,0.16); }
-            .payments-badge.info { color: #0284c7; background: rgba(14,165,233,0.12); }
-            .payments-badge.danger { color: #dc2626; background: rgba(239,68,68,0.15); }
-            .payments-empty { padding: 1.25rem; border-radius: 16px; background: #ffffff; border: 1px dashed #cbd5e1; color: #64748b; text-align: center; }
-            .payments-messages { color: #e94560; font-weight: 700; list-style: none; padding: 0 0 1rem 0; }
-            .payments-stack { display: grid; gap: 1.5rem; }
-            .payments-button { border: none; background: none; padding: 0; font-weight: 800; cursor: pointer; color: #16a34a; }
-            .payments-hint { margin-top: 0.45rem; color: #64748b; font-size: 0.85rem; line-height: 1.5; }
+            .agent-page { padding: 2rem; color: #1e293b; background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(247,250,252,0.95)), linear-gradient(90deg, rgba(148,163,184,0.12) 1px, transparent 1px), linear-gradient(rgba(148,163,184,0.12) 1px, transparent 1px); background-size: auto, 120px 120px, 120px 120px; border-radius: 28px; }
+            .agent-shell { max-width: 1240px; margin: 0 auto; }
+            .agent-header { margin-bottom: 1.35rem; }
+            .agent-title { margin: 0; font-size: 2.65rem; line-height: 1.05; font-weight: 900; letter-spacing: -0.04em; color: #0f172a; }
+            .agent-subtitle { margin: 0.7rem 0 0 0; color: #52627a; line-height: 1.7; max-width: 920px; font-size: 1rem; }
+            .agent-toolbar, .agent-card-toolbar { display: flex; flex-direction: column; gap: 0.9rem; }
+            .agent-card-toolbar { padding: 0 1.2rem 1rem; }
+            .agent-search-row { display: grid; grid-template-columns: minmax(0, 1fr); max-width: 420px; }
+            .agent-search { width: 100%; border: 1px solid rgba(148,163,184,0.28); background: rgba(255,255,255,0.96); color: #0f172a; border-radius: 16px; padding: 0.95rem 1rem; font-size: 0.96rem; box-sizing: border-box; box-shadow: 0 10px 30px rgba(148,163,184,0.12); }
+            .agent-search:focus, .agent-search:focus-visible { outline: none; border-color: #5ab7b2; box-shadow: 0 0 0 4px rgba(90,183,178,0.16); background: #ffffff; }
+            .agent-filters { display: flex; flex-wrap: wrap; gap: 0.7rem; align-items: center; }
+            .agent-pill { display: inline-flex; align-items: center; justify-content: center; padding: 0.6rem 1rem; border-radius: 999px; border: 1px solid rgba(203,213,225,0.95); background: rgba(255,255,255,0.9); color: #475569; text-decoration: none; font-weight: 700; font-size: 0.92rem; box-shadow: 0 8px 20px rgba(148,163,184,0.12); }
+            .agent-pill.active { background: linear-gradient(135deg, rgba(105,199,191,0.28), rgba(136,225,216,0.34)); border-color: rgba(90,183,178,0.34); color: #0f766e; }
+            .agent-stack { display: grid; gap: 1.4rem; }
+            .agent-card { background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(251,253,255,0.98)); border: 1px solid rgba(226,232,240,0.95); border-radius: 28px; box-shadow: 0 18px 48px rgba(15,23,42,0.08); padding: 1.2rem 0 0.2rem; overflow: hidden; }
+            .agent-card-head { padding: 0 1.2rem 1rem; }
+            .agent-section-title { margin: 0; font-size: 1.45rem; font-weight: 850; color: #0f172a; letter-spacing: -0.03em; }
+            .agent-section-subtitle { margin: 0.55rem 0 0 0; color: #64748b; line-height: 1.6; }
+            .agent-empty { padding: 2rem; margin: 0 1.2rem 1rem; border-radius: 20px; background: rgba(255,255,255,0.94); border: 1px dashed #cbd5e1; color: #64748b; text-align: center; }
+            .agent-messages { color: #e94560; font-weight: 700; list-style: none; padding: 0 0 1rem 0; margin: 0; }
+            .agent-table-wrap { width: 100%; overflow-x: auto; }
+            .agent-table { width: 100%; border-collapse: collapse; min-width: 1120px; }
+            .agent-table th, .agent-table td { padding: 1.05rem 1rem; text-align: left; border-bottom: 1px solid rgba(226,232,240,0.92); vertical-align: top; }
+            .agent-table th { color: #334155; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 800; background: rgba(255,255,255,0.88); }
+            .agent-tool { display: flex; gap: 0.85rem; align-items: flex-start; }
+            .agent-tool-image-shell { width: 54px; height: 54px; border-radius: 14px; border: 1px solid rgba(226,232,240,0.95); background: linear-gradient(180deg, #f7f3e9, #fffdf8); display: flex; align-items: center; justify-content: center; padding: 0.35rem; flex: 0 0 auto; }
+            .agent-tool-image { width: 100%; height: 100%; object-fit: contain; object-position: center; display: block; }
+            .agent-main { font-weight: 850; color: #0f172a; font-size: 1.05rem; line-height: 1.15; }
+            .agent-sub { color: #64748b; font-size: 0.92rem; margin-top: 0.2rem; line-height: 1.45; }
+            .agent-money-main { font-weight: 800; color: #0b4f93; font-size: 1.12rem; }
+            .agent-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 126px; padding: 0.5rem 0.82rem; border-radius: 999px; font-size: 0.82rem; font-weight: 800; white-space: nowrap; }
+            .agent-badge.warning { color: #b45309; background: rgba(245,158,11,0.16); }
+            .agent-badge.info { color: #0284c7; background: rgba(14,165,233,0.12); }
+            .agent-badge.success { color: #0f766e; background: rgba(94,234,212,0.22); }
+            .agent-badge.danger { color: #dc2626; background: rgba(239,68,68,0.15); }
+            .agent-actions { display: flex; flex-direction: column; gap: 0.65rem; align-items: flex-start; }
+            .agent-button { border: none; background: none; padding: 0; font-weight: 800; cursor: pointer; color: #16a34a; }
+            .agent-hint { margin-top: 0.35rem; color: #64748b; font-size: 0.88rem; line-height: 1.5; }
+            @media (max-width: 720px) { .agent-page { padding: 1rem; } .agent-title { font-size: 2rem; } }
         </style>
 
-        <div class="payments-page">
-            <div class="payments-header">
-                <h2 class="payments-title">Paiements cash</h2>
-                <p class="payments-subtitle">
-                    Enregistrez ici les mouvements cash apres retour : penalite de retard eventuelle et remboursement
-                    de caution. L'encaissement de la location et de la caution avant sortie se fait directement depuis l'ecran des demandes approuvees.
-                </p>
-            </div>
-
-            <h:messages globalOnly="true" showDetail="true" showSummary="true" styleClass="payments-messages" />
-
-            <div class="payments-stack">
-                <div class="payments-card">
-                    <h3 class="payments-section-title">Mouvements a enregistrer</h3>
-                    <p class="payments-section-subtitle">
-                        Apres un retour, encaissez la penalite eventuelle puis tracez le remboursement de caution si celui-ci est disponible.
-                    </p>
-
-                    <h:panelGroup rendered="#{empty agentPaymentBean.paymentRows}">
-                        <div class="payments-empty">Aucun mouvement cash a enregistrer pour le moment.</div>
-                    </h:panelGroup>
-
-                    <h:panelGroup rendered="#{not empty agentPaymentBean.paymentRows}">
-                        <h:form id="paymentsForm">
-                            <h:dataTable value="#{agentPaymentBean.paymentRows}" var="row" styleClass="payments-table">
-                                <h:column>
-                                    <f:facet name="header">Dossier</f:facet>
-                                    <div class="payments-main">#<h:outputText value="#{row.reservation.id}" /></div>
-                                    <div class="payments-sub">#{row.reservation.client.users.fullName}</div>
-                                    <div class="payments-sub">#{row.reservation.client.users.email}</div>
-                                </h:column>
-
-                                <h:column>
-                                    <f:facet name="header">Outil</f:facet>
-                                    <div class="payments-main">#{row.reservation.tool.name}</div>
-                                    <div class="payments-sub">Quantite : #{row.reservation.quantity}</div>
-                                    <div class="payments-sub">#{row.reservation.startDate} au #{row.reservation.endDate}</div>
-                                </h:column>
-
-                                <h:column>
-                                    <f:facet name="header">Statut reservation</f:facet>
-                                    <span class="payments-badge #{agentPaymentBean.reservationStatusTone(row)}">#{agentPaymentBean.reservationStatusLabel(row)}</span>
-                                </h:column>
-
-                                <h:column>
-                                    <f:facet name="header">Mouvement</f:facet>
-                                    <div class="payments-main">#{agentPaymentBean.typeLabel(row.type)}</div>
-                                    <span class="payments-badge #{agentPaymentBean.dueStatusTone(row)}">#{agentPaymentBean.dueStatusLabel(row)}</span>
-                                    <div class="payments-hint">#{agentPaymentBean.actionHint(row)}</div>
-                                </h:column>
-
-                                <h:column>
-                                    <f:facet name="header">Montant</f:facet>
-                                    <div class="payments-main">
-                                        <h:outputText value="#{row.amount}">
-                                            <f:convertNumber pattern="#0.00" locale="fr_FR" />
-                                        </h:outputText> MAD
-                                    </div>
-                                </h:column>
-
-                                <h:column>
-                                    <f:facet name="header">Action</f:facet>
-                                    <h:commandButton value="#{agentPaymentBean.actionLabel(row)}"
-                                                     action="#{agentPaymentBean.registerPayment(row)}"
-                                                     onclick="return confirm(&quot;Confirmer l'enregistrement de ce mouvement cash ?&quot;);"
-                                                     styleClass="payments-button" />
-                                </h:column>
-                            </h:dataTable>
-                        </h:form>
-                    </h:panelGroup>
+        <div class="agent-page">
+            <div class="agent-shell">
+                <div class="agent-header">
+                    <h2 class="agent-title">Paiements cash</h2>
+                    <p class="agent-subtitle">Enregistrez ici les mouvements cash apres retour : penalite eventuelle et remboursement de caution. L'historique des paiements traces par votre compte reste accessible en dessous.</p>
                 </div>
 
-                <div class="payments-card">
-                    <h3 class="payments-section-title">Historique de mes paiements</h3>
-                    <p class="payments-section-subtitle">
-                        Consultez ici les mouvements cash que vous avez deja traces : location, caution, penalite et remboursement.
-                    </p>
+                <h:messages globalOnly="true" showDetail="true" showSummary="true" styleClass="agent-messages" />
 
-                    <h:panelGroup rendered="#{empty agentPaymentBean.paymentHistory}">
-                        <div class="payments-empty">Aucun paiement enregistre par cet agent pour le moment.</div>
-                    </h:panelGroup>
-
-                    <h:panelGroup rendered="#{not empty agentPaymentBean.paymentHistory}">
-                        <h:dataTable value="#{agentPaymentBean.paymentHistory}" var="payment" styleClass="payments-table">
-                            <h:column>
-                                <f:facet name="header">Reservation</f:facet>
-                                <div class="payments-main">#<h:outputText value="#{payment.reservation.id}" /></div>
-                                <div class="payments-sub">#{payment.reservation.client.users.fullName}</div>
-                                <div class="payments-sub">#{payment.reservation.tool.name}</div>
-                            </h:column>
-
-                            <h:column>
-                                <f:facet name="header">Type</f:facet>
-                                <div class="payments-main">#{agentPaymentBean.typeLabel(payment.type)}</div>
-                                <div class="payments-sub">Methode : CASH</div>
-                                <div class="payments-sub">#{empty payment.notes ? 'Aucun commentaire.' : payment.notes}</div>
-                            </h:column>
-
-                            <h:column>
-                                <f:facet name="header">Montant</f:facet>
-                                <div class="payments-main">
-                                    <h:outputText value="#{payment.amount}">
-                                        <f:convertNumber pattern="#0.00" locale="fr_FR" />
-                                    </h:outputText> MAD
+                <h:form id="paymentsPageForm">
+                    <div class="agent-stack">
+                        <h:panelGroup id="paymentRowsResults" layout="block">
+                            <div class="agent-card">
+                                <div class="agent-card-head">
+                                    <h3 class="agent-section-title">Mouvements a enregistrer</h3>
+                                    <p class="agent-section-subtitle">Apres un retour, encaissez la penalite eventuelle puis tracez le remboursement de caution si celui-ci est disponible.</p>
                                 </div>
-                                <div class="payments-sub">#{payment.paymentDate}</div>
-                            </h:column>
 
-                            <h:column>
-                                <f:facet name="header">Statut</f:facet>
-                                <span class="payments-badge #{agentPaymentBean.paymentStatusTone(payment)}">#{agentPaymentBean.paymentStatusLabel(payment)}</span>
-                            </h:column>
-                        </h:dataTable>
-                    </h:panelGroup>
-                </div>
+                                <h:panelGroup rendered="#{empty agentPaymentBean.paymentRows}">
+                                    <div class="agent-empty">Aucun mouvement cash n'est actuellement a enregistrer.</div>
+                                </h:panelGroup>
+
+                                <h:panelGroup rendered="#{not empty agentPaymentBean.paymentRows}">
+                                    <div class="agent-table-wrap">
+                                        <h:dataTable value="#{agentPaymentBean.paymentRows}" var="row" styleClass="agent-table">
+                                            <h:column>
+                                                <f:facet name="header">Reservation</f:facet>
+                                                <div class="agent-main">##{row.reservation.id}</div>
+                                                <div class="agent-sub">#{row.reservation.client.users.fullName}</div>
+                                                <div class="agent-sub">#{row.reservation.client.users.email}</div>
+                                            </h:column>
+
+                                            <h:column>
+                                                <f:facet name="header">Outil</f:facet>
+                                                <div class="agent-tool">
+                                                    <div class="agent-tool-image-shell">
+                                                        <h:graphicImage library="images" name="tools/#{agentPaymentBean.imageName(row)}" alt="#{row.reservation.tool.name}" styleClass="agent-tool-image" />
+                                                    </div>
+                                                    <div>
+                                                        <div class="agent-main">#{row.reservation.tool.name}</div>
+                                                        <div class="agent-sub">Quantite : #{row.reservation.quantity}</div>
+                                                        <div class="agent-sub">#{row.reservation.startDate} - #{row.reservation.endDate}</div>
+                                                    </div>
+                                                </div>
+                                            </h:column>
+
+                                            <h:column>
+                                                <f:facet name="header">Mouvement</f:facet>
+                                                <div class="agent-main">#{agentPaymentBean.typeLabel(row.type)}</div>
+                                                <span class="agent-badge #{agentPaymentBean.dueStatusTone(row)}">#{agentPaymentBean.dueStatusLabel(row)}</span>
+                                                <div class="agent-hint">#{agentPaymentBean.actionHint(row)}</div>
+                                            </h:column>
+
+                                            <h:column>
+                                                <f:facet name="header">Montant</f:facet>
+                                                <div class="agent-money-main"><h:outputText value="#{row.amount}"><f:convertNumber pattern="#0.00" locale="fr_FR" /></h:outputText> MAD</div>
+                                                <div class="agent-sub">#{agentPaymentBean.reservationStatusLabel(row)}</div>
+                                            </h:column>
+
+                                            <h:column>
+                                                <f:facet name="header">Action</f:facet>
+                                                <div class="agent-actions">
+                                                    <h:commandButton value="#{agentPaymentBean.actionLabel(row)}" action="#{agentPaymentBean.registerPayment(row)}" onclick="return confirm(&quot;Confirmer l'enregistrement de ce mouvement cash ?&quot;);" styleClass="agent-button" />
+                                                </div>
+                                            </h:column>
+                                        </h:dataTable>
+                                    </div>
+                                </h:panelGroup>
+                            </div>
+                        </h:panelGroup>
+
+                        <h:panelGroup id="paymentHistoryResults" layout="block">
+                            <div class="agent-card">
+                                <div class="agent-card-head">
+                                    <h3 class="agent-section-title">Historique de mes paiements</h3>
+                                    <p class="agent-section-subtitle">Consultez ici les mouvements cash que vous avez deja traces : location, caution, penalite et remboursement.</p>
+                                </div>
+
+                                <div class="agent-card-toolbar">
+                                    <div class="agent-search-row">
+                                        <h:inputText id="historySearch" value="#{agentPaymentBean.searchKeyword}" styleClass="agent-search" pt:placeholder="Rechercher un paiement historique...">
+                                            <f:ajax event="keyup" render="historyList historyFilterPills" />
+                                        </h:inputText>
+                                    </div>
+
+                                    <h:panelGroup id="historyFilterPills" layout="block">
+                                        <div class="agent-filters">
+                                            <h:commandLink value="Toutes" action="#{agentPaymentBean.applyFilter}" styleClass="agent-pill #{agentPaymentBean.filterActive('') ? 'active' : ''}">
+                                                <f:setPropertyActionListener target="#{agentPaymentBean.selectedFilter}" value="" />
+                                                <f:ajax render="historyList historyFilterPills" />
+                                            </h:commandLink>
+                                            <h:commandLink value="Payes" action="#{agentPaymentBean.applyFilter}" styleClass="agent-pill #{agentPaymentBean.filterActive('PAID') ? 'active' : ''}">
+                                                <f:setPropertyActionListener target="#{agentPaymentBean.selectedFilter}" value="PAID" />
+                                                <f:ajax render="historyList historyFilterPills" />
+                                            </h:commandLink>
+                                            <h:commandLink value="Location" action="#{agentPaymentBean.applyFilter}" styleClass="agent-pill #{agentPaymentBean.filterActive('RENTAL') ? 'active' : ''}">
+                                                <f:setPropertyActionListener target="#{agentPaymentBean.selectedFilter}" value="RENTAL" />
+                                                <f:ajax render="historyList historyFilterPills" />
+                                            </h:commandLink>
+                                            <h:commandLink value="Caution" action="#{agentPaymentBean.applyFilter}" styleClass="agent-pill #{agentPaymentBean.filterActive('DEPOSIT') ? 'active' : ''}">
+                                                <f:setPropertyActionListener target="#{agentPaymentBean.selectedFilter}" value="DEPOSIT" />
+                                                <f:ajax render="historyList historyFilterPills" />
+                                            </h:commandLink>
+                                            <h:commandLink value="Penalite" action="#{agentPaymentBean.applyFilter}" styleClass="agent-pill #{agentPaymentBean.filterActive('LATE_PENALTY') ? 'active' : ''}">
+                                                <f:setPropertyActionListener target="#{agentPaymentBean.selectedFilter}" value="LATE_PENALTY" />
+                                                <f:ajax render="historyList historyFilterPills" />
+                                            </h:commandLink>
+                                            <h:commandLink value="Remboursement" action="#{agentPaymentBean.applyFilter}" styleClass="agent-pill #{agentPaymentBean.filterActive('REFUND') ? 'active' : ''}">
+                                                <f:setPropertyActionListener target="#{agentPaymentBean.selectedFilter}" value="REFUND" />
+                                                <f:ajax render="historyList historyFilterPills" />
+                                            </h:commandLink>
+                                        </div>
+                                    </h:panelGroup>
+                                </div>
+
+                                <h:panelGroup id="historyList" layout="block">
+                                    <h:panelGroup rendered="#{empty agentPaymentBean.filteredPaymentHistory}">
+                                        <div class="agent-empty">Aucun paiement ne correspond a votre recherche ou au filtre selectionne.</div>
+                                    </h:panelGroup>
+
+                                    <h:panelGroup rendered="#{not empty agentPaymentBean.filteredPaymentHistory}">
+                                        <div class="agent-table-wrap">
+                                            <h:dataTable value="#{agentPaymentBean.filteredPaymentHistory}" var="payment" styleClass="agent-table">
+                                                <h:column>
+                                                    <f:facet name="header">Reservation</f:facet>
+                                                    <div class="agent-main">##{payment.reservation.id}</div>
+                                                    <div class="agent-sub">#{payment.reservation.client.users.fullName}</div>
+                                                    <div class="agent-sub">#{payment.reservation.client.users.email}</div>
+                                                </h:column>
+
+                                                <h:column>
+                                                    <f:facet name="header">Outil</f:facet>
+                                                    <div class="agent-tool">
+                                                        <div class="agent-tool-image-shell">
+                                                            <h:graphicImage library="images" name="tools/#{agentPaymentBean.imageName(payment)}" alt="#{payment.reservation.tool.name}" styleClass="agent-tool-image" />
+                                                        </div>
+                                                        <div>
+                                                            <div class="agent-main">#{payment.reservation.tool.name}</div>
+                                                            <div class="agent-sub">#{payment.paymentDate}</div>
+                                                        </div>
+                                                    </div>
+                                                </h:column>
+
+                                                <h:column>
+                                                    <f:facet name="header">Type</f:facet>
+                                                    <div class="agent-main">#{agentPaymentBean.typeLabel(payment.type)}</div>
+                                                    <div class="agent-sub">Methode : CASH</div>
+                                                    <div class="agent-sub">#{empty payment.notes ? 'Aucun commentaire.' : payment.notes}</div>
+                                                </h:column>
+
+                                                <h:column>
+                                                    <f:facet name="header">Montant</f:facet>
+                                                    <div class="agent-money-main"><h:outputText value="#{payment.amount}"><f:convertNumber pattern="#0.00" locale="fr_FR" /></h:outputText> MAD</div>
+                                                </h:column>
+
+                                                <h:column>
+                                                    <f:facet name="header">Statut</f:facet>
+                                                    <span class="agent-badge #{agentPaymentBean.paymentStatusTone(payment)}">#{agentPaymentBean.paymentStatusLabel(payment)}</span>
+                                                </h:column>
+                                            </h:dataTable>
+                                        </div>
+                                    </h:panelGroup>
+                                </h:panelGroup>
+                            </div>
+                        </h:panelGroup>
+                    </div>
+                </h:form>
             </div>
         </div>
     </ui:define>

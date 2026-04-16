@@ -11,10 +11,12 @@ import jakarta.inject.Inject;
 import jakarta.inject.Named;
 
 import java.io.Serializable;
+import java.util.Locale;
 import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 @Named("agentCheckoutBean")
 @ViewScoped
@@ -34,6 +36,8 @@ public class AgentCheckoutBean implements Serializable {
 
     private List<Reservation> approvedReservations = Collections.emptyList();
     private List<Reservation> checkoutHistory = Collections.emptyList();
+    private String selectedFilter;
+    private String searchKeyword;
 
     @PostConstruct
     public void init() {
@@ -83,6 +87,17 @@ public class AgentCheckoutBean implements Serializable {
         return checkoutHistory;
     }
 
+    public List<Reservation> getFilteredApprovedReservations() {
+        return approvedReservations;
+    }
+
+    public List<Reservation> getFilteredCheckoutHistory() {
+        return checkoutHistory.stream()
+                .filter(this::matchesSearch)
+                .filter(this::matchesHistoryFilter)
+                .collect(Collectors.toList());
+    }
+
     public String displayStatus(Reservation reservation) {
         if (reservation == null || reservation.getStatus() == null) {
             return "Inconnu";
@@ -126,6 +141,41 @@ public class AgentCheckoutBean implements Serializable {
         return canCheckout(reservation) ? "success" : "warning";
     }
 
+    public String getSelectedFilter() {
+        return selectedFilter;
+    }
+
+    public void setSelectedFilter(String selectedFilter) {
+        this.selectedFilter = selectedFilter;
+    }
+
+    public String getSearchKeyword() {
+        return searchKeyword;
+    }
+
+    public void setSearchKeyword(String searchKeyword) {
+        this.searchKeyword = searchKeyword;
+    }
+
+    public void applyFilter() {
+        // Filtrage calcule a la demande.
+    }
+
+    public boolean filterActive(String filterKey) {
+        if (filterKey == null || filterKey.isBlank()) {
+            return selectedFilter == null || selectedFilter.isBlank();
+        }
+        return filterKey.equalsIgnoreCase(selectedFilter);
+    }
+
+    public String imageName(Reservation reservation) {
+        if (reservation == null || reservation.getTool() == null || reservation.getTool().getImagePath() == null) {
+            return "default-tool.jpg";
+        }
+        String imagePath = reservation.getTool().getImagePath().trim();
+        return imagePath.isEmpty() ? "default-tool.jpg" : imagePath;
+    }
+
     private void refreshData() {
         try {
             approvedReservations = reservationService.getApprovedReservations();
@@ -146,5 +196,40 @@ public class AgentCheckoutBean implements Serializable {
 
     private void addMessage(FacesMessage.Severity severity, String summary, String detail) {
         FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(severity, summary, detail));
+    }
+
+    private boolean matchesSearch(Reservation reservation) {
+        if (searchKeyword == null || searchKeyword.isBlank()) {
+            return true;
+        }
+        if (reservation == null) {
+            return false;
+        }
+        String keyword = searchKeyword.toLowerCase(Locale.ROOT).trim();
+        String toolName = reservation.getTool() != null && reservation.getTool().getName() != null
+                ? reservation.getTool().getName().toLowerCase(Locale.ROOT) : "";
+        String clientName = reservation.getClient() != null
+                && reservation.getClient().getUsers() != null
+                && reservation.getClient().getUsers().getFullName() != null
+                ? reservation.getClient().getUsers().getFullName().toLowerCase(Locale.ROOT) : "";
+        return toolName.contains(keyword) || clientName.contains(keyword);
+    }
+
+    private boolean matchesApprovedFilter(Reservation reservation) {
+        return true;
+    }
+
+    private boolean matchesHistoryFilter(Reservation reservation) {
+        if (selectedFilter == null || selectedFilter.isBlank()) {
+            return true;
+        }
+        if (reservation == null || reservation.getStatus() == null) {
+            return false;
+        }
+        return switch (selectedFilter) {
+            case "CHECKED_OUT" -> reservation.getStatus().name().equals("CHECKED_OUT");
+            case "RETURNED" -> reservation.getStatus().name().equals("RETURNED");
+            default -> true;
+        };
     }
 }

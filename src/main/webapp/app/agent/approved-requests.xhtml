@@ -3,154 +3,257 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="jakarta.faces.html"
       xmlns:f="jakarta.faces.core"
-      xmlns:ui="jakarta.faces.facelets">
+      xmlns:ui="jakarta.faces.facelets"
+      xmlns:pt="jakarta.faces.passthrough">
 
 <ui:composition template="/templates/layout.xhtml">
 
     <ui:define name="title">Demandes approuvees - BricoliRent</ui:define>
 
     <ui:define name="content">
-        <div class="br-page">
-            <div class="br-header">
-                <h2 class="br-title">Demandes approuvees</h2>
-                <p class="br-subtitle">
-                    Retrouvez ici les reservations deja approuvees et pretes a etre servies. Le flux metier impose
-                    d'abord l'encaissement de la location et de la caution, puis seulement ensuite le check-out du materiel.
-                </p>
-            </div>
+        <style>
+            .agent-page {
+                padding: 2rem;
+                color: #1e293b;
+                background:
+                    linear-gradient(180deg, rgba(255,255,255,0.9), rgba(247,250,252,0.95)),
+                    linear-gradient(90deg, rgba(148,163,184,0.12) 1px, transparent 1px),
+                    linear-gradient(rgba(148,163,184,0.12) 1px, transparent 1px);
+                background-size: auto, 120px 120px, 120px 120px;
+                border-radius: 28px;
+            }
 
-            <h:messages globalOnly="true" showDetail="true" showSummary="true" styleClass="br-messages" />
+            .agent-shell { max-width: 1240px; margin: 0 auto; }
+            .agent-header { margin-bottom: 1.35rem; }
+            .agent-title { margin: 0; font-size: 2.65rem; line-height: 1.05; font-weight: 900; letter-spacing: -0.04em; color: #0f172a; }
+            .agent-subtitle { margin: 0.7rem 0 0 0; color: #52627a; line-height: 1.7; max-width: 900px; font-size: 1rem; }
+            .agent-toolbar { display: flex; flex-direction: column; gap: 0.9rem; }
+            .agent-card-toolbar { padding: 0 1.2rem 1rem; display: flex; flex-direction: column; gap: 0.9rem; }
+            .agent-search-row { display: grid; grid-template-columns: minmax(0, 1fr); max-width: 420px; }
+            .agent-search {
+                width: 100%; border: 1px solid rgba(148,163,184,0.28); background: rgba(255,255,255,0.96); color: #0f172a;
+                border-radius: 16px; padding: 0.95rem 1rem; font-size: 0.96rem; box-sizing: border-box;
+                box-shadow: 0 10px 30px rgba(148,163,184,0.12); transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+            }
+            .agent-search:focus, .agent-search:focus-visible {
+                outline: none; border-color: #5ab7b2; box-shadow: 0 0 0 4px rgba(90,183,178,0.16); background: #ffffff;
+            }
+            .agent-filters { display: flex; flex-wrap: wrap; gap: 0.7rem; align-items: center; }
+            .agent-pill {
+                display: inline-flex; align-items: center; justify-content: center; padding: 0.6rem 1rem; border-radius: 999px;
+                border: 1px solid rgba(203,213,225,0.95); background: rgba(255,255,255,0.9); color: #475569; text-decoration: none;
+                font-weight: 700; font-size: 0.92rem; box-shadow: 0 8px 20px rgba(148,163,184,0.12);
+            }
+            .agent-pill.active { background: linear-gradient(135deg, rgba(105,199,191,0.28), rgba(136,225,216,0.34)); border-color: rgba(90,183,178,0.34); color: #0f766e; }
+            .agent-stack { display: grid; gap: 1.4rem; }
+            .agent-card {
+                background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(251,253,255,0.98)); border: 1px solid rgba(226,232,240,0.95);
+                border-radius: 28px; box-shadow: 0 18px 48px rgba(15,23,42,0.08); padding: 1.2rem 0 0.2rem; overflow: hidden;
+            }
+            .agent-card-head { padding: 0 1.2rem 1rem; }
+            .agent-section-title { margin: 0; font-size: 1.45rem; font-weight: 850; color: #0f172a; letter-spacing: -0.03em; }
+            .agent-section-subtitle { margin: 0.55rem 0 0 0; color: #64748b; line-height: 1.6; }
+            .agent-empty { padding: 2rem; margin: 0 1.2rem 1rem; border-radius: 20px; background: rgba(255,255,255,0.94); border: 1px dashed #cbd5e1; color: #64748b; text-align: center; }
+            .agent-messages { color: #e94560; font-weight: 700; list-style: none; padding: 0 0 1rem 0; margin: 0; }
+            .agent-table-wrap { width: 100%; overflow-x: auto; }
+            .agent-table { width: 100%; border-collapse: collapse; min-width: 1120px; }
+            .agent-table th, .agent-table td { padding: 1.05rem 1rem; text-align: left; border-bottom: 1px solid rgba(226,232,240,0.92); vertical-align: top; }
+            .agent-table th { color: #334155; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 800; background: rgba(255,255,255,0.88); }
+            .agent-tool { display: flex; gap: 0.85rem; align-items: flex-start; }
+            .agent-tool-image-shell {
+                width: 54px; height: 54px; border-radius: 14px; border: 1px solid rgba(226,232,240,0.95); background: linear-gradient(180deg, #f7f3e9, #fffdf8);
+                display: flex; align-items: center; justify-content: center; padding: 0.35rem; flex: 0 0 auto;
+            }
+            .agent-tool-image { width: 100%; height: 100%; object-fit: contain; object-position: center; display: block; }
+            .agent-main { font-weight: 850; color: #0f172a; font-size: 1.05rem; line-height: 1.15; }
+            .agent-sub { color: #64748b; font-size: 0.92rem; margin-top: 0.2rem; line-height: 1.45; }
+            .agent-money-main { font-weight: 800; color: #0b4f93; font-size: 1.12rem; }
+            .agent-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 126px; padding: 0.5rem 0.82rem; border-radius: 999px; font-size: 0.82rem; font-weight: 800; white-space: nowrap; }
+            .agent-badge.warning { color: #b45309; background: rgba(245,158,11,0.16); }
+            .agent-badge.info { color: #0284c7; background: rgba(14,165,233,0.12); }
+            .agent-badge.success { color: #0f766e; background: rgba(94,234,212,0.22); }
+            .agent-badge.danger { color: #dc2626; background: rgba(239,68,68,0.15); }
+            .agent-badge.neutral { color: #475569; background: rgba(148,163,184,0.15); }
+            .agent-badge-stack { display: flex; flex-direction: column; gap: 0.45rem; align-items: flex-start; }
+            .agent-actions { display: flex; flex-direction: column; gap: 0.65rem; align-items: flex-start; }
+            .agent-button {
+                display: inline-flex; align-items: center; justify-content: center; min-height: 42px; padding: 0 1rem; border-radius: 12px; font-weight: 800;
+                text-decoration: none; border: none; cursor: pointer;
+            }
+            .agent-button-primary { background: linear-gradient(135deg, #54b3af, #6ec7c2); color: #ffffff; box-shadow: 0 12px 25px rgba(84,179,175,0.18); }
+            @media (max-width: 720px) { .agent-page { padding: 1rem; } .agent-title { font-size: 2rem; } }
+        </style>
 
-            <div class="br-stack">
-                <div class="br-card">
-                    <h3 class="br-section-title">Reservations approuvees a servir</h3>
-                    <p class="br-section-subtitle">
-                        Cette liste contient les reservations approuvees. Encaissez d'abord la location et la caution,
-                        puis effectuez le check-out une fois le paiement complet confirme.
+        <div class="agent-page">
+            <div class="agent-shell">
+                <div class="agent-header">
+                    <h2 class="agent-title">Demandes approuvees</h2>
+                    <p class="agent-subtitle">
+                        Retrouvez ici les reservations deja approuvees et pretes a etre servies. L'encaissement doit etre trace avant le check-out du materiel.
                     </p>
+                </div>
 
-                    <h:panelGroup rendered="#{empty agentCheckoutBean.approvedReservations}">
-                        <div class="br-empty">Aucune reservation approuvee n'est actuellement prete pour le check-out.</div>
-                    </h:panelGroup>
+                <h:messages globalOnly="true" showDetail="true" showSummary="true" styleClass="agent-messages" />
 
-                    <h:panelGroup rendered="#{not empty agentCheckoutBean.approvedReservations}">
-                        <h:form id="approvedRequestsForm">
-                            <div class="br-table-wrapper">
-                                <h:dataTable value="#{agentCheckoutBean.approvedReservations}" var="reservation" styleClass="br-table">
-                                    <h:column>
-                                        <f:facet name="header">Client</f:facet>
-                                        <div class="br-main">#{reservation.client.users.fullName}</div>
-                                        <div class="br-sub">#{reservation.client.users.email}</div>
-                                    </h:column>
+                <h:form id="approvedPageForm">
+                    <div class="agent-stack">
+                        <h:panelGroup id="approvedResults" layout="block">
+                            <div class="agent-card">
+                                <div class="agent-card-head">
+                                    <h3 class="agent-section-title">Reservations approuvees a servir</h3>
+                                    <p class="agent-section-subtitle">Encaissez d'abord la location et la caution, puis lancez le check-out quand le dossier est pret.</p>
+                                </div>
 
-                                    <h:column>
-                                        <f:facet name="header">Outil</f:facet>
-                                        <div class="br-main">#{reservation.tool.name}</div>
-                                        <div class="br-sub">Quantite : #{reservation.quantity}</div>
-                                    </h:column>
+                                <h:panelGroup rendered="#{empty agentCheckoutBean.approvedReservations}">
+                                    <div class="agent-empty">Aucune reservation approuvee n'est actuellement a servir.</div>
+                                </h:panelGroup>
 
-                                    <h:column>
-                                        <f:facet name="header">Periode</f:facet>
-                                        <div class="br-main">#{reservation.startDate} au #{reservation.endDate}</div>
-                                        <div class="br-sub">Approuvee le #{reservation.approvedAt}</div>
-                                    </h:column>
+                                <h:panelGroup rendered="#{not empty agentCheckoutBean.approvedReservations}">
+                                    <div class="agent-table-wrap">
+                                        <h:dataTable value="#{agentCheckoutBean.approvedReservations}" var="reservation" styleClass="agent-table">
+                                            <h:column>
+                                                <f:facet name="header">Client</f:facet>
+                                                <div class="agent-main">#{reservation.client.users.fullName}</div>
+                                                <div class="agent-sub">#{reservation.client.users.email}</div>
+                                            </h:column>
 
-                                    <h:column>
-                                        <f:facet name="header">Montants</f:facet>
-                                        <div class="br-main">
-                                            <h:outputText value="#{reservation.estimatedRentalAmount}">
-                                                <f:convertNumber pattern="#0.00" locale="fr_FR" />
-                                            </h:outputText> MAD
-                                        </div>
-                                        <div class="br-sub">
-                                            Caution :
-                                            <h:outputText value="#{reservation.estimatedDepositAmount}">
-                                                <f:convertNumber pattern="#0.00" locale="fr_FR" />
-                                            </h:outputText> MAD
-                                        </div>
-                                    </h:column>
+                                            <h:column>
+                                                <f:facet name="header">Outil</f:facet>
+                                                <div class="agent-tool">
+                                                    <div class="agent-tool-image-shell">
+                                                        <h:graphicImage library="images" name="tools/#{agentCheckoutBean.imageName(reservation)}" alt="#{reservation.tool.name}" styleClass="agent-tool-image" />
+                                                    </div>
+                                                    <div>
+                                                        <div class="agent-main">#{reservation.tool.name}</div>
+                                                        <div class="agent-sub">Quantite : #{reservation.quantity}</div>
+                                                    </div>
+                                                </div>
+                                            </h:column>
 
-                                    <h:column>
-                                        <f:facet name="header">Statut</f:facet>
-                                        <div class="br-value-stack">
-                                            <span class="br-badge info">Approuvee</span>
-                                            <span class="br-badge #{agentCheckoutBean.paymentStateTone(reservation)}">#{agentCheckoutBean.paymentStateLabel(reservation)}</span>
-                                        </div>
-                                    </h:column>
+                                            <h:column>
+                                                <f:facet name="header">Periode</f:facet>
+                                                <div class="agent-main">#{reservation.startDate} - #{reservation.endDate}</div>
+                                                <div class="agent-sub">Approuvee le #{reservation.approvedAt}</div>
+                                            </h:column>
 
-                                    <h:column>
-                                        <f:facet name="header">Action</f:facet>
-                                        <h:commandButton value="Encaisser"
-                                                         action="#{agentCheckoutBean.encaisserAvantCheckout(reservation.id)}"
-                                                         rendered="#{agentCheckoutBean.requiresPayment(reservation)}"
-                                                         onclick="return confirm('Confirmer l''encaissement de la location et de la caution pour cette reservation ?');"
-                                                         styleClass="br-button br-button-primary" />
-                                        <h:commandButton value="Effectuer le check-out"
-                                                         action="#{agentCheckoutBean.checkout(reservation.id)}"
-                                                         rendered="#{agentCheckoutBean.canCheckout(reservation)}"
-                                                         onclick="return confirm('Confirmer la sortie du materiel pour cette reservation ?');"
-                                                         styleClass="br-button br-button-primary" />
-                                    </h:column>
-                                </h:dataTable>
+                                            <h:column>
+                                                <f:facet name="header">Montants</f:facet>
+                                                <div class="agent-money-main"><h:outputText value="#{reservation.estimatedRentalAmount}"><f:convertNumber pattern="#0.00" locale="fr_FR" /></h:outputText> MAD</div>
+                                                <div class="agent-sub">Caution : <h:outputText value="#{reservation.estimatedDepositAmount}"><f:convertNumber pattern="#0.00" locale="fr_FR" /></h:outputText> MAD</div>
+                                            </h:column>
+
+                                            <h:column>
+                                                <f:facet name="header">Statut</f:facet>
+                                                <div class="agent-badge-stack">
+                                                    <span class="agent-badge info">Approuvee</span>
+                                                    <span class="agent-badge #{agentCheckoutBean.paymentStateTone(reservation)}">#{agentCheckoutBean.paymentStateLabel(reservation)}</span>
+                                                </div>
+                                            </h:column>
+
+                                            <h:column>
+                                                <f:facet name="header">Actions</f:facet>
+                                                <div class="agent-actions">
+                                                    <h:commandButton value="Encaisser"
+                                                                     action="#{agentCheckoutBean.encaisserAvantCheckout(reservation.id)}"
+                                                                     rendered="#{agentCheckoutBean.requiresPayment(reservation)}"
+                                                                     onclick="return confirm('Confirmer l''encaissement de la location et de la caution pour cette reservation ?');"
+                                                                     styleClass="agent-button agent-button-primary" />
+                                                    <h:commandButton value="Effectuer le check-out"
+                                                                     action="#{agentCheckoutBean.checkout(reservation.id)}"
+                                                                     rendered="#{agentCheckoutBean.canCheckout(reservation)}"
+                                                                     onclick="return confirm('Confirmer la sortie du materiel pour cette reservation ?');"
+                                                                     styleClass="agent-button agent-button-primary" />
+                                                </div>
+                                            </h:column>
+                                        </h:dataTable>
+                                    </div>
+                                </h:panelGroup>
                             </div>
-                        </h:form>
-                    </h:panelGroup>
-                </div>
+                        </h:panelGroup>
 
-                <div class="br-card">
-                    <h3 class="br-section-title">Historique de mes check-outs</h3>
-                    <p class="br-section-subtitle">
-                        Consultez ici uniquement les reservations que vous avez vous-meme servies en check-out.
-                    </p>
+                        <h:panelGroup id="historyResults" layout="block">
+                            <div class="agent-card">
+                                <div class="agent-card-head">
+                                    <h3 class="agent-section-title">Historique de mes check-outs</h3>
+                                    <p class="agent-section-subtitle">Consultez ici uniquement les reservations que vous avez vous-meme servies en check-out.</p>
+                                </div>
 
-                    <h:panelGroup rendered="#{empty agentCheckoutBean.checkoutHistory}">
-                        <div class="br-empty">Aucun check-out enregistre pour cet agent pour le moment.</div>
-                    </h:panelGroup>
-
-                    <h:panelGroup rendered="#{not empty agentCheckoutBean.checkoutHistory}">
-                        <div class="br-table-wrapper">
-                            <h:dataTable value="#{agentCheckoutBean.checkoutHistory}" var="reservation" styleClass="br-table">
-                                <h:column>
-                                    <f:facet name="header">Client</f:facet>
-                                    <div class="br-main">#{reservation.client.users.fullName}</div>
-                                    <div class="br-sub">#{reservation.client.users.email}</div>
-                                </h:column>
-
-                                <h:column>
-                                    <f:facet name="header">Outil</f:facet>
-                                    <div class="br-main">#{reservation.tool.name}</div>
-                                    <div class="br-sub">Quantite : #{reservation.quantity}</div>
-                                </h:column>
-
-                                <h:column>
-                                    <f:facet name="header">Periode</f:facet>
-                                    <div class="br-main">#{reservation.startDate} au #{reservation.endDate}</div>
-                                    <div class="br-sub">Check-out le #{reservation.checkedOutAt}</div>
-                                </h:column>
-
-                                <h:column>
-                                    <f:facet name="header">Montants</f:facet>
-                                    <div class="br-main">
-                                        <h:outputText value="#{reservation.estimatedRentalAmount}">
-                                            <f:convertNumber pattern="#0.00" locale="fr_FR" />
-                                        </h:outputText> MAD
+                                <div class="agent-card-toolbar">
+                                    <div class="agent-search-row">
+                                        <h:inputText id="historySearch" value="#{agentCheckoutBean.searchKeyword}" styleClass="agent-search" pt:placeholder="Rechercher un check-out...">
+                                            <f:ajax event="keyup" render="historyList historyFilterPills" />
+                                        </h:inputText>
                                     </div>
-                                    <div class="br-sub">
-                                        Caution :
-                                        <h:outputText value="#{reservation.estimatedDepositAmount}">
-                                            <f:convertNumber pattern="#0.00" locale="fr_FR" />
-                                        </h:outputText> MAD
-                                    </div>
-                                </h:column>
 
-                                <h:column>
-                                    <f:facet name="header">Statut</f:facet>
-                                    <span class="br-badge #{agentCheckoutBean.statusTone(reservation)}">#{agentCheckoutBean.displayStatus(reservation)}</span>
-                                </h:column>
-                            </h:dataTable>
-                        </div>
-                    </h:panelGroup>
-                </div>
+                                    <h:panelGroup id="historyFilterPills" layout="block">
+                                        <div class="agent-filters">
+                                            <h:commandLink value="Toutes" action="#{agentCheckoutBean.applyFilter}" styleClass="agent-pill #{agentCheckoutBean.filterActive('') ? 'active' : ''}">
+                                                <f:setPropertyActionListener target="#{agentCheckoutBean.selectedFilter}" value="" />
+                                                <f:ajax render="historyList historyFilterPills" />
+                                            </h:commandLink>
+                                            <h:commandLink value="Check-out effectues" action="#{agentCheckoutBean.applyFilter}" styleClass="agent-pill #{agentCheckoutBean.filterActive('CHECKED_OUT') ? 'active' : ''}">
+                                                <f:setPropertyActionListener target="#{agentCheckoutBean.selectedFilter}" value="CHECKED_OUT" />
+                                                <f:ajax render="historyList historyFilterPills" />
+                                            </h:commandLink>
+                                            <h:commandLink value="Retournees" action="#{agentCheckoutBean.applyFilter}" styleClass="agent-pill #{agentCheckoutBean.filterActive('RETURNED') ? 'active' : ''}">
+                                                <f:setPropertyActionListener target="#{agentCheckoutBean.selectedFilter}" value="RETURNED" />
+                                                <f:ajax render="historyList historyFilterPills" />
+                                            </h:commandLink>
+                                        </div>
+                                    </h:panelGroup>
+                                </div>
+
+                                <h:panelGroup id="historyList" layout="block">
+                                    <h:panelGroup rendered="#{empty agentCheckoutBean.filteredCheckoutHistory}">
+                                        <div class="agent-empty">Aucun check-out ne correspond a votre recherche ou au filtre selectionne.</div>
+                                    </h:panelGroup>
+
+                                    <h:panelGroup rendered="#{not empty agentCheckoutBean.filteredCheckoutHistory}">
+                                        <div class="agent-table-wrap">
+                                            <h:dataTable value="#{agentCheckoutBean.filteredCheckoutHistory}" var="reservation" styleClass="agent-table">
+                                                <h:column>
+                                                    <f:facet name="header">Client</f:facet>
+                                                    <div class="agent-main">#{reservation.client.users.fullName}</div>
+                                                    <div class="agent-sub">#{reservation.client.users.email}</div>
+                                                </h:column>
+
+                                                <h:column>
+                                                    <f:facet name="header">Outil</f:facet>
+                                                    <div class="agent-tool">
+                                                        <div class="agent-tool-image-shell">
+                                                            <h:graphicImage library="images" name="tools/#{agentCheckoutBean.imageName(reservation)}" alt="#{reservation.tool.name}" styleClass="agent-tool-image" />
+                                                        </div>
+                                                        <div>
+                                                            <div class="agent-main">#{reservation.tool.name}</div>
+                                                            <div class="agent-sub">Quantite : #{reservation.quantity}</div>
+                                                        </div>
+                                                    </div>
+                                                </h:column>
+
+                                                <h:column>
+                                                    <f:facet name="header">Periode</f:facet>
+                                                    <div class="agent-main">#{reservation.startDate} - #{reservation.endDate}</div>
+                                                    <div class="agent-sub">Check-out le #{reservation.checkedOutAt}</div>
+                                                </h:column>
+
+                                                <h:column>
+                                                    <f:facet name="header">Montants</f:facet>
+                                                    <div class="agent-money-main"><h:outputText value="#{reservation.estimatedRentalAmount}"><f:convertNumber pattern="#0.00" locale="fr_FR" /></h:outputText> MAD</div>
+                                                    <div class="agent-sub">Caution : <h:outputText value="#{reservation.estimatedDepositAmount}"><f:convertNumber pattern="#0.00" locale="fr_FR" /></h:outputText> MAD</div>
+                                                </h:column>
+
+                                                <h:column>
+                                                    <f:facet name="header">Statut</f:facet>
+                                                    <span class="agent-badge #{agentCheckoutBean.statusTone(reservation)}">#{agentCheckoutBean.displayStatus(reservation)}</span>
+                                                </h:column>
+                                            </h:dataTable>
+                                        </div>
+                                    </h:panelGroup>
+                                </h:panelGroup>
+                            </div>
+                        </h:panelGroup>
+                    </div>
+                </h:form>
             </div>
         </div>
     </ui:define>

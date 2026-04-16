@@ -3,7 +3,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="jakarta.faces.html"
       xmlns:f="jakarta.faces.core"
-      xmlns:ui="jakarta.faces.facelets">
+      xmlns:ui="jakarta.faces.facelets"
+      xmlns:pt="jakarta.faces.passthrough">
 
 <ui:composition template="/templates/layout.xhtml">
 
@@ -11,151 +12,200 @@
 
     <ui:define name="content">
         <style>
-            .pending-page { padding: 2rem; color: #1e293b; }
-            .pending-header { margin-bottom: 1.8rem; }
-            .pending-title { margin: 0; font-size: 2rem; font-weight: 900; color: #0f172a; }
-            .pending-subtitle { margin: 0.6rem 0 0 0; color: #64748b; line-height: 1.7; max-width: 820px; }
-            .pending-card { background: linear-gradient(180deg, #ffffff, #f8fafc); border: 1px solid rgba(148,163,184,0.18); border-radius: 22px; box-shadow: 0 18px 44px rgba(15,23,42,0.10); padding: 1.5rem; }
-            .pending-section-title { margin: 0 0 1rem 0; font-size: 1.2rem; font-weight: 900; color: #0f172a; }
-            .pending-section-subtitle { margin: 0 0 1.2rem 0; color: #64748b; line-height: 1.6; }
-            .pending-table { width: 100%; border-collapse: collapse; }
-            .pending-table th, .pending-table td { padding: 0.9rem 0.7rem; text-align: left; border-bottom: 1px solid #e2e8f0; vertical-align: top; }
-            .pending-table th { color: #475569; font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.04em; }
-            .pending-main { font-weight: 800; color: #0f172a; }
-            .pending-sub { color: #64748b; font-size: 0.92rem; }
-            .pending-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 120px; padding: 0.45rem 0.7rem; border-radius: 999px; font-size: 0.8rem; font-weight: 800; color: #b45309; background: rgba(245,158,11,0.16); }
-            .pending-badge.success { color: #16a34a; background: rgba(34,197,94,0.14); }
-            .pending-badge.danger { color: #dc2626; background: rgba(239,68,68,0.15); }
-            .pending-badge.info { color: #0284c7; background: rgba(14,165,233,0.12); }
-            .pending-badge.neutral { color: #475569; background: rgba(148,163,184,0.15); }
-            .pending-actions { display: flex; flex-direction: column; gap: 0.55rem; align-items: flex-start; }
-            .pending-link { color: #2563eb; font-weight: 800; text-decoration: none; }
-            .pending-button { border: none; background: none; padding: 0; font-weight: 800; cursor: pointer; }
-            .pending-button-approve { color: #16a34a; }
-            .pending-button-reject { color: #dc2626; }
-            .pending-empty { padding: 1.25rem; border-radius: 16px; background: #ffffff; border: 1px dashed #cbd5e1; color: #64748b; text-align: center; }
-            .pending-messages { color: #e94560; font-weight: 700; list-style: none; padding: 0 0 1rem 0; }
-            .pending-stack { display: grid; gap: 1.5rem; }
+            .agent-page { padding: 2rem; color: #1e293b; background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(247,250,252,0.95)), linear-gradient(90deg, rgba(148,163,184,0.12) 1px, transparent 1px), linear-gradient(rgba(148,163,184,0.12) 1px, transparent 1px); background-size: auto, 120px 120px, 120px 120px; border-radius: 28px; }
+            .agent-shell { max-width: 1240px; margin: 0 auto; }
+            .agent-header { margin-bottom: 1.35rem; }
+            .agent-title { margin: 0; font-size: 2.65rem; line-height: 1.05; font-weight: 900; letter-spacing: -0.04em; color: #0f172a; }
+            .agent-subtitle { margin: 0.7rem 0 0 0; color: #52627a; line-height: 1.7; max-width: 900px; font-size: 1rem; }
+            .agent-toolbar, .agent-card-toolbar { display: flex; flex-direction: column; gap: 0.9rem; }
+            .agent-card-toolbar { padding: 0 1.2rem 1rem; }
+            .agent-search-row { display: grid; grid-template-columns: minmax(0, 1fr); max-width: 420px; }
+            .agent-search { width: 100%; border: 1px solid rgba(148,163,184,0.28); background: rgba(255,255,255,0.96); color: #0f172a; border-radius: 16px; padding: 0.95rem 1rem; font-size: 0.96rem; box-sizing: border-box; box-shadow: 0 10px 30px rgba(148,163,184,0.12); }
+            .agent-search:focus, .agent-search:focus-visible { outline: none; border-color: #5ab7b2; box-shadow: 0 0 0 4px rgba(90,183,178,0.16); background: #ffffff; }
+            .agent-filters { display: flex; flex-wrap: wrap; gap: 0.7rem; align-items: center; }
+            .agent-pill { display: inline-flex; align-items: center; justify-content: center; padding: 0.6rem 1rem; border-radius: 999px; border: 1px solid rgba(203,213,225,0.95); background: rgba(255,255,255,0.9); color: #475569; text-decoration: none; font-weight: 700; font-size: 0.92rem; box-shadow: 0 8px 20px rgba(148,163,184,0.12); }
+            .agent-pill.active { background: linear-gradient(135deg, rgba(105,199,191,0.28), rgba(136,225,216,0.34)); border-color: rgba(90,183,178,0.34); color: #0f766e; }
+            .agent-stack { display: grid; gap: 1.4rem; }
+            .agent-card { background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(251,253,255,0.98)); border: 1px solid rgba(226,232,240,0.95); border-radius: 28px; box-shadow: 0 18px 48px rgba(15,23,42,0.08); padding: 1.2rem 0 0.2rem; overflow: hidden; }
+            .agent-card-head { padding: 0 1.2rem 1rem; }
+            .agent-section-title { margin: 0; font-size: 1.45rem; font-weight: 850; color: #0f172a; letter-spacing: -0.03em; }
+            .agent-section-subtitle { margin: 0.55rem 0 0 0; color: #64748b; line-height: 1.6; }
+            .agent-empty { padding: 2rem; margin: 0 1.2rem 1rem; border-radius: 20px; background: rgba(255,255,255,0.94); border: 1px dashed #cbd5e1; color: #64748b; text-align: center; }
+            .agent-messages { color: #e94560; font-weight: 700; list-style: none; padding: 0 0 1rem 0; margin: 0; }
+            .agent-table-wrap { width: 100%; overflow-x: auto; }
+            .agent-table { width: 100%; border-collapse: collapse; min-width: 1080px; }
+            .agent-table th, .agent-table td { padding: 1.05rem 1rem; text-align: left; border-bottom: 1px solid rgba(226,232,240,0.92); vertical-align: top; }
+            .agent-table th { color: #334155; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 800; background: rgba(255,255,255,0.88); }
+            .agent-tool { display: flex; gap: 0.85rem; align-items: flex-start; }
+            .agent-tool-image-shell { width: 54px; height: 54px; border-radius: 14px; border: 1px solid rgba(226,232,240,0.95); background: linear-gradient(180deg, #f7f3e9, #fffdf8); display: flex; align-items: center; justify-content: center; padding: 0.35rem; flex: 0 0 auto; }
+            .agent-tool-image { width: 100%; height: 100%; object-fit: contain; object-position: center; display: block; }
+            .agent-main { font-weight: 850; color: #0f172a; font-size: 1.05rem; line-height: 1.15; }
+            .agent-sub { color: #64748b; font-size: 0.92rem; margin-top: 0.2rem; line-height: 1.45; }
+            .agent-money-main { font-weight: 800; color: #0b4f93; font-size: 1.12rem; }
+            .agent-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 126px; padding: 0.5rem 0.82rem; border-radius: 999px; font-size: 0.82rem; font-weight: 800; white-space: nowrap; }
+            .agent-badge.warning { color: #b45309; background: rgba(245,158,11,0.16); }
+            .agent-badge.info { color: #0284c7; background: rgba(14,165,233,0.12); }
+            .agent-badge.success { color: #0f766e; background: rgba(94,234,212,0.22); }
+            .agent-badge.danger { color: #dc2626; background: rgba(239,68,68,0.15); }
+            .agent-actions { display: flex; flex-direction: column; gap: 0.65rem; align-items: flex-start; }
+            .agent-button { border: none; background: none; padding: 0; font-weight: 800; cursor: pointer; }
+            .agent-button-approve { color: #16a34a; }
+            .agent-button-reject { color: #dc2626; }
+            @media (max-width: 720px) { .agent-page { padding: 1rem; } .agent-title { font-size: 2rem; } }
         </style>
 
-        <div class="pending-page">
-            <div class="pending-header">
-                <h2 class="pending-title">Demandes en attente</h2>
-                <p class="pending-subtitle">
-                    Traitez les demandes qui necessitent une validation manuelle. Vous pouvez les approuver ou les rejeter
-                    selon le contexte de location et le profil du client.
-                </p>
-            </div>
-
-            <h:messages globalOnly="true" showDetail="true" showSummary="true" styleClass="pending-messages" />
-
-            <div class="pending-stack">
-                <div class="pending-card">
-                    <h3 class="pending-section-title">Demandes a traiter</h3>
-                    <p class="pending-section-subtitle">
-                        Liste des demandes encore en attente de validation manuelle.
-                    </p>
-
-                    <h:panelGroup rendered="#{empty agentReservationBean.pendingReservations}">
-                        <div class="pending-empty">Aucune demande en attente de validation pour le moment.</div>
-                    </h:panelGroup>
-
-                    <h:panelGroup rendered="#{not empty agentReservationBean.pendingReservations}">
-                        <h:form id="pendingRequestsForm">
-                            <h:dataTable value="#{agentReservationBean.pendingReservations}" var="reservation" styleClass="pending-table">
-                                <h:column>
-                                    <f:facet name="header">Client</f:facet>
-                                    <div class="pending-main">#{reservation.client.users.fullName}</div>
-                                    <div class="pending-sub">#{reservation.client.users.email}</div>
-                                </h:column>
-
-                                <h:column>
-                                    <f:facet name="header">Outil</f:facet>
-                                    <div class="pending-main">#{reservation.tool.name}</div>
-                                    <div class="pending-sub">Quantite : #{reservation.quantity}</div>
-                                </h:column>
-
-                                <h:column>
-                                    <f:facet name="header">Periode</f:facet>
-                                    <div class="pending-main">#{reservation.startDate} au #{reservation.endDate}</div>
-                                    <div class="pending-sub">Creee le #{reservation.reservationDate}</div>
-                                </h:column>
-
-                                <h:column>
-                                    <f:facet name="header">Montants</f:facet>
-                                    <div class="pending-main">
-                                        <h:outputText value="#{reservation.estimatedRentalAmount}">
-                                            <f:convertNumber pattern="#0.00" locale="fr_FR" />
-                                            </h:outputText> MAD
-                                    </div>
-                                    <div class="pending-sub">
-                                        Caution :
-                                        <h:outputText value="#{reservation.estimatedDepositAmount}">
-                                            <f:convertNumber pattern="#0.00" locale="fr_FR" />
-                                            </h:outputText> MAD
-                                    </div>
-                                </h:column>
-
-                                <h:column>
-                                    <f:facet name="header">Statut</f:facet>
-                                    <span class="pending-badge">En attente</span>
-                                </h:column>
-
-                                <h:column>
-                                    <f:facet name="header">Actions</f:facet>
-                                    <div class="pending-actions">
-                                        <h:commandButton value="Approuver"
-                                                         action="#{agentReservationBean.approve(reservation.id)}"
-                                                         styleClass="pending-button pending-button-approve" />
-                                        <h:commandButton value="Rejeter"
-                                                         action="#{agentReservationBean.reject(reservation.id)}"
-                                                         onclick="return confirm('Voulez-vous vraiment rejeter cette demande ?');"
-                                                         styleClass="pending-button pending-button-reject" />
-                                    </div>
-                                </h:column>
-                            </h:dataTable>
-                        </h:form>
-                    </h:panelGroup>
+        <div class="agent-page">
+            <div class="agent-shell">
+                <div class="agent-header">
+                    <h2 class="agent-title">Demandes en attente</h2>
+                    <p class="agent-subtitle">Traitez les demandes qui necessitent une validation manuelle et suivez ensuite l'historique de vos decisions.</p>
                 </div>
 
-                <div class="pending-card">
-                    <h3 class="pending-section-title">Historique de mes validations</h3>
-                    <p class="pending-section-subtitle">
-                        Retrouvez ici les demandes deja traitees par votre compte agent, qu'elles aient ete approuvees ou rejetees.
-                    </p>
+                <h:messages globalOnly="true" showDetail="true" showSummary="true" styleClass="agent-messages" />
 
-                    <h:panelGroup rendered="#{empty agentReservationBean.handledReservations}">
-                        <div class="pending-empty">Aucune demande traitee par cet agent pour le moment.</div>
-                    </h:panelGroup>
+                <h:form id="pendingPageForm">
+                    <div class="agent-stack">
+                        <h:panelGroup id="pendingResults" layout="block">
+                            <div class="agent-card">
+                                <div class="agent-card-head">
+                                    <h3 class="agent-section-title">Demandes a traiter</h3>
+                                    <p class="agent-section-subtitle">Liste des demandes encore en attente de validation manuelle.</p>
+                                </div>
 
-                    <h:panelGroup rendered="#{not empty agentReservationBean.handledReservations}">
-                        <h:dataTable value="#{agentReservationBean.handledReservations}" var="reservation" styleClass="pending-table">
-                            <h:column>
-                                <f:facet name="header">Client</f:facet>
-                                <div class="pending-main">#{reservation.client.users.fullName}</div>
-                                <div class="pending-sub">#{reservation.client.users.email}</div>
-                            </h:column>
+                                <h:panelGroup rendered="#{empty agentReservationBean.pendingReservations}">
+                                    <div class="agent-empty">Aucune demande n'est actuellement en attente de traitement.</div>
+                                </h:panelGroup>
 
-                            <h:column>
-                                <f:facet name="header">Outil</f:facet>
-                                <div class="pending-main">#{reservation.tool.name}</div>
-                                <div class="pending-sub">Quantite : #{reservation.quantity}</div>
-                            </h:column>
+                                <h:panelGroup rendered="#{not empty agentReservationBean.pendingReservations}">
+                                    <div class="agent-table-wrap">
+                                        <h:dataTable value="#{agentReservationBean.pendingReservations}" var="reservation" styleClass="agent-table">
+                                            <h:column>
+                                                <f:facet name="header">Client</f:facet>
+                                                <div class="agent-main">#{reservation.client.users.fullName}</div>
+                                                <div class="agent-sub">#{reservation.client.users.email}</div>
+                                            </h:column>
 
-                            <h:column>
-                                <f:facet name="header">Decision</f:facet>
-                                <span class="pending-badge #{agentReservationBean.statusTone(reservation)}">#{agentReservationBean.displayStatus(reservation)}</span>
-                                <div class="pending-sub" style="margin-top:0.5rem;">#{agentReservationBean.decisionReason(reservation)}</div>
-                            </h:column>
+                                            <h:column>
+                                                <f:facet name="header">Outil</f:facet>
+                                                <div class="agent-tool">
+                                                    <div class="agent-tool-image-shell">
+                                                        <h:graphicImage library="images" name="tools/#{agentReservationBean.imageName(reservation)}" alt="#{reservation.tool.name}" styleClass="agent-tool-image" />
+                                                    </div>
+                                                    <div>
+                                                        <div class="agent-main">#{reservation.tool.name}</div>
+                                                        <div class="agent-sub">Quantite : #{reservation.quantity}</div>
+                                                    </div>
+                                                </div>
+                                            </h:column>
 
-                            <h:column>
-                                <f:facet name="header">Date</f:facet>
-                                <div class="pending-main">#{reservation.approvedAt != null ? reservation.approvedAt : reservation.reservationDate}</div>
-                                <div class="pending-sub">Demande du #{reservation.startDate} au #{reservation.endDate}</div>
-                            </h:column>
-                        </h:dataTable>
-                    </h:panelGroup>
-                </div>
+                                            <h:column>
+                                                <f:facet name="header">Periode</f:facet>
+                                                <div class="agent-main">#{reservation.startDate} - #{reservation.endDate}</div>
+                                                <div class="agent-sub">Creee le #{reservation.reservationDate}</div>
+                                            </h:column>
+
+                                            <h:column>
+                                                <f:facet name="header">Montants</f:facet>
+                                                <div class="agent-money-main"><h:outputText value="#{reservation.estimatedRentalAmount}"><f:convertNumber pattern="#0.00" locale="fr_FR" /></h:outputText> MAD</div>
+                                                <div class="agent-sub">Caution : <h:outputText value="#{reservation.estimatedDepositAmount}"><f:convertNumber pattern="#0.00" locale="fr_FR" /></h:outputText> MAD</div>
+                                            </h:column>
+
+                                            <h:column>
+                                                <f:facet name="header">Statut</f:facet>
+                                                <span class="agent-badge warning">En attente</span>
+                                            </h:column>
+
+                                            <h:column>
+                                                <f:facet name="header">Actions</f:facet>
+                                                <div class="agent-actions">
+                                                    <h:commandButton value="Approuver" action="#{agentReservationBean.approve(reservation.id)}" styleClass="agent-button agent-button-approve" />
+                                                    <h:commandButton value="Rejeter" action="#{agentReservationBean.reject(reservation.id)}" onclick="return confirm('Voulez-vous vraiment rejeter cette demande ?');" styleClass="agent-button agent-button-reject" />
+                                                </div>
+                                            </h:column>
+                                        </h:dataTable>
+                                    </div>
+                                </h:panelGroup>
+                            </div>
+                        </h:panelGroup>
+
+                        <h:panelGroup id="historyResults" layout="block">
+                            <div class="agent-card">
+                                <div class="agent-card-head">
+                                    <h3 class="agent-section-title">Historique de mes validations</h3>
+                                    <p class="agent-section-subtitle">Retrouvez ici les demandes deja traitees par votre compte agent.</p>
+                                </div>
+
+                                <div class="agent-card-toolbar">
+                                    <div class="agent-search-row">
+                                        <h:inputText id="historySearch" value="#{agentReservationBean.searchKeyword}" styleClass="agent-search" pt:placeholder="Rechercher une validation...">
+                                            <f:ajax event="keyup" render="historyList historyFilterPills" />
+                                        </h:inputText>
+                                    </div>
+
+                                    <h:panelGroup id="historyFilterPills" layout="block">
+                                        <div class="agent-filters">
+                                            <h:commandLink value="Toutes" action="#{agentReservationBean.applyFilter}" styleClass="agent-pill #{agentReservationBean.filterActive('') ? 'active' : ''}">
+                                                <f:setPropertyActionListener target="#{agentReservationBean.selectedFilter}" value="" />
+                                                <f:ajax render="historyList historyFilterPills" />
+                                            </h:commandLink>
+                                            <h:commandLink value="Approuvees" action="#{agentReservationBean.applyFilter}" styleClass="agent-pill #{agentReservationBean.filterActive('APPROVED') ? 'active' : ''}">
+                                                <f:setPropertyActionListener target="#{agentReservationBean.selectedFilter}" value="APPROVED" />
+                                                <f:ajax render="historyList historyFilterPills" />
+                                            </h:commandLink>
+                                            <h:commandLink value="Rejetees" action="#{agentReservationBean.applyFilter}" styleClass="agent-pill #{agentReservationBean.filterActive('REJECTED') ? 'active' : ''}">
+                                                <f:setPropertyActionListener target="#{agentReservationBean.selectedFilter}" value="REJECTED" />
+                                                <f:ajax render="historyList historyFilterPills" />
+                                            </h:commandLink>
+                                        </div>
+                                    </h:panelGroup>
+                                </div>
+
+                                <h:panelGroup id="historyList" layout="block">
+                                    <h:panelGroup rendered="#{empty agentReservationBean.filteredHandledReservations}">
+                                        <div class="agent-empty">Aucune demande traitee ne correspond a votre recherche ou au filtre selectionne.</div>
+                                    </h:panelGroup>
+
+                                    <h:panelGroup rendered="#{not empty agentReservationBean.filteredHandledReservations}">
+                                        <div class="agent-table-wrap">
+                                            <h:dataTable value="#{agentReservationBean.filteredHandledReservations}" var="reservation" styleClass="agent-table">
+                                                <h:column>
+                                                    <f:facet name="header">Client</f:facet>
+                                                    <div class="agent-main">#{reservation.client.users.fullName}</div>
+                                                    <div class="agent-sub">#{reservation.client.users.email}</div>
+                                                </h:column>
+
+                                                <h:column>
+                                                    <f:facet name="header">Outil</f:facet>
+                                                    <div class="agent-tool">
+                                                        <div class="agent-tool-image-shell">
+                                                            <h:graphicImage library="images" name="tools/#{agentReservationBean.imageName(reservation)}" alt="#{reservation.tool.name}" styleClass="agent-tool-image" />
+                                                        </div>
+                                                        <div>
+                                                            <div class="agent-main">#{reservation.tool.name}</div>
+                                                            <div class="agent-sub">Quantite : #{reservation.quantity}</div>
+                                                        </div>
+                                                    </div>
+                                                </h:column>
+
+                                                <h:column>
+                                                    <f:facet name="header">Decision</f:facet>
+                                                    <span class="agent-badge #{agentReservationBean.statusTone(reservation)}">#{agentReservationBean.displayStatus(reservation)}</span>
+                                                    <div class="agent-sub">#{agentReservationBean.decisionReason(reservation)}</div>
+                                                </h:column>
+
+                                                <h:column>
+                                                    <f:facet name="header">Date</f:facet>
+                                                    <div class="agent-main">#{reservation.approvedAt != null ? reservation.approvedAt : reservation.reservationDate}</div>
+                                                    <div class="agent-sub">Demande du #{reservation.startDate} au #{reservation.endDate}</div>
+                                                </h:column>
+                                            </h:dataTable>
+                                        </div>
+                                    </h:panelGroup>
+                                </h:panelGroup>
+                            </div>
+                        </h:panelGroup>
+                    </div>
+                </h:form>
             </div>
         </div>
     </ui:define>

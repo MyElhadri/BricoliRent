@@ -17,8 +17,10 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 @Named("agentPaymentBean")
 @ViewScoped
@@ -35,6 +37,8 @@ public class AgentPaymentBean implements Serializable {
 
     private List<PaymentRow> paymentRows = Collections.emptyList();
     private List<Payment> paymentHistory = Collections.emptyList();
+    private String selectedFilter;
+    private String searchKeyword;
 
     @PostConstruct
     public void init() {
@@ -160,6 +164,52 @@ public class AgentPaymentBean implements Serializable {
         return paymentHistory;
     }
 
+    public List<PaymentRow> getFilteredPaymentRows() {
+        return paymentRows;
+    }
+
+    public List<Payment> getFilteredPaymentHistory() {
+        return paymentHistory.stream()
+                .filter(this::matchesHistorySearch)
+                .filter(this::matchesPaidFilter)
+                .collect(Collectors.toList());
+    }
+
+    public String getSelectedFilter() {
+        return selectedFilter;
+    }
+
+    public void setSelectedFilter(String selectedFilter) {
+        this.selectedFilter = selectedFilter;
+    }
+
+    public String getSearchKeyword() {
+        return searchKeyword;
+    }
+
+    public void setSearchKeyword(String searchKeyword) {
+        this.searchKeyword = searchKeyword;
+    }
+
+    public void applyFilter() {
+        // Filtrage calcule a la demande.
+    }
+
+    public boolean filterActive(String filterKey) {
+        if (filterKey == null || filterKey.isBlank()) {
+            return selectedFilter == null || selectedFilter.isBlank();
+        }
+        return filterKey.equalsIgnoreCase(selectedFilter);
+    }
+
+    public String imageName(PaymentRow row) {
+        return row == null ? "default-tool.jpg" : imageName(row.getReservation());
+    }
+
+    public String imageName(Payment payment) {
+        return payment == null ? "default-tool.jpg" : imageName(payment.getReservation());
+    }
+
     private void refreshData() {
         try {
             List<PaymentService.PaymentCandidate> paymentCandidates = paymentService.getPaymentCandidates();
@@ -194,6 +244,72 @@ public class AgentPaymentBean implements Serializable {
 
     private void addMessage(FacesMessage.Severity severity, String summary, String detail) {
         FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(severity, summary, detail));
+    }
+
+    private String imageName(Reservation reservation) {
+        if (reservation == null || reservation.getTool() == null || reservation.getTool().getImagePath() == null) {
+            return "default-tool.jpg";
+        }
+        String imagePath = reservation.getTool().getImagePath().trim();
+        return imagePath.isEmpty() ? "default-tool.jpg" : imagePath;
+    }
+
+    private boolean matchesRowSearch(PaymentRow row) {
+        if (searchKeyword == null || searchKeyword.isBlank()) {
+            return true;
+        }
+        if (row == null || row.getReservation() == null) {
+            return false;
+        }
+        String keyword = searchKeyword.toLowerCase(Locale.ROOT).trim();
+        String toolName = row.getReservation().getTool() != null && row.getReservation().getTool().getName() != null
+                ? row.getReservation().getTool().getName().toLowerCase(Locale.ROOT) : "";
+        String clientName = row.getReservation().getClient() != null
+                && row.getReservation().getClient().getUsers() != null
+                && row.getReservation().getClient().getUsers().getFullName() != null
+                ? row.getReservation().getClient().getUsers().getFullName().toLowerCase(Locale.ROOT) : "";
+        String reservationId = row.getReservation().getId() != null ? String.valueOf(row.getReservation().getId()) : "";
+        return toolName.contains(keyword) || clientName.contains(keyword) || reservationId.contains(keyword);
+    }
+
+    private boolean matchesHistorySearch(Payment payment) {
+        if (searchKeyword == null || searchKeyword.isBlank()) {
+            return true;
+        }
+        if (payment == null || payment.getReservation() == null) {
+            return false;
+        }
+        String keyword = searchKeyword.toLowerCase(Locale.ROOT).trim();
+        String toolName = payment.getReservation().getTool() != null && payment.getReservation().getTool().getName() != null
+                ? payment.getReservation().getTool().getName().toLowerCase(Locale.ROOT) : "";
+        String clientName = payment.getReservation().getClient() != null
+                && payment.getReservation().getClient().getUsers() != null
+                && payment.getReservation().getClient().getUsers().getFullName() != null
+                ? payment.getReservation().getClient().getUsers().getFullName().toLowerCase(Locale.ROOT) : "";
+        String reservationId = payment.getReservation().getId() != null ? String.valueOf(payment.getReservation().getId()) : "";
+        return toolName.contains(keyword) || clientName.contains(keyword) || reservationId.contains(keyword);
+    }
+
+    private boolean matchesDueFilter(PaymentRow row) {
+        return true;
+    }
+
+    private boolean matchesPaidFilter(Payment payment) {
+        if (selectedFilter == null || selectedFilter.isBlank()) {
+            return true;
+        }
+        if (payment == null) {
+            return false;
+        }
+        return switch (selectedFilter) {
+            case "PAID" -> true;
+            case "RENTAL" -> payment.getType() == PaymentType.RENTAL;
+            case "DEPOSIT" -> payment.getType() == PaymentType.DEPOSIT;
+            case "DUE" -> false;
+            case "LATE_PENALTY" -> payment.getType() == PaymentType.LATE_PENALTY;
+            case "REFUND" -> payment.getType() == PaymentType.REFUND;
+            default -> true;
+        };
     }
 
     public static class PaymentRow implements Serializable {

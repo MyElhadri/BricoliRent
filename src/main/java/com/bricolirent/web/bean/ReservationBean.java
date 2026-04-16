@@ -22,8 +22,10 @@ import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 @Named("reservationBean")
 @ViewScoped
@@ -52,6 +54,8 @@ public class ReservationBean implements Serializable {
     private Long reservationId;
     private Long toolId;
     private Reservation currentReservation;
+    private String selectedStatus;
+    private String searchKeyword;
 
     @PostConstruct
     public void init() {
@@ -242,6 +246,13 @@ public class ReservationBean implements Serializable {
         return reservations;
     }
 
+    public List<Reservation> getFilteredReservations() {
+        return reservations.stream()
+                .filter(this::matchesSelectedStatus)
+                .filter(this::matchesSearchKeyword)
+                .collect(Collectors.toList());
+    }
+
     public Long getOutilSelectionneId() {
         return outilSelectionneId;
     }
@@ -278,6 +289,22 @@ public class ReservationBean implements Serializable {
         return currentReservation;
     }
 
+    public String getSelectedStatus() {
+        return selectedStatus;
+    }
+
+    public void setSelectedStatus(String selectedStatus) {
+        this.selectedStatus = selectedStatus;
+    }
+
+    public String getSearchKeyword() {
+        return searchKeyword;
+    }
+
+    public void setSearchKeyword(String searchKeyword) {
+        this.searchKeyword = searchKeyword;
+    }
+
     public String getDecisionMotif(Reservation reservation) {
         if (reservation == null || reservation.getApprovalReason() == null || reservation.getApprovalReason().isBlank()) {
             return "Aucun motif detaille disponible.";
@@ -287,6 +314,29 @@ public class ReservationBean implements Serializable {
 
     public String decisionMotif(Reservation reservation) {
         return getDecisionMotif(reservation);
+    }
+
+    public void applyStatusFilter() {
+        // Le filtrage est calcule a la demande via getFilteredReservations().
+    }
+
+    public boolean isStatusFilterActive(String statusKey) {
+        if (statusKey == null || statusKey.isBlank()) {
+            return selectedStatus == null || selectedStatus.isBlank();
+        }
+        return statusKey.equalsIgnoreCase(selectedStatus);
+    }
+
+    public boolean statusFilterActive(String statusKey) {
+        return isStatusFilterActive(statusKey);
+    }
+
+    public String imageName(Reservation reservation) {
+        if (reservation == null || reservation.getTool() == null || reservation.getTool().getImagePath() == null) {
+            return "default-tool.jpg";
+        }
+        String imagePath = reservation.getTool().getImagePath().trim();
+        return imagePath.isEmpty() ? "default-tool.jpg" : imagePath;
     }
 
     private void chargerOutilsDisponibles() {
@@ -351,5 +401,26 @@ public class ReservationBean implements Serializable {
 
     private void addMessage(FacesMessage.Severity severity, String summary, String detail) {
         FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(severity, summary, detail));
+    }
+
+    private boolean matchesSelectedStatus(Reservation reservation) {
+        if (selectedStatus == null || selectedStatus.isBlank()) {
+            return true;
+        }
+        if (reservation == null || reservation.getStatus() == null) {
+            return false;
+        }
+        return reservation.getStatus().name().equalsIgnoreCase(selectedStatus);
+    }
+
+    private boolean matchesSearchKeyword(Reservation reservation) {
+        if (searchKeyword == null || searchKeyword.isBlank()) {
+            return true;
+        }
+        if (reservation == null || reservation.getTool() == null || reservation.getTool().getName() == null) {
+            return false;
+        }
+        String normalizedKeyword = searchKeyword.toLowerCase(Locale.ROOT).trim();
+        return reservation.getTool().getName().toLowerCase(Locale.ROOT).contains(normalizedKeyword);
     }
 }
